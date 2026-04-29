@@ -23,13 +23,17 @@ app.get('/', (req, res) => {
 });
 
 app.get('/db-status', async (req, res) => {
+  console.log('Received /db-status request');
   try {
+    console.log('Connecting to pool...');
     const client = await pool.connect();
+    console.log('Connected to pool, running query...');
     const result = await client.query('SELECT NOW()');
+    console.log('Query successful');
     client.release();
     res.json({ status: 'connected', time: result.rows[0].now });
   } catch (err) {
-    console.error(err);
+    console.error('DB connection error:', err);
     res.status(500).json({ status: 'error', message: err.message });
   }
 });
