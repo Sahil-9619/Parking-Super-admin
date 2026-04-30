@@ -1,14 +1,12 @@
+
+
 services:
   db:
     image: postgres:15
     container_name: parking-db
     restart: always
     env_file:
-      - .env
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      - ./backend/.env
     ports:
       - "5432:5432"
     volumes:
@@ -19,7 +17,7 @@ services:
     container_name: parking-backend
     restart: always
     env_file:
-      - .env
+      - ./backend/.env
     ports:
       - "5000:5000"
     volumes:
@@ -29,15 +27,12 @@ services:
     depends_on:
       - db
 
-  frontend: 
+  frontend:
     build: ./frontend
     container_name: parking-frontend
     restart: always
     env_file:
-      - .env
-    environment:
-      - PORT=3000
-      - CHOKIDAR_USEPOLLING=true
+      - ./frontend/.env
     ports:
       - "3000:3000"
     volumes:
