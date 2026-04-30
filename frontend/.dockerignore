@@ -1,7 +1,7 @@
 node_modules
-.next
-.git
-.env
 dist
-build
-*.log
+.env
+.git
+.gitignore
+README.md
+Dockerfile

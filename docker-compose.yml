@@ -22,10 +22,14 @@ services:
       - .env
     ports:
       - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: npm run dev
     depends_on:
       - db
 
-  frontend:
+  frontend: 
     build: ./frontend
     container_name: parking-frontend
     restart: always
@@ -33,8 +37,13 @@ services:
       - .env
     environment:
       - PORT=3000
+      - CHOKIDAR_USEPOLLING=true
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev
     depends_on:
       - backend
 
