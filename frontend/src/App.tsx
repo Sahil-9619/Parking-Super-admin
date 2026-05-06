@@ -1,35 +1,48 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+// Framer motion is now handled inside AdminLayout and individual components where needed
 import Login from './admin/Login';
 import Dashboard from './admin/Dashboard';
+import Owners from './admin/Owners';
+import NotFound from './admin/NotFound';
 import AdminLayout from './layout/AdminLayout';
 import ProtectedRoute from './routes/ProtectedRoute';
+import Users from './admin/Users';
+import Settings from './admin/Settings';
+
+// Navigation Wrapper is now handled inside AdminLayout for smoother sub-route transitions
+
+function AnimatedRoutes() {
+  return (
+    <Routes>
+      {/* Login page */}
+      <Route path="/" element={<Login />} />
+
+      {/* Admin routes */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="owners" element={<Owners />} />
+        <Route path="users" element={<Users />} />
+        <Route path="settings" element={<Settings />} />
+        {/* Catch-all for unimplemented admin routes */}
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
+  );
+}
 
 function App() {
   return (
     <Router>
       <Toaster position="top-right" reverseOrder={false} />
-
-
-      <Routes>
-        {/* Login page */}
-        <Route path="/" element={<Login />} />
-
-        {/* Admin routes */}
-        {/* Protected Admin Routes */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute>
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="dashboard" element={<Dashboard />} />
-          {/* <Route path="users" element={<UserList />} /> */}
-          {/* <Route path="owners" element={<OwnerList />} /> */}
-        </Route>
-      </Routes>
+      <AnimatedRoutes />
     </Router>
   );
 }

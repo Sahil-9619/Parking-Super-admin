@@ -1,23 +1,24 @@
+import React from 'react';
 import {
     LayoutDashboard,
     Users,
     MapPin,
     Layers,
-    ClipboardList,
-    Wallet,
     CalendarCheck,
     UserPlus,
     History,
-    Clock,
+    Wallet,
     Star,
     Settings,
     ChevronLeft,
     Menu,
     LogOut,
+    Building2,
     type LucideIcon
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import logo from '../assets/logo.png';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface SidebarProps {
     isCollapsed: boolean;
@@ -29,7 +30,6 @@ interface MenuItem {
     icon: LucideIcon;
     label: string;
     path: string;
-    active?: boolean;
 }
 
 interface MenuGroup {
@@ -37,60 +37,69 @@ interface MenuGroup {
     items: MenuItem[];
 }
 
-const menuItems: MenuGroup[] = [
+export const menuItems: MenuGroup[] = [
     {
-        group: 'OPERATIONS', items: [
-            { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard', active: true },
-            { icon: Users, label: 'Users', path: '/admin/users' },
-            { icon: MapPin, label: 'Parking Area', path: '/admin/area' },
-            { icon: Layers, label: 'Parking Zone', path: '/admin/zone' },
-            { icon: ClipboardList, label: 'Slot Management', path: '/admin/slots' },
+        group: 'OVERVIEW', items: [
+            { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
         ]
     },
     {
-        group: 'FINANCE & ADMIN', items: [
-            { icon: Wallet, label: 'Revenue', path: '/admin/revenue' },
-            { icon: CalendarCheck, label: 'Bookings', path: '/admin/bookings' },
-            { icon: UserPlus, label: 'Subscribers', path: '/admin/subscribers' },
+        group: 'OWNER MANAGEMENT', items: [
+            { icon: Building2, label: 'Owners List', path: '/admin/owners' },
+            { icon: MapPin, label: 'Parking Areas', path: '/admin/area' },
+            { icon: Layers, label: 'Parking Zones', path: '/admin/zone' },
+            { icon: Wallet, label: 'Owner Revenue', path: '/admin/owner-revenue' },
         ]
     },
     {
-        group: 'HISTORY', items: [
-            { icon: History, label: 'Subscription history', path: '/admin/history' },
-            { icon: Clock, label: 'Recent Bookings', path: '/admin/recent' },
-            { icon: Star, label: 'Review', path: '/admin/review' },
-            { icon: Settings, label: 'Settings', path: '/admin/settings' },
+        group: 'USER MANAGEMENT', items: [
+            { icon: Users, label: 'User List', path: '/admin/users' },
+            { icon: CalendarCheck, label: 'User Bookings', path: '/admin/bookings' },
+            { icon: Star, label: 'User Reviews', path: '/admin/review' },
+            { icon: UserPlus, label: 'Subscriptions', path: '/admin/subscribers' },
+        ]
+    },
+    {
+        group: 'SYSTEM ADMIN', items: [
+            { icon: History, label: 'System Logs', path: '/admin/history' },
+            { icon: Settings, label: 'General Settings', path: '/admin/settings' },
         ]
     }
 ];
 
-export default function Sidebar({ isCollapsed, setIsCollapsed, onLogout }: SidebarProps) {
+const Sidebar = ({ isCollapsed, setIsCollapsed, onLogout }: SidebarProps) => {
+    const location = useLocation();
+    const navigate = useNavigate();
+
     return (
         <motion.div
             initial={false}
-            animate={{ width: isCollapsed ? 80 : 280 }}
-            className="h-screen bg-[#f8fafc] border-r border-slate-200 flex flex-col relative z-50 shadow-sm"
+            animate={{
+                width: isCollapsed ? 85 : 210,
+                transition: { type: 'spring', stiffness: 300, damping: 30 }
+            }}
+            className="h-screen bg-sidebar-bg border-r border-border-main flex flex-col relative z-50 shadow-sm gpu transition-colors duration-300"
         >
             {/* Sidebar Header with Logo */}
-            <div
-                className="p-4 flex items-center justify-between border-b border-slate-100 mb-4 relative min-h-[72px] bg-primary"
-            >
-                {!isCollapsed && (
-                    <div className="flex items-center gap-3">
-                        <img src={logo} alt="Logo" className="h-8 w-auto invert brightness-0" />
-                        <span className="text-xl font-black text-white tracking-tight">Park Adda</span>
-                    </div>
-                )}
-                {isCollapsed && (
-                    <img src={logo} alt="Logo" className="h-8 w-auto mx-auto invert brightness-0" />
-                )}
+            <div className="p-4 flex items-center justify-between border-b border-border-main mb-4 relative h-16 bg-primary">
+                <div className={`flex items-center gap-3 transition-all duration-300 ${isCollapsed ? 'mx-auto' : ''}`}>
+                    <img src={logo} alt="Logo" className="h-8 w-auto invert brightness-0" />
+                    {!isCollapsed && (
+                        <motion.span
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="text-xl font-black text-white tracking-tight"
+                        >
+                            Park Adda
+                        </motion.span>
+                    )}
+                </div>
 
-                {/* Toggle Button - Positioned Top Right of Sidebar */}
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
-                    className={`absolute ${isCollapsed ? 'right-1' : 'right-4'} top-1/2 -translate-y-1/2 w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-all z-[60]`}
+                    className={`absolute ${isCollapsed ? '-right-4 top-1/2 -translate-y-1/2' : 'right-4 top-1/2 -translate-y-1/2'} w-8 h-8 bg-sidebar-bg shadow-md border border-border-main rounded-full flex items-center justify-center transition-all z-[60] text-text-muted hover:text-primary`}
                 >
-                    {isCollapsed ? <Menu size={18} className="text-white" /> : <ChevronLeft size={18} className="text-white" />}
+                    {isCollapsed ? <Menu size={16} /> : <ChevronLeft size={16} />}
                 </button>
             </div>
 
@@ -99,38 +108,65 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, onLogout }: Sideb
                 <div className="flex-1">
                     {menuItems.map((group, idx) => (
                         <div key={idx} className="mb-6">
-                            {!isCollapsed && (
-                                <h4 className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">
-                                    {group.group}
-                                </h4>
-                            )}
-                            <div className="space-y-1">
-                                {group.items.map((item, itemIdx) => (
-                                    <button
-                                        key={itemIdx}
-                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${item.active
-                                            ? 'bg-primary/10 text-primary'
-                                            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
-                                            }`}
+                            <AnimatePresence mode="wait">
+                                {!isCollapsed && (
+                                    <motion.h4
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        className="px-4 text-[10px] font-bold text-text-muted uppercase tracking-widest mb-3 whitespace-nowrap"
                                     >
-                                        <item.icon size={20} className={`${item.active ? 'text-primary' : 'text-slate-400 group-hover:text-slate-600'}`} />
-                                        {!isCollapsed && (
-                                            <span className="text-sm font-semibold tracking-tight">{item.label}</span>
-                                        )}
-                                    </button>
-                                ))}
+                                        {group.group}
+                                    </motion.h4>
+                                )}
+                            </AnimatePresence>
+
+                            <div className="space-y-1">
+                                {group.items.map((item, itemIdx) => {
+                                    const isActive = location.pathname === item.path;
+                                    return (
+                                        <button
+                                            key={itemIdx}
+                                            onClick={() => navigate(item.path)}
+                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 relative group overflow-hidden ${isActive ? 'text-primary' : 'text-text-muted hover:bg-bg-main hover:text-text-main'
+                                                }`}
+                                        >
+                                            {isActive && (
+                                                <motion.div
+                                                    layoutId="active-pill"
+                                                    className="absolute inset-0 bg-primary/10"
+                                                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                                                />
+                                            )}
+
+                                            <item.icon size={20} className={`relative z-10 ${isActive ? 'text-primary' : 'text-text-muted group-hover:text-text-main'}`} />
+
+                                            {!isCollapsed && (
+                                                <motion.span
+                                                    initial={{ opacity: 0, x: -10 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    exit={{ opacity: 0, x: -10 }}
+                                                    className="text-sm font-semibold tracking-tight relative z-10 whitespace-nowrap"
+                                                >
+                                                    {item.label}
+                                                </motion.span>
+                                            )}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     ))}
                 </div>
 
+
                 {/* Logout Button */}
-                <div className="mt-auto border-t border-slate-100 pt-2 pb-4">
+                <div className="mt-auto border-t border-border-main pt-2 pb-4">
                     <button
                         onClick={onLogout}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-red-500 hover:bg-red-50 group`}
+                        className={`w-full flex items-center gap-3 px-4  rounded-xl transition-all duration-200 text-red-500 hover:bg-red-500/10 group`}
                     >
-                        <LogOut size={20} className="text-red-400 group-hover:text-red-600" />
+                        <LogOut size={20} className="mt-2 text-red-400 group-hover:text-red-600" />
                         {!isCollapsed && (
                             <span className="text-sm font-semibold tracking-tight">Logout</span>
                         )}
@@ -140,13 +176,18 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, onLogout }: Sideb
 
             {/* Footer Branding */}
             {!isCollapsed && (
-                <div className="p-6 border-t border-slate-100 bg-white">
-                    <div className="bg-slate-50 p-4 rounded-2xl">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 text-center">Version 1.0.4</p>
-                        <p className="text-[9px] text-slate-300 font-medium text-center">© 2026 Park Adda Systems</p>
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className=" border-t border-border-main bg-sidebar-bg"
+                >
+                    <div className="bg-bg-main p-4 rounded-2xl">
+                        <p className="text-[9px] text-text-muted font-medium text-center">© 2026 Park Adda Systems</p>
                     </div>
-                </div>
+                </motion.div>
             )}
         </motion.div>
     );
-}
+};
+
+export default React.memo(Sidebar);

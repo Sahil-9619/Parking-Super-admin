@@ -1,233 +1,299 @@
+import { useState } from 'react';
 import {
-    TrendingUp,
     Users,
     CalendarCheck,
-    MapPin,
+    CreditCard,
+    Building2,
+    ArrowUpRight,
+    ArrowDownRight,
+    UserPlus,
     ChevronRight,
-    Zap,
-    Star,
-    Wind,
-    Shield,
-    Accessibility
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { DataTable } from '@/components/shared/DataTable';
+import { FilterBar } from '@/components/shared/FilterBar';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
-const stats = [
-    {
-        label: "TODAY'S REVENUE",
-        value: "$6,420.50",
-        trend: "+8.2%",
-        icon: TrendingUp,
-        color: "#35C293",
-        size: "large"
-    },
-    {
-        label: "TOTAL USERS",
-        value: "412",
-        icon: Users,
-        color: "#235197",
-        size: "small"
-    },
-    {
-        label: "TOTAL BOOKINGS",
-        value: "3,500",
-        icon: CalendarCheck,
-        color: "#d946ef",
-        size: "small"
-    },
-    {
-        label: "TOTAL PARKING AREAS",
-        value: "2",
-        icon: MapPin,
-        color: "#235197",
-        size: "compact"
-    },
-    {
-        label: "TOTAL SUBSCRIBERS",
-        value: "2",
-        icon: Star,
-        color: "#f59e0b",
-        size: "compact"
-    },
+// --- Types & Data ---
+
+const initialOwners = [
+    { name: "Reliance Greens", id: "AD-1000", areas: 12, earnings: "$45,200", growth: "+12.5%", status: "Active", avatar: "RG" },
+    { name: "Urban Park Co", id: "AD-1001", areas: 8, earnings: "$28,450", growth: "+8.2%", status: "Active", avatar: "UP" },
+    { name: "Metro Parking", id: "AD-1002", areas: 15, earnings: "$52,100", growth: "-2.4%", status: "Under Review", avatar: "MP" },
+    { name: "Skyline Infra", id: "AD-1003", areas: 5, earnings: "$12,800", growth: "+15.1%", status: "Active", avatar: "SI" },
 ];
 
-const reservations = [
-    { id: '#RES-8921', name: 'Maria Garcia', spot: 'Zone A • 14', duration: '10:00 AM - 02:00 PM', hours: '4 hours', status: 'Active', color: 'bg-[#35C293]' },
-    { id: '#RES-8922', name: 'James Wilson', spot: 'Zone B • 05', duration: '11:30 AM - 05:30 PM', hours: '6 hours', status: 'Active', color: 'bg-[#35C293]' },
-    { id: '#RES-8923', name: 'Sarah Connor', spot: 'VIP • 01', duration: '01:00 PM - 03:00 PM', hours: '2 hours', status: 'Upcoming', color: 'bg-[#f59e0b]' },
-    { id: '#RES-8924', name: 'Alex Chen', spot: 'Zone C • 22', duration: '02:15 PM - 10:00 PM', hours: '7 hours 45 mins', status: 'Upcoming', color: 'bg-[#f59e0b]' },
-    { id: '#RES-8920', name: 'Priya Patel', spot: 'Zone A • 08', duration: '08:00 AM - 10:00 AM', hours: '2 hours', status: 'Completed', color: 'bg-slate-400' },
+const powerUsers = [
+    { name: "Maria Garcia", bookings: 42, spent: "$1,240", type: "VIP", lastSeen: "2 mins ago" },
+    { name: "James Wilson", bookings: 38, spent: "$980", type: "Regular", lastSeen: "1 hour ago" },
+    { name: "Sarah Connor", bookings: 31, spent: "$850", type: "Regular", lastSeen: "5 mins ago" },
 ];
 
-const facilities = [
-    { name: 'EV Charging', desc: '8 Stations Total', status: '3 Available', state: 'Operational', icon: Zap, color: 'text-[#35C293]', bg: 'bg-[#35C293]/10' },
-    { name: 'VIP Parking', desc: '12 Premium Spots', status: 'Full', state: '0 Available', icon: Star, color: 'text-[#f59e0b]', bg: 'bg-[#f59e0b]/10' },
-    { name: 'Car Wash', desc: 'Level B1', status: 'Open', state: 'Closes at 8 PM', icon: Wind, color: 'text-[#235197]', bg: 'bg-[#235197]/10' },
-    { name: '24/7 Security', desc: 'Main Gates & Patrol', status: 'Active', state: '4 Guards', icon: Shield, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-    { name: 'Accessible Parking', desc: '6 Reserved Spots', status: '2 Available', state: 'Ground Floor', icon: Accessibility, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-];
+// --- Sub-components ---
+
+const DynamicShapes = ({ color }: { color: string }) => (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none group-hover:opacity-100 transition-opacity duration-500">
+        <motion.div
+            animate={{
+                rotate: [45, 50, 45],
+                scale: [1, 1.05, 1],
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-1/4 -left-1/4 w-[150%] h-[150%] opacity-[0.12]"
+            style={{
+                background: `repeating-linear-gradient(45deg, ${color}, ${color} 1px, transparent 1px, transparent 35px)`,
+            }}
+        />
+        <motion.div
+            animate={{
+                x: [-10, 10, -10],
+                y: [-5, 5, -5],
+                rotate: [0, 5, 0],
+            }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-0 right-0 w-full h-full opacity-[0.18]"
+            style={{
+                background: `linear-gradient(135deg, ${color}, transparent 60%)`,
+                clipPath: 'polygon(100% 0, 0 0, 100% 100%)'
+            }}
+        />
+        <motion.div
+            animate={{
+                x: [10, -10, 10],
+                y: [5, -5, 5],
+                rotate: [0, -5, 0],
+            }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute bottom-0 left-0 w-full h-full opacity-[0.15]"
+            style={{
+                background: `linear-gradient(315deg, ${color}, transparent 70%)`,
+                clipPath: 'polygon(0 100%, 0 0, 100% 100%)'
+            }}
+        />
+        <div className="absolute inset-0 grid grid-cols-6 grid-rows-4 gap-1 p-2 opacity-[0.25]">
+            {[...Array(24)].map((_, i) => (
+                <motion.div
+                    key={i}
+                    animate={{
+                        opacity: [0.2, 0.8, 0.2],
+                        scale: [1, 1.2, 1]
+                    }}
+                    transition={{
+                        duration: 3 + Math.random() * 4,
+                        repeat: Infinity,
+                        delay: Math.random() * 5
+                    }}
+                    className="w-1 h-1 rounded-full bg-current"
+                    style={{ color }}
+                />
+            ))}
+        </div>
+    </div>
+);
+
+const StatCard = ({ label, value, icon: Icon, color }: any) => (
+    <div
+        className="bg-bg-card p-5 rounded-[1.5rem] shadow-lg shadow-primary/5 border border-border-main group relative overflow-hidden cursor-pointer flex flex-col justify-between h-[150px]"
+    >
+        <DynamicShapes color={color} />
+        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center">
+            <div className="p-3 rounded-xl transition-all duration-700 group-hover:rotate-[360deg] shadow-lg shadow-current/10 mb-3" style={{ backgroundColor: `${color}25`, color: color }}>
+                <Icon size={20} strokeWidth={2.5} />
+            </div>
+            <div className="space-y-0.5">
+                <h4 className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">{label}</h4>
+                <div className="flex items-baseline justify-center gap-2">
+                    <span className="text-3xl font-black text-text-main tracking-tighter">{value}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+);
 
 export default function Dashboard() {
+    const [ownerSearch, setOwnerSearch] = useState("");
+    const [ownerStatus, setOwnerStatus] = useState("");
+
+    const filteredOwners = initialOwners.filter(o => {
+        const matchesSearch = o.name.toLowerCase().includes(ownerSearch.toLowerCase()) ||
+            o.id.toLowerCase().includes(ownerSearch.toLowerCase());
+        const matchesStatus = !ownerStatus || o.status === ownerStatus;
+        return matchesSearch && matchesStatus;
+    });
+
     return (
-        <div className="space-y-8 pb-12">
+        <div className="space-y-3 pb-12 transition-colors duration-300">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCard label="Platform Revenue" value="$142,500.20" icon={CreditCard} color="var(--primary)" />
+                <StatCard label="Total Owners" value="42" icon={Building2} color="var(--secondary)" />
+                <StatCard label="Total Users" value="12,412" icon={Users} color="#f59e0b" />
+                <StatCard label="Total Bookings" value="3,500" icon={CalendarCheck} color="#d946ef" />
+            </div>
 
-            {/* Top Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-12 gap-6">
-
-                {/* Large Stat Card */}
-                <motion.div
-                    whileHover={{ y: -5 }}
-                    className="xl:col-span-5 bg-white p-8 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex items-center justify-between group overflow-hidden relative"
-                >
-                    <div className="relative z-10">
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Today's Revenue</h4>
-                        <div className="flex items-baseline gap-4">
-                            <span className="text-4xl font-black text-slate-900">$6,420.50</span>
-                            <span className="text-sm font-bold text-secondary flex items-center gap-1">+8.2%</span>
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
+                <div className="xl:col-span-8 flex flex-col">
+                    <div className="py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h3 className="text-xl font-black text-text-main tracking-tight">Parking Owners</h3>
+                            <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-0.5">Global Performance Overview</p>
                         </div>
+                        <Link to="/admin/owners">
+                            <Button
+                                variant="outline"
+                                className="text-xs font-black text-primary border-border-main rounded-xl px-5 py-2.5 h-auto hover:bg-primary/5 group w-full md:w-auto"
+                            >
+                                View All <ChevronRight size={14} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                            </Button>
+                        </Link>
                     </div>
-                    <div className="relative z-10 w-24 h-24">
-                        <TrendingUp size={64} className="text-secondary opacity-20 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
-                </motion.div>
 
-                {/* Small Stat Cards */}
-                <div className="xl:col-span-4 grid grid-cols-2 gap-6">
-                    {stats.slice(1, 3).map((stat, i) => (
-                        <motion.div
-                            key={i}
-                            whileHover={{ y: -5 }}
-                            className="bg-white p-6 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 group relative overflow-hidden"
-                        >
-                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">{stat.label}</h4>
-                            <div className="flex items-center justify-between">
-                                <span className="text-3xl font-black text-slate-900">{stat.value}</span>
-                                <div className="p-3 rounded-2xl" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
-                                    <stat.icon size={24} />
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
+                    <div className="mb-4">
+                        <FilterBar
+                            searchQuery={ownerSearch}
+                            onSearchChange={setOwnerSearch}
+                            searchPlaceholder="Search owners..."
+                            filterValue={ownerStatus}
+                            onFilterChange={setOwnerStatus}
+                            filterOptions={[
+                                { label: "Active", value: "Active" },
+                                { label: "Under Review", value: "Under Review" }
+                            ]}
+                            filterPlaceholder="All Status"
+                        />
+                    </div>
+
+                    <div className="flex-1">
+                        <DataTable
+                            data={filteredOwners}
+                            columns={[
+                                {
+                                    header: "Owner Profile",
+                                    accessor: (owner) => (
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center text-xs font-black group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500 border border-primary/20">
+                                                {owner.avatar}
+                                            </div>
+                                            <div>
+                                                <h5 className="text-sm font-black text-text-main leading-tight">{owner.name}</h5>
+                                                <p className="text-[10px] font-bold text-text-muted uppercase tracking-[0.1em] mt-0.5">License: {owner.id}</p>
+                                            </div>
+                                        </div>
+                                    )
+                                },
+                                {
+                                    header: "Capacity",
+                                    accessor: (owner) => (
+                                        <div className="flex flex-col gap-1.5">
+                                            <span className="text-xs font-bold text-text-main uppercase tracking-tighter">{owner.areas} Parking Spots</span>
+                                            <div className="w-32 h-1.5 bg-border-main rounded-full overflow-hidden">
+                                                <motion.div initial={{ width: 0 }} animate={{ width: `${(owner.areas / 20) * 100}%` }} className="h-full bg-primary" />
+                                            </div>
+                                        </div>
+                                    )
+                                },
+                                {
+                                    header: "Net Earnings",
+                                    accessor: (owner) => (
+                                        <div>
+                                            <p className="text-sm font-black text-text-main leading-none">{owner.earnings}</p>
+                                            <p className={`text-[10px] font-bold flex items-center gap-1 mt-1 ${owner.growth.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>
+                                                {owner.growth.startsWith('+') ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
+                                                {owner.growth} growth
+                                            </p>
+                                        </div>
+                                    )
+                                },
+                                {
+                                    header: "Status",
+                                    accessor: (owner) => (
+                                        <span className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${owner.status === 'Active' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'}`}>
+                                            {owner.status}
+                                        </span>
+                                    )
+                                }
+                            ]}
+                        />
+                    </div>
                 </div>
 
-                {/* Compact Stat Cards */}
-                <div className="xl:col-span-3 grid grid-rows-2 gap-6">
-                    {stats.slice(3).map((stat, i) => (
-                        <motion.div
-                            key={i}
-                            whileHover={{ x: 5 }}
-                            className="bg-white p-5 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex items-center justify-between px-8 group"
-                        >
-                            <div>
-                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</h4>
-                                <span className="text-2xl font-black text-slate-900">{stat.value}</span>
-                            </div>
-                            <div className="p-3 rounded-2xl" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
-                                <stat.icon size={20} />
-                            </div>
-                        </motion.div>
-                    ))}
+                <div className="xl:col-span-4 flex flex-col">
+                    <div className="py-4 flex items-center justify-between">
+                        <div>
+                            <h3 className="text-xl font-black text-text-main tracking-tight">Parking Users</h3>
+                            <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-0.5">Performing parkers</p>
+                        </div>
+                        <Link to="/admin/users">
+                            <Button
+                                variant="outline"
+                                className="text-xs font-black text-primary border-border-main rounded-xl px-5 py-2.5 h-auto hover:bg-primary/5 group"
+                            >
+                                View All <ChevronRight size={14} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                            </Button>
+                        </Link>
+                    </div>
+                    <div className="flex-1 mt-2">
+                        <DataTable
+                            data={powerUsers}
+                            columns={[
+                                {
+                                    header: "Parker",
+                                    accessor: (user) => (
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-primary/5 text-primary border border-primary/10 rounded-xl flex items-center justify-center text-[11px] font-black">
+                                                {user.name.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <h5 className="text-[12px] font-bold text-text-main leading-tight">{user.name}</h5>
+                                                <span className="text-[8px] font-black text-primary uppercase">{user.type}</span>
+                                            </div>
+                                        </div>
+                                    )
+                                },
+                                {
+                                    header: "Spent",
+                                    accessor: (user) => (
+                                        <span className="text-[12px] font-black text-text-main">{user.spent}</span>
+                                    ),
+                                    textRight: true
+                                }
+                            ]}
+                        />
+                    </div>
                 </div>
             </div>
 
-            {/* Tables & Lists Section */}
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+            {/* Quick Action Hub - Slim & High-Density */}
+            <div className="pt-2">
+                <div className="bg-bg-card p-4 rounded-2xl border border-border-main shadow-md shadow-primary/5 relative overflow-hidden group">
+                    {/* Subtle Geometric Background Pattern */}
+                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+                        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(var(--primary) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+                    </div>
 
-                {/* Recent Reservations Table */}
-                <div className="xl:col-span-8 bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/40 border border-slate-100 overflow-hidden flex flex-col">
-                    <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
-                        <div>
-                            <h3 className="text-xl font-black text-slate-900 tracking-tight">Recent Reservations</h3>
-                            <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mt-1">Live updates from all zones</p>
+                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-1 h-6 bg-primary rounded-full" />
+                            <div>
+                                <h3 className="text-sm font-black text-text-main tracking-tight uppercase">Quick Actions</h3>
+                            </div>
                         </div>
-                        <button className="text-xs font-black text-primary hover:bg-primary/5 px-5 py-2.5 rounded-xl transition-all border border-slate-200 flex items-center gap-2 group">
-                            View All <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                        </button>
-                    </div>
 
-                    <div className="flex-1 overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead>
-                                <tr className="bg-slate-50/50">
-                                    <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Customer</th>
-                                    <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Parking Spot</th>
-                                    <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Duration</th>
-                                    <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {reservations.map((res, i) => (
-                                    <tr key={i} className="hover:bg-slate-50/40 transition-colors group">
-                                        <td className="px-8 py-5">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-11 h-11 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 group-hover:scale-105 transition-transform">
-                                                    <Users size={20} />
-                                                </div>
-                                                <div>
-                                                    <h5 className="text-sm font-bold text-slate-900">{res.name}</h5>
-                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{res.id}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-5">
-                                            <span className="px-4 py-1.5 bg-slate-100 text-slate-700 text-[11px] font-bold rounded-full border border-slate-200">
-                                                {res.spot}
-                                            </span>
-                                        </td>
-                                        <td className="px-8 py-5">
-                                            <div>
-                                                <p className="text-sm font-bold text-slate-700">{res.duration}</p>
-                                                <p className="text-[10px] font-medium text-slate-400">{res.hours}</p>
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-5">
-                                            <span className={`px-4 py-1.5 ${res.color} text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-opacity-20`}>
-                                                {res.status}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {/* Facilities Overview List */}
-                <div className="xl:col-span-4 bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/40 border border-slate-100 overflow-hidden flex flex-col">
-                    <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
-                        <h3 className="text-xl font-black text-slate-900 tracking-tight">Facilities Overview</h3>
-                        <button className="text-[10px] font-black text-slate-400 hover:text-primary transition-colors tracking-widest uppercase">Manage</button>
-                    </div>
-                    <div className="flex-1 p-6 space-y-4">
-                        {facilities.map((fac, i) => (
-                            <motion.div
-                                key={i}
-                                whileHover={{ scale: 1.02 }}
-                                className="flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 border border-slate-100 group"
+                        <div className="flex flex-wrap gap-2 w-full md:w-auto">
+                            <Button
+                                className="flex-1 md:flex-none bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 px-4 py-2.5 h-auto rounded-xl flex items-center justify-center gap-2 group transition-all"
                             >
-                                <div className="flex items-center gap-4">
-                                    <div className={`w-12 h-12 ${fac.bg} ${fac.color} rounded-2xl flex items-center justify-center transition-transform group-hover:rotate-12`}>
-                                        <fac.icon size={22} />
-                                    </div>
-                                    <div>
-                                        <h5 className="text-sm font-bold text-slate-900">{fac.name}</h5>
-                                        <p className="text-[10px] font-medium text-slate-400 mt-0.5">{fac.desc}</p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <span className={`text-xs font-black uppercase tracking-widest ${fac.state === 'Full' ? 'text-red-500' : fac.color}`}>
-                                        {fac.status}
-                                    </span>
-                                    <p className="text-[9px] font-bold text-slate-300 uppercase tracking-wider mt-0.5">{fac.state}</p>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
-                    <div className="p-8 pt-0">
-                        <button className="w-full py-4 bg-slate-900 text-white font-black rounded-2xl shadow-xl shadow-slate-200 hover:bg-black transition-all text-xs uppercase tracking-widest">
-                            View Detailed Analytics
-                        </button>
+                                <UserPlus size={14} className="group-hover:scale-110 transition-transform" />
+                                <span className="text-[9px] font-black uppercase tracking-widest">Create New User</span>
+                            </Button>
+
+                            <Button
+                                className="flex-1 md:flex-none bg-primary text-white border-primary shadow-lg shadow-primary/20 hover:bg-primary/90 px-4 py-2.5 h-auto rounded-xl flex items-center justify-center gap-2 group transition-all"
+                            >
+                                <Building2 size={14} className="group-hover:scale-110 transition-transform" />
+                                <span className="text-[9px] font-black uppercase tracking-widest">Register Owner</span>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>

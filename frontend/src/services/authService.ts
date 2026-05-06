@@ -1,7 +1,7 @@
 import api from './api';
 
 export const authService = {
-  login: async (credentials: any) => {
+  login: async (credentials: Record<string, unknown>) => {
     try {
       const response = await api.post('/auth/login', credentials);
       if (response.data.token) {
@@ -9,8 +9,9 @@ export const authService = {
         localStorage.setItem('user', JSON.stringify(response.data.user));
       }
       return response.data;
-    } catch (error: any) {
-      throw error.response?.data || { message: 'Network Error' };
+    } catch (error: unknown) {
+      const err = error as any;
+      throw err.response?.data || { message: 'Network Error' };
     }
   },
 

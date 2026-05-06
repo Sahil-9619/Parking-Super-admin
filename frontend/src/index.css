@@ -1,11 +1,113 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #235197;
-  --color-secondary: #35C293;
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-bg-main: var(--bg-main);
+  --color-bg-card: var(--bg-card);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-border-main: var(--border-main);
+  --color-sidebar-bg: var(--sidebar-bg);
 }
 
 :root {
-  --primary: #235197;
-  --secondary: #35C293;
+  /* Green Theme (Primary) */
+  --primary: #35C293;
+  --secondary: #1A4D2E; /* Deep Forest Green instead of Blue */
+  --bg-main: #ffffff;
+  --bg-card: #ffffff;
+  --sidebar-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-main: #e2e8f0;
+  
+  --primary-rgb: 53, 194, 147;
+  --secondary-rgb: 26, 77, 46;
+  --bg-card-rgb: 255, 255, 255;
+}
+
+[data-theme='dark'] {
+  /* Dark Theme - Full Green */
+  --primary: #10b981;
+  --secondary: #064e3b; /* Very Deep Green */
+  --bg-main: #020617;
+  --bg-card: #0f172a;
+  --sidebar-bg: #020617;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-main: #1e293b;
+
+  --primary-rgb: 16, 185, 129;
+  --secondary-rgb: 6, 78, 59;
+  --bg-card-rgb: 15, 23, 42;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-bg-main text-text-main transition-colors duration-300;
+    overflow-x: hidden;
+  }
+
+  /* Hide Browser Native Password Reveal Button */
+  input::-ms-reveal,
+  input::-ms-clear {
+    display: none;
+  }
+
+  /* Smooth Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+  }
+
+  /* Global Selection Color */
+  ::selection {
+    background-color: rgba(var(--primary-rgb), 0.2);
+    color: var(--primary);
+  }
+
+  /* Utility for hardware acceleration */
+  .gpu {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    will-change: transform, opacity;
+  }
+
+  /* Focus visible state */
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

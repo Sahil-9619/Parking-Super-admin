@@ -4,9 +4,8 @@ import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { useNavigate } from "react-router-dom";
 import toast from 'react-hot-toast';
 import logo from "../assets/logo.png";
-import { COLORS } from '../constants/colors';
 import { authService } from '../services/authService';
-import { FaBeer } from 'react-icons/fa'; // 'fa' corresponds to Font Awesome
+import ThemeToggle from '../components/ThemeToggle';
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -14,6 +13,8 @@ export default function Login() {
   const [password, setPassword] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
+
+
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value);
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value);
 
@@ -22,22 +23,20 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      // Prepared for real backend connection
       await authService.login({ email, password });
       toast.success('Login successful! Redirecting...', {
         icon: '🚀',
         style: {
           borderRadius: '16px',
-          background: COLORS.slate[900],
-          color: COLORS.white,
+          background: 'var(--text-main)',
+          color: 'var(--bg-card)',
           fontWeight: 'bold',
         },
       });
 
-      // Delay slightly for UX
       setTimeout(() => {
         navigate("/admin/dashboard");
-      }, 1000);
+      }, 800);
 
     } catch (error: any) {
       toast.error(error.message || 'Login failed. Please check your credentials.', {
@@ -59,35 +58,68 @@ export default function Login() {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+      transition: { staggerChildren: 0.1, delayChildren: 0.1 }
     }
   };
 
   const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.5, ease: "easeOut" } }
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: 'spring' as const,
+        stiffness: 260,
+        damping: 20
+      }
+    }
+  };
+
+  const wordVariants: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: 0.5 + i * 0.1,
+        type: 'spring' as const,
+        stiffness: 200,
+        damping: 15
+      }
+    })
   };
 
   return (
-    <div className="fixed inset-0 w-full h-full font-['Outfit'] overflow-hidden flex flex-col lg:flex-row bg-white">
+    <div className="fixed inset-0 w-full h-full font-['Outfit'] overflow-hidden flex flex-col lg:flex-row bg-bg-main antialiased transition-colors duration-300">
 
-      {/* Dynamic Animated Background */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-gradient-to-b from-secondary/20 via-white to-secondary/20">
+      {/* Theme Toggler Positioned Absolute */}
+      <div className="absolute top-8 right-8 z-50">
+        <ThemeToggle />
+      </div>
+
+      {/* Dynamic Animated Background with Parallax */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-gradient-to-b from-secondary/10 via-bg-main to-secondary/10">
         <motion.div
           animate={{
-            scale: [1, 1.1, 1],
-            rotate: [0, 5, 0],
+            scale: [1, 1.03, 1],
           }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[-10%] right-[-10%] w-[1000px] h-[1000px] bg-secondary/10 rounded-full blur-[180px]"
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[90px] transform-gpu"
         />
         <motion.div
           animate={{
-            scale: [1, 1.2, 1],
-            rotate: [0, -5, 0],
+            scale: [1, 1.02, 1],
           }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-[-10%] left-[-10%] w-[800px] h-[800px] bg-primary/10 rounded-full blur-[150px]"
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="absolute bottom-[-10%] left-[-10%] w-[450px] h-[450px] bg-primary/10 rounded-full blur-[80px] transform-gpu"
         />
       </div>
 
@@ -99,61 +131,71 @@ export default function Login() {
         className="hidden lg:flex lg:w-[55%] relative overflow-hidden flex-col p-10 pl-20 h-full z-10"
       >
         <motion.div variants={itemVariants} className="flex items-center gap-5 mb-10">
-          <img src={logo} alt="ParkAdda Logo" className="h-12 w-auto object-contain" />
+          <motion.img
+            whileHover={{ rotate: 360 }}
+            transition={{ duration: 1, ease: "anticipate" }}
+            src={logo} alt="ParkAdda Logo" className="h-12 w-auto object-contain cursor-pointer transition-all duration-300 dark:invert dark:brightness-200"
+          />
           <div className="flex flex-col">
             <span className="text-3xl font-black tracking-tight leading-none">
-              <span className="text-primary" style={{ color: COLORS.primary }}>Park</span>
-              <span className="text-secondary" style={{ color: COLORS.secondary }}>Adda</span>
+              <span className="text-primary">Park</span>
+              <span className="text-secondary">Adda</span>
             </span>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.4em] mt-1.5" style={{ color: COLORS.slate[400] }}>Admin Portal</span>
+            <span className="text-[10px] font-bold text-text-muted uppercase tracking-[0.4em] mt-1.5">Admin Portal</span>
           </div>
-
         </motion.div>
 
 
         <div className="flex-1 flex flex-col justify-center max-w-2xl">
-          <motion.h1
-            variants={itemVariants}
-            className="text-6xl lg:text-5xl font-black text-slate-900 leading-[1.05] mb-8 tracking-tighter"
-            style={{ color: COLORS.slate[900] }}
-          >
-            Manage Your <br />
-            <span className="text-secondary" style={{ color: COLORS.secondary }}>Parking</span> <br />
-            <span className="text-primary" style={{ color: COLORS.primary }}>Business</span> Easily
-          </motion.h1>
+          <div className="mb-8">
+            {["Manage", "Your", "Parking", "Business", "Easily"].map((word, i) => (
+              <motion.span
+                key={i}
+                custom={i}
+                variants={wordVariants}
+                initial="hidden"
+                animate="visible"
+                className={`inline-block text-6xl lg:text-5xl font-black tracking-tighter mr-4 ${word === "Parking" ? "text-secondary" : word === "Business" ? "text-primary" : "text-text-main"
+                  }`}
+              >
+                {word}
+                {i === 1 || i === 3 ? <br /> : null}
+              </motion.span>
+            ))}
+          </div>
 
           <motion.p
             variants={itemVariants}
-            className="text-md text-slate-500 leading-relaxed max-w-md mb-12 font-medium"
-            style={{ color: COLORS.slate[500] }}
+            className="text-md text-text-muted leading-relaxed max-w-md mb-12 font-medium"
           >
             A powerful centralized dashboard designed for seamless control over your parking infrastructure, revenue, and security.
           </motion.p>
 
-          {/* Re-added Feature Cards */}
           <motion.div variants={itemVariants} className="flex gap-4">
             {[
-              { title: "Secure", desc: "Enterprise Level", color: COLORS.secondary, icon: "●" },
-              { title: "Fast", desc: "Real-time Sync", color: COLORS.primary, icon: "◆" }
+              { title: "Secure", desc: "Enterprise Level", color: "var(--secondary)", icon: "●" },
+              { title: "Fast", desc: "Real-time Sync", color: "var(--primary)", icon: "◆" }
             ].map((card, i) => (
-              <div
+              <motion.div
                 key={i}
-                className="flex items-center gap-4 bg-white/50 backdrop-blur-xl p-4 pr-10 rounded-[2rem] border border-white transition-all cursor-default shadow-xl shadow-slate-200/20 group hover:translate-y-[-4px]"
+                whileHover={{ y: -8, scale: 1.05 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="flex items-center gap-4 bg-bg-card/60 backdrop-blur-2xl p-4 pr-10 rounded-[2rem] border border-border-main transition-all cursor-default shadow-2xl shadow-primary/5 group gpu"
               >
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-bold`} style={{ backgroundColor: `${card.color}15`, color: card.color }}>
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-bold transition-transform duration-700 group-hover:rotate-[360deg]`} style={{ backgroundColor: `${card.color}20`, color: card.color }}>
                   {card.icon}
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-slate-900 leading-none mb-1.5" style={{ color: COLORS.slate[900] }}>{card.title}</h3>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none" style={{ color: COLORS.slate[400] }}>{card.desc}</p>
+                  <h3 className="text-sm font-black text-text-main leading-none mb-1.5">{card.title}</h3>
+                  <p className="text-[10px] text-text-muted font-bold uppercase tracking-wider leading-none">{card.desc}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </motion.div>
         </div>
 
         <motion.div variants={itemVariants} className="pt-12">
-          <p className="text-secondary font-black text-sm tracking-[0.4em] uppercase" style={{ color: COLORS.secondary }}>
+          <p className="text-secondary font-black text-sm tracking-[0.4em] uppercase">
             Find. Park. Go.
           </p>
         </motion.div>
@@ -162,59 +204,61 @@ export default function Login() {
       {/* Right Side - Form Container */}
       <div className="relative z-10 w-full lg:w-[45%] flex flex-col items-center justify-center p-6 h-full">
 
-        {/* Mobile Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="lg:hidden flex flex-col items-center mb-10"
         >
-          <img src={logo} alt="ParkAdda Logo" className="h-20 w-auto object-contain mb-6" />
+          <motion.img
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            src={logo} alt="ParkAdda Logo" className="h-20 w-auto object-contain mb-6 dark:invert dark:brightness-200"
+          />
           <h1 className="text-4xl font-black tracking-tighter">
-            <span className="text-primary" style={{ color: COLORS.primary }}>Park</span>
-            <span className="text-secondary" style={{ color: COLORS.secondary }}>Adda</span>
+            <span className="text-primary">Park</span>
+            <span className="text-secondary">Adda</span>
           </h1>
-          <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.4em] mt-3" style={{ color: COLORS.slate[400] }}>Admin Portal</p>
+          <p className="text-text-muted text-xs font-bold uppercase tracking-[0.4em] mt-3">Admin Portal</p>
         </motion.div>
 
-        {/* Form Container - Minimalist on PC */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          initial={{ opacity: 0, scale: 0.95, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="w-full max-w-[440px] bg-white lg:bg-transparent p-10 lg:p-0 rounded-[3.5rem] lg:rounded-none shadow-2xl lg:shadow-none border border-white lg:border-none relative z-20"
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full max-w-[440px] bg-bg-card/80 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none p-10 lg:p-0 rounded-[3.5rem] lg:rounded-none shadow-2xl lg:shadow-none border border-border-main lg:border-none relative z-20 gpu"
         >
           <div className="mb-12 text-center lg:text-left">
             <motion.h2
-              initial={{ opacity: 0, x: -10 }}
+              initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.3, type: 'spring', stiffness: 100 }}
               className="text-4xl mb-4 tracking-tighter"
             >
-              <span className="text-primary" style={{ color: COLORS.primary }}>Welcome</span>{" "}
-              <span className="text-secondary" style={{ color: COLORS.secondary }}>Admin</span>
+              <span className="text-primary">Welcome</span>{" "}
+              <span className="text-secondary">Admin</span>
             </motion.h2>
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="text-slate-400 font-medium text-lg" style={{ color: COLORS.slate[400] }}
+              transition={{ delay: 0.4 }}
+              className="text-text-muted font-medium text-lg"
             >
               Secure gateway to your workspace.
             </motion.p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
-              <label className="block text-[11px] font-black text-slate-800 mb-4 uppercase tracking-[0.2em]" style={{ color: COLORS.slate[800] }}>
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+              <label className="block text-[11px] font-black text-text-main mb-4 uppercase tracking-[0.2em]">
                 Email
               </label>
               <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-slate-400 group-focus-within:text-secondary transition-all">
+                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-text-muted group-focus-within:text-secondary transition-all duration-500 group-focus-within:scale-110">
                   <Mail size={20} />
                 </div>
                 <input
                   type="email"
-                  className="block w-full pl-16 pr-6 py-5 bg-slate-100/50 lg:bg-white/40 border border-transparent rounded-[1.5rem] focus:bg-white focus:ring-8 focus:ring-secondary/5 focus:border-secondary transition-all outline-none text-slate-900  placeholder:text-slate-300 text-md shadow-sm"
+                  className="block w-full pl-16 pr-6 py-5 bg-bg-main border-2 border-transparent rounded-[1.5rem] focus:bg-bg-card focus:border-secondary transition-all duration-500 outline-none text-text-main placeholder:text-text-muted text-md shadow-sm group-focus-within:shadow-xl group-focus-within:shadow-secondary/5"
                   placeholder="Enter email address"
                   value={email}
                   onChange={handleEmailChange}
@@ -223,22 +267,19 @@ export default function Login() {
               </div>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
               <div className="flex items-center justify-between mb-4 px-1">
-                <label className="block text-[11px] font-black text-slate-800 uppercase tracking-[0.2em]" style={{ color: COLORS.slate[800] }}>
+                <label className="block text-[11px] font-black text-text-main uppercase tracking-[0.2em]">
                   Password
                 </label>
-                {/* <button type="button" className="text-[11px] font-black text-secondary hover:underline tracking-widest uppercase transition-all" style={{ color: COLORS.secondary }}>
-                  Recovery
-                </button> */}
               </div>
               <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-slate-400 group-focus-within:text-secondary transition-all">
+                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-text-muted group-focus-within:text-secondary transition-all duration-500 group-focus-within:scale-110">
                   <Lock size={20} />
                 </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  className="block w-full pl-16 pr-16 py-5 bg-slate-100/50 lg:bg-white/40 border border-transparent rounded-[1.5rem] focus:bg-white focus:ring-8 focus:ring-secondary/5 focus:border-secondary transition-all outline-none text-slate-900 placeholder:text-slate-300 text-md shadow-sm"
+                  className="block w-full pl-16 pr-16 py-5 bg-bg-main border-2 border-transparent rounded-[1.5rem] focus:bg-bg-card focus:border-secondary transition-all duration-500 outline-none text-text-main placeholder:text-text-muted text-md shadow-sm group-focus-within:shadow-xl group-focus-within:shadow-secondary/5"
                   placeholder="Enter Password"
                   value={password}
                   onChange={handlePasswordChange}
@@ -246,7 +287,7 @@ export default function Login() {
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-6 flex items-center text-slate-400 hover:text-secondary transition-colors"
+                  className="absolute inset-y-0 right-0 pr-6 flex items-center text-text-muted hover:text-secondary transition-all duration-300 hover:scale-110"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
@@ -255,23 +296,24 @@ export default function Login() {
             </motion.div>
 
             <motion.button
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-              whileHover={{ scale: 1.02 }}
+              transition={{ delay: 0.7 }}
+              whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={isLoading}
-              className="w-full py-6 bg-primary text-white font-black rounded-[2rem] transition-all shadow-2xl shadow-primary/30 flex items-center justify-center gap-4 group relative overflow-hidden uppercase tracking-[0.3em] text-[11px] mt-4"
-              style={{ backgroundColor: COLORS.primary }}
+              className="w-full py-6 bg-primary text-white font-black rounded-[2rem] transition-all duration-500 shadow-2xl shadow-primary/30 flex items-center justify-center gap-4 group relative overflow-hidden uppercase tracking-[0.3em] text-[11px] mt-4"
             >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none"></div>
+
               <AnimatePresence mode="wait">
                 {isLoading ? (
                   <motion.div
                     key="loading"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
                     className="flex items-center gap-3"
                   >
                     <Loader2 size={20} className="animate-spin" />
@@ -280,13 +322,13 @@ export default function Login() {
                 ) : (
                   <motion.div
                     key="content"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
                     className="flex items-center gap-3"
                   >
                     <span>Login to Dashboard</span>
-                    <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+                    <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform duration-500" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -297,12 +339,18 @@ export default function Login() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="absolute bottom-12 text-slate-400 text-[10px] font-black tracking-[0.5em] uppercase"
+          transition={{ delay: 0.9 }}
+          className="absolute bottom-12 text-text-muted text-[10px] font-black tracking-[0.5em] uppercase"
         >
           © 2026 Park Adda Systems
         </motion.div>
       </div>
+
+      <style>{`
+        @keyframes shimmer {
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
     </div>
   );
 }
