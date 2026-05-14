@@ -17,3 +17,11 @@ export const verifyToken = (req, res, next) => {
     return res.status(403).json({ status: "error", message: "Invalid token" });
   }
 };
+
+export const verifyAdmin = (req, res, next) => {
+  if (req.user && req.user.userType === "admin") {
+    next();
+  } else {
+    return res.status(403).json({ status: "error", message: "Forbidden: Super Admin access required" });
+  }
+};

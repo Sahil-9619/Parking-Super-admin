@@ -1,0 +1,24 @@
+import express from "express";
+import { verifyToken, verifyAdmin } from "../middleware/auth.middleware.js";
+
+import usersRoutes from "./users/users.routes.js";
+import bookingsRoutes from "./bookings/bookings.routes.js";
+import ownersRoutes from "./owners/owners.routes.js";
+import disputesRoutes from "./disputes/disputes.routes.js";
+import settingsRoutes from "./settings/settings.routes.js";
+import ledgerRoutes from "./ledger/ledger.routes.js";
+
+const router = express.Router();
+
+// All admin routes require JWT authentication + admin role verification
+router.use(verifyToken, verifyAdmin);
+
+// Mount feature-based sub-routers
+router.use("/users", usersRoutes);
+router.use("/bookings", bookingsRoutes);
+router.use("/owners", ownersRoutes);
+router.use("/disputes", disputesRoutes);
+router.use("/settings", settingsRoutes);
+router.use("/logs/transactions", ledgerRoutes);
+
+export default router;

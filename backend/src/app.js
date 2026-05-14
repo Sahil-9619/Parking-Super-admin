@@ -5,7 +5,16 @@ import morgan from "morgan";
 import rateLimit from "express-rate-limit";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "../config/swagger.js";
-import authRoutes from "./modules/auth/auth.routes.js";
+import authRoutes from "./common/auth/auth.routes.js";
+import profileRoutes from "./common/profile/profile.routes.js";
+import uploadRoutes from "./common/upload/upload.routes.js";
+import driverVehicleRoutes from "./driver/vehicle/vehicle.routes.js";
+import driverParkingSearchRoutes from "./driver/parking-search/parking-search.routes.js";
+import driverBookingRoutes from "./driver/booking/booking.routes.js";
+import ownerKycRoutes from "./owner/kyc/kyc.routes.js";
+import ownerParkingRoutes from "./owner/parking/parking.routes.js";
+import ownerAddonRoutes from "./owner/addons/addons.routes.js";
+import adminRoutes from "./admin/index.js";
 
 const app = express();
 
@@ -41,6 +50,15 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Mount Core Application Slices
 app.use("/api/auth", authRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/upload", uploadRoutes);
+app.use("/api/driver/vehicles", driverVehicleRoutes);
+app.use("/api/driver/parkings", driverParkingSearchRoutes);
+app.use("/api/driver/bookings", driverBookingRoutes);
+app.use("/api/owner/kyc", ownerKycRoutes);
+app.use("/api/owner/parkings", ownerParkingRoutes);
+app.use("/api/owner/addons", ownerAddonRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Platform System Readiness Check Endpoint
 app.get("/", (req, res) => {

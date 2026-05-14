@@ -1,0 +1,187 @@
+import express from "express";
+import { authController } from "./auth.controller.js";
+import { validate } from "../../middleware/validate.middleware.js";
+import { verifyToken } from "../../middleware/auth.middleware.js";
+import {
+  registerSchema,
+  verifyRegisterOtpSchema,
+  loginOtpSendSchema,
+  loginOtpVerifySchema,
+  loginPasswordSchema,
+} from "./auth.schema.js";
+
+const router = express.Router();
+
+/**
+ * @openapi
+ * /api/auth/register:
+ *   post:
+ *     summary: Step 1 - User/Owner Registration (Sends OTP)
+ *     description: Register a new user (Driver, Owner, or Admin). Automatically sends a 4-digit OTP to mobile or email.
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, password, userType]
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Rajesh Kumar"
+ *               email:
+ *                 type: string
+ *                 example: "rajesh@example.com"
+ *               phone:
+ *                 type: string
+ *                 example: "9876543210"
+ *               password:
+ *                 type: string
+ *                 example: "SecurePass123"
+ *               userType:
+ *                 type: string
+ *                 enum: [driver, owner, admin]
+ *                 example: "driver"
+ *     responses:
+ *       201:
+ *         description: OTP sent successfully
+ */
+router.post("/register", validate(registerSchema), authController.register);
+
+/**
+ * @openapi
+ * /api/auth/verify-register-otp:
+ *   post:
+ *     summary: Step 2 - Verify Registration OTP & Activate Account
+ *     description: Verify the 4-digit OTP sent during registration. Returns JWT access and refresh tokens upon success.
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [otp]
+ *             properties:
+ *               phone:
+ *                 type: string
+ *                 example: "9876543210"
+ *               email:
+ *                 type: string
+ *                 example: "rajesh@example.com"
+ *               otp:
+ *                 type: string
+ *                 example: "1234"
+ *     responses:
+ *       200:
+ *         description: Account activated and tokens issued
+ */
+router.post("/verify-register-otp", validate(verifyRegisterOtpSchema), authController.verifyRegisterOtp);
+
+/**
+ * @openapi
+ * /api/auth/login-otp/send:
+ *   post:
+ *     summary: Request Login OTP (Mobile / Email)
+ *     description: Request a 4-digit OTP to login without a password.
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               phone:
+ *                 type: string
+ *                 example: "9876543210"
+ *     responses:
+ *       200:
+ *         description: Login OTP sent successfully
+ */
+router.post("/login-otp/send", validate(loginOtpSendSchema), authController.sendLoginOtp);
+
+/**
+ * @openapi
+ * /api/auth/login-otp/verify:
+ *   post:
+ *     summary: Verify Login OTP
+ *     description: Verify login OTP and receive JWT access token.
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [otp]
+ *             properties:
+ *               phone:
+ *                 type: string
+ *                 example: "9876543210"
+ *               otp:
+ *                 type: string
+ *                 example: "1234"
+ *     responses:
+ *       200:
+ *         description: Logged in successfully
+ */
+router.post("/login-otp/verify", validate(loginOtpVerifySchema), authController.verifyLoginOtp);
+
+/**
+ * @openapi
+ * /api/auth/login-password:
+ *   post:
+ *     summary: Email & Password Login
+ *     description: Traditional login using registered email and password.
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: "rajesh@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "SecurePass123"
+ *     responses:
+ *       200:
+ *         description: Logged in successfully
+ */
+router.post("/login-password", validate(loginPasswordSchema), authController.loginPassword);
+
+/**
+ * @openapi
+ * /api/auth/logout:
+ *   post:
+ *     summary: Logout current user session
+ *     description: Invalidate active user session tokens.
+ *     tags: [Authentication]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200:
+ *         description: Logged out successfully
+ */
+router.post("/logout", verifyToken, authController.logout);
+
+/**
+ * @openapi
+ * /api/auth/profile:
+ *   get:
+ *     summary: Get Authenticated User Profile
+ *     description: Returns the user profile payload embedded in the JWT access token.
+ *     tags: [Authentication]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200:
+ *         description: Profile payload retrieved successfully
+ */
+router.get("/profile", verifyToken, authController.getProfile);
+
+export default router;
