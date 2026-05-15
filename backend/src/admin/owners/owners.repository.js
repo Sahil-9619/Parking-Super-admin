@@ -9,9 +9,11 @@ export class OwnersRepository {
         name: true,
         email: true,
         phone: true,
+        userType: true,
         walletBalance: true,
         status: true,
         createdAt: true,
+
         ownerProfile: {
           select: {
             ownerType: true,
@@ -23,11 +25,27 @@ export class OwnersRepository {
         parkings: {
           select: {
             id: true,
+            ownerId: true,
             name: true,
+            parkingType: true,
+            address: true,
+            latitude: true,
+            longitude: true,
+            photos: true,
+            openTime: true,
+            closeTime: true,
+            is24hr: true,
             status: true,
             avgRating: true,
+            addonsEnabled: true,
+            isFull: true,
+            isClosed: true,
+            reopenAt: true,
+            createdAt: true,
+            updatedAt: true,
           },
         },
+
         _count: {
           select: { parkings: true },
         },
@@ -167,12 +185,90 @@ export class OwnersRepository {
     });
   }
 
-  async findUsers(filters) {
-    return await prisma.user.findMany({
-      where: filters,
-      select: { id: true, name: true, email: true, phone: true },
+  async deleteOwner(ownerId) {
+    return await prisma.user.delete({
+      where: { id: ownerId },
     });
   }
+
+  async updateOwner(ownerId, data) {
+    const { 
+      name, email, phone, status, 
+      company, gstNumber, verificationStatus, strikeCount,
+      walletBalance, bankDetails 
+    } = data;
+
+    return await prisma.user.update({
+      where: { id: ownerId },
+      data: {
+        name,
+        email,
+        phone,
+        status,
+        walletBalance: walletBalance ? parseFloat(walletBalance) : undefined,
+        ownerProfile: {
+          update: {
+            ownerType: company,
+            gstNumber,
+            verificationStatus,
+            strikeCount: strikeCount ? parseInt(strikeCount) : undefined,
+            accountHolderName: bankDetails?.holder,
+            bankAccount: bankDetails?.account,
+            bankIfsc: bankDetails?.ifsc,
+          },
+        },
+      },
+    });
+  }
+
+
+  async findUsers(filters) {
+
+    return await prisma.user.findMany({
+      where: filters,
+      select: { id: true, name: true, email: true, phone: true, userType: true, createdAt: true, status: true },
+    });
+  }
+
+  async getDashboardStats() {
+    const [totalOwners, totalDrivers, recentOwners, recentDrivers] = await Promise.all([
+      prisma.user.count({ where: { userType: "owner" } }),
+      prisma.user.count({ where: { userType: "driver" } }),
+      prisma.user.findMany({
+        where: { userType: "owner" },
+        take: 5,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          status: true,
+          createdAt: true,
+          _count: { select: { parkings: true } }
+        }
+
+      }),
+      prisma.user.findMany({
+        where: { userType: "driver" },
+        take: 5,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+          status: true,
+          createdAt: true
+        }
+      })
+    ]);
+
+    return {
+      totalOwners,
+      totalDrivers,
+      recentOwners,
+      recentDrivers
+    };
+  }
 }
+
 
 export const ownersRepository = new OwnersRepository();

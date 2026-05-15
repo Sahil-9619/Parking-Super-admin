@@ -25,6 +25,20 @@ export class UsersRepository {
       select: { id: true, name: true, email: true, status: true },
     });
   }
+
+  async updateUser(id, data) {
+    return await prisma.user.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async deleteUser(id) {
+    return await prisma.user.delete({
+      where: { id },
+    });
+  }
 }
+
 
 export const usersRepository = new UsersRepository();

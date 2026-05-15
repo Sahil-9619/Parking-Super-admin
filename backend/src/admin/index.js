@@ -7,6 +7,7 @@ import ownersRoutes from "./owners/owners.routes.js";
 import disputesRoutes from "./disputes/disputes.routes.js";
 import settingsRoutes from "./settings/settings.routes.js";
 import ledgerRoutes from "./ledger/ledger.routes.js";
+import dashboardRoutes from "./dashboard/dashboard.routes.js";
 
 const router = express.Router();
 
@@ -14,7 +15,9 @@ const router = express.Router();
 router.use(verifyToken, verifyAdmin);
 
 // Mount feature-based sub-routers
+router.use("/dashboard", dashboardRoutes);
 router.use("/users", usersRoutes);
+
 router.use("/bookings", bookingsRoutes);
 router.use("/owners", ownersRoutes);
 router.use("/disputes", disputesRoutes);

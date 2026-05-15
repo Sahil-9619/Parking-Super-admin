@@ -36,7 +36,7 @@ app.use(morgan("dev"));
 // DDoS and Brute-Force prevention interceptor limiting IP request quotas
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 100, // Maximum 100 API requests per IP window interval
+  limit: 1000, // Increased to 1000 for development/dashboard polling
   standardHeaders: "draft-8",
   legacyHeaders: false,
   message: {
@@ -44,6 +44,7 @@ const apiLimiter = rateLimit({
     message: "Too many requests originating from this IP address. Please wait 15 minutes before retrying.",
   },
 });
+
 
 // Enforce token-bucket quota limitation strictly across programmatic routes
 app.use("/api", apiLimiter);

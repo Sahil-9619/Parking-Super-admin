@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { 
-    Plus, 
-    User, 
-    Phone, 
-    Mail, 
+import {
+    Plus,
+    User,
+    Phone,
+    Mail,
     Calendar,
     Eye,
     Edit2,
@@ -15,99 +15,88 @@ import { Button } from '@/components/ui/button';
 import { ViewModal } from '../components/shared/ViewModal';
 import { EditModal } from '../components/shared/EditModal';
 import { ConfirmDelete } from '@/components/shared/ConfirmDelete';
+import { userService } from '@/services/userService';
+import type { User as PlatformUser } from '@/services/userService';
 
-// --- Types & Mock Data ---
 
-interface UserData {
-    id: string;
-    name: string;
-    email: string;
-    phone: string;
-    bookings: number;
-    status: 'Active' | 'Inactive' | 'Suspended';
-    joined: string;
-    avatar: string;
-}
 
-const initialUsers: UserData[] = [
-    {
-        id: "USR-001",
-        name: "Rahul Sharma",
-        email: "rahul.s@example.com",
-        phone: "+91 98765 43210",
-        bookings: 42,
-        status: "Active",
-        joined: "12 Oct 2023",
-        avatar: "RS"
-    },
-    {
-        id: "USR-002",
-        name: "Ananya Patel",
-        email: "ananya.p@example.com",
-        phone: "+91 99887 76655",
-        bookings: 15,
-        status: "Active",
-        joined: "05 Nov 2023",
-        avatar: "AP"
-    },
-    {
-        id: "USR-003",
-        name: "Vikram Singh",
-        email: "vikram.v@example.com",
-        phone: "+91 91234 56789",
-        bookings: 8,
-        status: "Inactive",
-        joined: "20 Jan 2024",
-        avatar: "VS"
-    },
-    {
-        id: "USR-004",
-        name: "Sneha Reddy",
-        email: "sneha.r@example.com",
-        phone: "+91 90000 11111",
-        bookings: 31,
-        status: "Active",
-        joined: "15 Feb 2024",
-        avatar: "SR"
-    },
-    {
-        id: "USR-005",
-        name: "Arjun Mehta",
-        email: "arjun.m@example.com",
-        phone: "+91 88776 65544",
-        bookings: 0,
-        status: "Suspended",
-        joined: "01 Mar 2024",
-        avatar: "AM"
-    }
-];
+import { useEffect } from 'react';
 
 const Users = () => {
-    const [users, setUsers] = useState<UserData[]>(initialUsers);
+    const [users, setUsers] = useState<PlatformUser[]>([]);
+    const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
-    
-    const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+
+    const [selectedUser, setSelectedUser] = useState<PlatformUser | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-    const [userToDelete, setUserToDelete] = useState<UserData | null>(null);
+    const [userToDelete, setUserToDelete] = useState<PlatformUser | null>(null);
 
-    const filteredUsers = users.filter(u => {
-        const matchesSearch = u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                             u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                             u.id.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesStatus = !statusFilter || u.status === statusFilter;
-        return matchesSearch && matchesStatus;
+
+    const filteredUsers = users.filter((user) => {
+        const search = searchQuery.toLowerCase();
+
+        return (
+            user.name?.toLowerCase().includes(search) ||
+            user.email?.toLowerCase().includes(search) ||
+            user.phone?.toLowerCase().includes(search)
+        );
     });
 
-    const handleDelete = () => {
-        if (userToDelete) {
-            setUsers(users.filter(u => u.id !== userToDelete.id));
-            setIsDeleteOpen(false);
-            setUserToDelete(null);
+
+    useEffect(() => {
+        fetchDrivers();
+
+        const handleRefresh = () => fetchDrivers();
+        window.addEventListener('refresh-data', handleRefresh);
+        return () => window.removeEventListener('refresh-data', handleRefresh);
+    }, []);
+
+
+    const fetchDrivers = async () => {
+        try {
+            setLoading(true);
+            const response = await userService.getAllDrivers();
+            setUsers(response.data || []);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
+
+
+    const handleDelete = async () => {
+        try {
+            if (!userToDelete) return;
+            await userService.deleteUser(userToDelete.id);
+            fetchDrivers();
+            setIsDeleteOpen(false);
+            setUserToDelete(null);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleUpdate = async (formData: any) => {
+        if (!selectedUser) return;
+        try {
+            await userService.updateUser(selectedUser.id, formData);
+            fetchDrivers();
+            setIsEditOpen(false);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+
+
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div className="space-y-6 pb-12">
@@ -126,7 +115,7 @@ const Users = () => {
             </div>
 
             {/* Reusable Filter Bar */}
-            <FilterBar 
+            <FilterBar
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
                 searchPlaceholder="Search by name, email, or ID..."
@@ -141,25 +130,32 @@ const Users = () => {
             />
 
             {/* User Data Table */}
-            <DataTable 
+            <DataTable
                 data={filteredUsers}
-                itemsPerPage={3}
+                itemsPerPage={10}
+
                 onRowClick={(user) => { setSelectedUser(user); setIsDetailsOpen(true); }}
                 emptyStateIcon={User}
                 emptyStateTitle="No users found"
                 emptyStateDescription="Try adjusting your search or status filter."
                 columns={[
                     {
+                        header: 'Sr No',
+                        textCenter: true,
+                        accessor: (_, index) => (
+                            <span className="text-xs font-black text-text-muted">
+                                {(index + 1).toString().padStart(2, '0')}
+                            </span>
+                        )
+                    },
+                    {
                         header: "User Details",
                         accessor: (user) => (
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-primary/10 text-primary border border-primary/20 rounded-2xl flex items-center justify-center text-xs font-black">
-                                    {user.avatar}
+                                <div className="w-10 h-10 bg-primary/10 text-primary border border-primary/20 rounded-xl flex items-center justify-center text-xs font-black">
+                                    {user.name?.charAt(0).toUpperCase()}
                                 </div>
-                                <div>
-                                    <h5 className="text-sm font-black text-text-main leading-tight">{user.name}</h5>
-                                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-0.5">ID: {user.id}</p>
-                                </div>
+                                <h5 className="text-sm font-black text-text-main leading-tight">{user.name}</h5>
                             </div>
                         )
                     },
@@ -179,14 +175,18 @@ const Users = () => {
                         )
                     },
                     {
-                        header: "Activity",
+                        header: "Account Role",
+                        textCenter: true,
                         accessor: (user) => (
                             <div>
-                                <p className="text-sm font-black text-text-main leading-none">{user.bookings}</p>
-                                <p className="text-[9px] font-bold text-text-muted uppercase mt-1">Total Bookings</p>
+                                <p className="text-[10px] font-black text-primary uppercase tracking-widest bg-primary/5 px-3 py-1 rounded-lg border border-primary/10">
+                                    {user.userType}
+                                </p>
                             </div>
                         )
                     },
+
+
                     {
                         header: "Status",
                         accessor: (user) => {
@@ -207,7 +207,9 @@ const Users = () => {
                         accessor: (user) => (
                             <div className="flex items-center gap-2 text-text-muted">
                                 <Calendar size={12} />
-                                <span className="text-[11px] font-bold uppercase tracking-tighter">{user.joined}</span>
+                                <span className="text-[11px] font-bold uppercase tracking-tighter">{user.createdAt
+                                    ? new Date(user.createdAt).toLocaleDateString()
+                                    : 'N/A'}</span>
                             </div>
                         )
                     },
@@ -241,23 +243,38 @@ const Users = () => {
             />
 
             {/* --- Modals --- */}
-            
-            <ViewModal 
+
+            <ViewModal
                 isOpen={isDetailsOpen}
                 onOpenChange={setIsDetailsOpen}
                 type="user"
-                data={selectedUser}
+                data={selectedUser ? {
+                    ...selectedUser,
+                    role: selectedUser.userType ? selectedUser.userType.charAt(0).toUpperCase() + selectedUser.userType.slice(1) : 'User',
+                    joined: selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : 'N/A',
+                    walletBalance: selectedUser.walletBalance?.toString() || '0'
+                } : null}
+
             />
 
-            <EditModal 
+
+            <EditModal
                 isOpen={isEditOpen}
                 onOpenChange={setIsEditOpen}
                 type="user"
-                data={selectedUser}
-                onSave={() => setIsEditOpen(false)}
+                data={selectedUser ? {
+                    ...selectedUser,
+                    role: selectedUser.userType ? selectedUser.userType.charAt(0).toUpperCase() + selectedUser.userType.slice(1) : 'User',
+                    joined: selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : 'N/A',
+                    walletBalance: selectedUser.walletBalance?.toString() || '0'
+                } : null}
+
+                onSave={handleUpdate}
             />
 
-            <ConfirmDelete 
+
+
+            <ConfirmDelete
                 isOpen={isDeleteOpen}
                 onOpenChange={setIsDeleteOpen}
                 onConfirm={handleDelete}

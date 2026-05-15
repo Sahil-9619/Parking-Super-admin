@@ -164,4 +164,43 @@ router.put("/:ownerId/disable", ownersController.disableOwner);
  */
 router.put("/:ownerId/enable", ownersController.enableOwner);
 
+/**
+ * @openapi
+ * /api/admin/owners/{ownerId}:
+ *   put:
+ *     summary: Admin - Update Owner Profile
+ *     description: Update basic profile information for an owner (name, email, phone, status, ownerType).
+ *     tags: [Admin Owner Management]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: ownerId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Owner profile updated successfully
+ */
+router.put("/:ownerId", ownersController.updateOwner);
+
+/**
+ * @openapi
+ * /api/admin/owners/{ownerId}:
+ *   delete:
+ *     summary: Admin - Delete Owner Account
+ *     description: Permanently delete an owner account and all their associated data. Use with caution.
+ *     tags: [Admin Owner Management]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: ownerId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Owner account deleted successfully
+ */
+router.delete("/:ownerId", ownersController.deleteOwner);
+
 export default router;
+

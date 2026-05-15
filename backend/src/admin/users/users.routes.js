@@ -56,4 +56,43 @@ router.get("/", usersController.getUsers);
  */
 router.put("/:id/status", validate(updateUserStatusSchema), usersController.updateUserStatus);
 
+/**
+ * @openapi
+ * /api/admin/users/{id}:
+ *   put:
+ *     summary: Super Admin - Update User Profile
+ *     description: Update basic profile information for any user on the platform.
+ *     tags: [Admin User Management]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: User profile updated successfully
+ */
+router.put("/:id", usersController.updateUser);
+
+/**
+ * @openapi
+ * /api/admin/users/{id}:
+ *   delete:
+ *     summary: Super Admin - Delete User Account
+ *     description: Permanently delete a user account and all their associated data.
+ *     tags: [Admin User Management]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: User account deleted successfully
+ */
+router.delete("/:id", usersController.deleteUser);
+
+
 export default router;

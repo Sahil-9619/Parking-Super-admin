@@ -11,6 +11,17 @@ export class UsersController {
     const result = await usersService.updateUserStatus(req.params.id, req.body.status);
     res.json(result);
   });
+
+  updateUser = catchAsync(async (req, res) => {
+    const result = await usersService.updateUser(req.params.id, req.body);
+    res.json(result);
+  });
+
+  deleteUser = catchAsync(async (req, res) => {
+    const result = await usersService.deleteUser(req.params.id);
+    res.json(result);
+  });
 }
+
 
 export const usersController = new UsersController();

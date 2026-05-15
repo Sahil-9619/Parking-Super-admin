@@ -36,6 +36,17 @@ export class OwnersController {
     const result = await ownersService.adminOnboardOwner(req.body);
     res.status(201).json(result);
   });
+
+  updateOwner = catchAsync(async (req, res) => {
+    const result = await ownersService.updateOwner(req.params.ownerId, req.body);
+    res.json(result);
+  });
+
+  deleteOwner = catchAsync(async (req, res) => {
+    const result = await ownersService.deleteOwner(req.params.ownerId);
+    res.json(result);
+  });
 }
+
 
 export const ownersController = new OwnersController();
