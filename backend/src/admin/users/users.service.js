@@ -17,6 +17,24 @@ export class UsersService {
       message: `User status updated to '${status}'`,
     };
   }
+
+  async updateUser(id, data) {
+    const updated = await usersRepository.updateUser(id, data);
+    return {
+      success: true,
+      data: updated,
+      message: "User profile updated successfully",
+    };
+  }
+
+  async deleteUser(id) {
+    await usersRepository.deleteUser(id);
+    return {
+      success: true,
+      message: "User deleted successfully",
+    };
+  }
 }
+
 
 export const usersService = new UsersService();

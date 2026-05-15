@@ -15,20 +15,16 @@ import { FilterBar } from '@/components/shared/FilterBar';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
+import { useEffect } from 'react';
+import { dashboardService } from '@/services/dashboardService';
+import type { DashboardStats } from '@/services/dashboardService';
+
+
+
 // --- Types & Data ---
 
-const initialOwners = [
-    { name: "Reliance Greens", id: "AD-1000", areas: 12, earnings: "$45,200", growth: "+12.5%", status: "Active", avatar: "RG" },
-    { name: "Urban Park Co", id: "AD-1001", areas: 8, earnings: "$28,450", growth: "+8.2%", status: "Active", avatar: "UP" },
-    { name: "Metro Parking", id: "AD-1002", areas: 15, earnings: "$52,100", growth: "-2.4%", status: "Under Review", avatar: "MP" },
-    { name: "Skyline Infra", id: "AD-1003", areas: 5, earnings: "$12,800", growth: "+15.1%", status: "Active", avatar: "SI" },
-];
+// --- Data Types handled by dashboardService ---
 
-const powerUsers = [
-    { name: "Maria Garcia", bookings: 42, spent: "$1,240", type: "VIP", lastSeen: "2 mins ago" },
-    { name: "James Wilson", bookings: 38, spent: "$980", type: "Regular", lastSeen: "1 hour ago" },
-    { name: "Sarah Connor", bookings: 31, spent: "$850", type: "Regular", lastSeen: "5 mins ago" },
-];
 
 // --- Sub-components ---
 
@@ -112,31 +108,52 @@ const StatCard = ({ label, value, icon: Icon, color }: any) => (
 );
 
 export default function Dashboard() {
-    const [ownerSearch, setOwnerSearch] = useState("");
-    const [ownerStatus, setOwnerStatus] = useState("");
+    const [stats, setStats] = useState<DashboardStats | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    const filteredOwners = initialOwners.filter(o => {
-        const matchesSearch = o.name.toLowerCase().includes(ownerSearch.toLowerCase()) ||
-            o.id.toLowerCase().includes(ownerSearch.toLowerCase());
-        const matchesStatus = !ownerStatus || o.status === ownerStatus;
-        return matchesSearch && matchesStatus;
-    });
+    const fetchStats = async () => {
+        try {
+            setLoading(true);
+            const response = await dashboardService.getStats();
+            setStats(response.data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchStats();
+
+        const handleRefresh = () => fetchStats();
+        window.addEventListener('refresh-data', handleRefresh);
+        return () => window.removeEventListener('refresh-data', handleRefresh);
+    }, []);
+
+
+    if (loading) {
+        return <div className="p-10 text-center font-black uppercase tracking-widest text-text-muted">Initializing Neural Interface...</div>;
+    }
+
+
 
     return (
         <div className="space-y-3 pb-12 transition-colors duration-300">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard label="Platform Revenue" value="$142,500.20" icon={CreditCard} color="var(--primary)" />
-                <StatCard label="Total Owners" value="42" icon={Building2} color="var(--secondary)" />
-                <StatCard label="Total Users" value="12,412" icon={Users} color="#f59e0b" />
-                <StatCard label="Total Bookings" value="3,500" icon={CalendarCheck} color="#d946ef" />
+                <StatCard label="Platform Revenue" value="$0.00" icon={CreditCard} color="var(--primary)" />
+                <StatCard label="Total Owners" value={stats?.totalOwners || 0} icon={Building2} color="var(--secondary)" />
+                <StatCard label="Total Users" value={stats?.totalDrivers || 0} icon={Users} color="#f59e0b" />
+                <StatCard label="Total Bookings" value="0" icon={CalendarCheck} color="#d946ef" />
+
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
                 <div className="xl:col-span-8 flex flex-col">
                     <div className="py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
-                            <h3 className="text-xl font-black text-text-main tracking-tight">Parking Owners</h3>
-                            <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-0.5">Global Performance Overview</p>
+                            <h3 className="text-xl font-black text-text-main tracking-tight">Recent Owners</h3>
+                            <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-0.5">Latest Facility Partners</p>
                         </div>
                         <Link to="/admin/owners">
                             <Button
@@ -148,69 +165,54 @@ export default function Dashboard() {
                         </Link>
                     </div>
 
-                    <div className="mb-4">
-                        <FilterBar
-                            searchQuery={ownerSearch}
-                            onSearchChange={setOwnerSearch}
-                            searchPlaceholder="Search owners..."
-                            filterValue={ownerStatus}
-                            onFilterChange={setOwnerStatus}
-                            filterOptions={[
-                                { label: "Active", value: "Active" },
-                                { label: "Under Review", value: "Under Review" }
-                            ]}
-                            filterPlaceholder="All Status"
-                        />
-                    </div>
-
                     <div className="flex-1">
                         <DataTable
-                            data={filteredOwners}
+                            data={stats?.recentOwners || []}
+
                             columns={[
                                 {
                                     header: "Owner Profile",
-                                    accessor: (owner) => (
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center text-xs font-black group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500 border border-primary/20">
-                                                {owner.avatar}
-                                            </div>
-                                            <div>
-                                                <h5 className="text-sm font-black text-text-main leading-tight">{owner.name}</h5>
-                                                <p className="text-[10px] font-bold text-text-muted uppercase tracking-[0.1em] mt-0.5">License: {owner.id}</p>
-                                            </div>
-                                        </div>
-                                    )
+                                    accessor: (owner, _index) => (
+                                         <div className="flex items-center gap-4 text-left">
+                                              <div className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center text-xs font-black group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500 border border-primary/20">
+                                                 {owner.name?.charAt(0)}
+                                             </div>
+                                             <div>
+                                                 <h5 className="text-sm font-black text-text-main leading-tight">{owner.name}</h5>
+                                                 <p className="text-[10px] font-bold text-text-muted uppercase tracking-[0.1em] mt-0.5">Registered: {new Date(owner.createdAt).toLocaleDateString()}</p>
+                                             </div>
+
+                                         </div>
+                                     )
                                 },
                                 {
-                                    header: "Capacity",
-                                    accessor: (owner) => (
+                                    header: "Infrastructure",
+                                    accessor: (owner, _index) => (
                                         <div className="flex flex-col gap-1.5">
-                                            <span className="text-xs font-bold text-text-main uppercase tracking-tighter">{owner.areas} Parking Spots</span>
+                                            <span className="text-xs font-bold text-text-main uppercase tracking-tighter">{owner._count?.parkings || 0} Assets</span>
                                             <div className="w-32 h-1.5 bg-border-main rounded-full overflow-hidden">
-                                                <motion.div initial={{ width: 0 }} animate={{ width: `${(owner.areas / 20) * 100}%` }} className="h-full bg-primary" />
+                                                <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min((owner._count?.parkings || 0) * 10, 100)}%` }} className="h-full bg-primary" />
                                             </div>
                                         </div>
                                     )
+
                                 },
                                 {
-                                    header: "Net Earnings",
-                                    accessor: (owner) => (
-                                        <div>
-                                            <p className="text-sm font-black text-text-main leading-none">{owner.earnings}</p>
-                                            <p className={`text-[10px] font-bold flex items-center gap-1 mt-1 ${owner.growth.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>
-                                                {owner.growth.startsWith('+') ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
-                                                {owner.growth} growth
-                                            </p>
-                                        </div>
-                                    )
+                                    header: "Contact Email",
+                                    accessor: (owner, _index) => (
+                                         <div>
+                                             <p className="text-[10px] font-bold text-text-main lowercase truncate max-w-[150px]">{owner.email}</p>
+                                         </div>
+                                     )
                                 },
+
                                 {
                                     header: "Status",
-                                    accessor: (owner) => (
-                                        <span className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${owner.status === 'Active' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'}`}>
-                                            {owner.status}
-                                        </span>
-                                    )
+                                    accessor: (owner, _index) => (
+                                         <span className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${owner.status === 'Active' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'}`}>
+                                             {owner.status}
+                                         </span>
+                                     )
                                 }
                             ]}
                         />
@@ -220,9 +222,11 @@ export default function Dashboard() {
                 <div className="xl:col-span-4 flex flex-col">
                     <div className="py-4 flex items-center justify-between">
                         <div>
-                            <h3 className="text-xl font-black text-text-main tracking-tight">Parking Users</h3>
-                            <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-0.5">Performing parkers</p>
+                            <h3 className="text-xl font-black text-text-main tracking-tight">Recent Users</h3>
+                            <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-0.5">Newest Platform Customers</p>
                         </div>
+
+
                         <Link to="/admin/users">
                             <Button
                                 variant="outline"
@@ -234,31 +238,35 @@ export default function Dashboard() {
                     </div>
                     <div className="flex-1 mt-2">
                         <DataTable
-                            data={powerUsers}
+                            data={stats?.recentDrivers || []}
                             columns={[
                                 {
-                                    header: "Parker",
-                                    accessor: (user) => (
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-primary/5 text-primary border border-primary/10 rounded-xl flex items-center justify-center text-[11px] font-black">
-                                                {user.name.charAt(0)}
-                                            </div>
-                                            <div>
-                                                <h5 className="text-[12px] font-bold text-text-main leading-tight">{user.name}</h5>
-                                                <span className="text-[8px] font-black text-primary uppercase">{user.type}</span>
-                                            </div>
-                                        </div>
-                                    )
+                                    header: "User",
+                                    accessor: (user, _index) => (
+
+                                         <div className="flex items-center gap-3 text-left">
+                                             <div className="w-10 h-10 bg-primary/5 text-primary border border-primary/10 rounded-xl flex items-center justify-center text-[11px] font-black">
+                                                 {user.name?.charAt(0)}
+                                             </div>
+                                             <div>
+                                                 <h5 className="text-[12px] font-bold text-text-main leading-tight">{user.name}</h5>
+                                                 <span className="text-[8px] font-black text-primary uppercase">{new Date(user.createdAt).toLocaleDateString()}</span>
+                                             </div>
+                                         </div>
+                                     )
                                 },
                                 {
-                                    header: "Spent",
-                                    accessor: (user) => (
-                                        <span className="text-[12px] font-black text-text-main">{user.spent}</span>
-                                    ),
+                                    header: "Status",
+                                    accessor: (user, _index) => (
+                                         <span className={`px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border ${user.status === 'active' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/10' : 'bg-red-500/10 text-red-500 border-red-500/10'}`}>
+                                             {user.status}
+                                         </span>
+                                     ),
                                     textRight: true
                                 }
                             ]}
                         />
+
                     </div>
                 </div>
             </div>

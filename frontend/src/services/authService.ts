@@ -4,9 +4,9 @@ export const authService = {
   login: async (credentials: Record<string, unknown>) => {
     try {
       const response = await api.post('/auth/login-password', credentials);
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+      if (response.data.data.accessToken) {
+        localStorage.setItem('token', response.data.data.accessToken);
+        localStorage.setItem('user', JSON.stringify(response.data.data.user));
       }
       return response.data;
     } catch (error: unknown) {

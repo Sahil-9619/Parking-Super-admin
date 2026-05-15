@@ -21,10 +21,13 @@ import { cn } from '@/lib/utils';
 
 export interface Column<T> {
     header: string;
-    accessor: (item: T) => React.ReactNode;
+    accessor: (item: T, index: number) => React.ReactNode;
     className?: string;
     textRight?: boolean;
+    textCenter?: boolean;
 }
+
+
 
 interface DataTableProps<T> {
     data: T[];
@@ -69,8 +72,10 @@ export function DataTable<T>({
                                     className={cn(
                                         "px-6 py-5 text-[11px] font-black text-text-main uppercase tracking-[0.2em] h-auto border-none",
                                         col.textRight && "text-right",
+                                        col.textCenter && "text-center",
                                         col.className
                                     )}
+
                                 >
                                     {col.header}
                                 </TableHead>
@@ -105,22 +110,22 @@ export function DataTable<T>({
                                             className={cn(
                                                 "px-6 py-6 border-none relative z-10",
                                                 col.textRight && "text-right",
+                                                col.textCenter && "text-center",
                                                 col.className
                                             )}
+
                                         >
                                             <motion.div
                                                 whileHover={{ scale: 1.01 }}
                                                 className="transition-transform duration-300"
                                             >
-                                                {col.accessor(item)}
+                                                {col.accessor(item, (currentPage - 1) * (itemsPerPage || 0) + rowIdx)}
+
                                             </motion.div>
                                         </TableCell>
                                     ))}
-                                    <motion.div 
-                                        className="absolute left-0 top-0 bottom-0 w-1 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"
-                                        initial={false}
-                                    />
                                 </motion.tr>
+
                             ))}
                         </AnimatePresence>
                     </TableBody>

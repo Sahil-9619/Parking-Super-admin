@@ -100,6 +100,24 @@ export class OwnersService {
       message: "Owner business onboarded and pre-approved successfully by Super Admin",
     };
   }
+
+  async updateOwner(ownerId, data) {
+    const updated = await ownersRepository.updateOwner(ownerId, data);
+    return {
+      success: true,
+      data: updated,
+      message: "Owner profile updated successfully",
+    };
+  }
+
+  async deleteOwner(ownerId) {
+    await ownersRepository.deleteOwner(ownerId);
+    return {
+      success: true,
+      message: "Owner account deleted successfully",
+    };
+  }
 }
+
 
 export const ownersService = new OwnersService();

@@ -1,6 +1,8 @@
 import ThemeToggle from './ThemeToggle';
 import { useLocation } from 'react-router-dom';
 import { menuItems } from './Sidebar';
+import { RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function Topbar() {
     const location = useLocation();
@@ -12,6 +14,11 @@ export default function Topbar() {
             if (activeItem) return activeItem.label;
         }
         return 'Park Adda Admin';
+    };
+
+    const handleRefresh = () => {
+        // Dispatch a custom event that pages can listen to for refreshing data
+        window.dispatchEvent(new CustomEvent('refresh-data'));
     };
 
     return (
@@ -29,8 +36,17 @@ export default function Topbar() {
 
             {/* Right Actions */}
             <div className="flex items-center gap-2 sm:gap-4">
+                <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={handleRefresh}
+                    className="rounded-xl h-10 w-10 text-text-muted hover:text-primary hover:bg-primary/10 transition-all group"
+                >
+                    <RefreshCw size={18} className="group-active:rotate-180 transition-transform duration-500" />
+                </Button>
                 <ThemeToggle />
             </div>
         </div>
     );
 }
+
