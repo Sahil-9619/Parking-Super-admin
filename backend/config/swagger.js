@@ -10,8 +10,8 @@ const options = {
     },
     servers: [
       {
-        url: process.env.BASE_URL || "http://localhost:5000",
-        description: "Development Host Server",
+        url: "/",
+        description: "Auto-detected Server Host",
       },
     ],
     components: {
