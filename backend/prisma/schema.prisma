@@ -192,6 +192,7 @@ model Parking {
   bookings      Booking[]
   customAddons  CustomAddon[]
 
+  @@index([location], type: Gist)
   @@map("parkings")
 }
 

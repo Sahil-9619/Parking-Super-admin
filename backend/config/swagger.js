@@ -10,8 +10,8 @@ const options = {
     },
     servers: [
       {
-        url: process.env.BASE_URL || "http://localhost:5000",
-        description: "Development Host Server",
+        url: "/",
+        description: "Auto-detected Server Host",
       },
     ],
     components: {
@@ -29,7 +29,7 @@ const options = {
       },
     ],
   },
-  apis: ["./src/**/*.routes.js"],
+  apis: ["./src/**/*.routes.js", "./src/admin/**/*.routes.js"],
 };
 
 export const swaggerSpec = swaggerJSDoc(options);

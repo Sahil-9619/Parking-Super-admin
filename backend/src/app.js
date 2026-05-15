@@ -20,7 +20,8 @@ const app = express();
 
 // Auto-inject secure HTTP Response Headers against standard injection vectors
 app.use(helmet({
-  contentSecurityPolicy: false, // Swagger UI ko allow karne ke liye
+  contentSecurityPolicy: false,
+  hsts: false,
 }));
 
 // Cross-Origin Resource Sharing layer
