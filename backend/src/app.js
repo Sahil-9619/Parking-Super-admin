@@ -19,7 +19,9 @@ import adminRoutes from "./admin/index.js";
 const app = express();
 
 // Auto-inject secure HTTP Response Headers against standard injection vectors
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false, // Swagger UI ko allow karne ke liye
+}));
 
 // Cross-Origin Resource Sharing layer
 app.use(cors());
