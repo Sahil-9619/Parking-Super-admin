@@ -38,7 +38,7 @@ export class AuthController {
     res.json({
       success: true,
       data: {
-        user: req.user,
+        user: await authService.getUserProfile(req.user.id),
       },
       message: "Profile retrieved successfully",
     });

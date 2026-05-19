@@ -43,6 +43,13 @@ export class AuthRepository {
       },
     });
   }
+
+  async getUserProfile(id) {
+    return await prisma.user.findUnique({
+      where: { id },
+      include: { ownerProfile: true },
+    });
+  }
 }
 
 export const authRepository = new AuthRepository();

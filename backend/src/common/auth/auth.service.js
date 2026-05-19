@@ -168,6 +168,10 @@ export class AuthService {
       message: "Logged in successfully",
     };
   }
+  async getUserProfile(id) {
+    const user = await authRepository.getUserProfile(id);
+    return user;
+  }
 }
 
 export const authService = new AuthService();
