@@ -1,57 +1,91 @@
 import { prisma } from "../../../config/prisma.js";
 
 export class OwnersRepository {
-  async findAllOwners() {
-    return await prisma.user.findMany({
-      where: { userType: "owner" },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        userType: true,
-        walletBalance: true,
-        status: true,
-        createdAt: true,
+  async findAllOwners(page = 1, limit = 10, search = "", status = "") {
+    const skip = (page - 1) * limit;
+    const parsedLimit = parseInt(limit, 10);
+    const parsedPage = parseInt(page, 10);
 
-        ownerProfile: {
-          select: {
-            ownerType: true,
-            gstNumber: true,
-            verificationStatus: true,
-            strikeCount: true,
+    const where = { userType: "owner" };
+    if (status) {
+      where.status = status;
+    }
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } },
+        { phone: { contains: search, mode: "insensitive" } },
+      ];
+    }
+
+    const [data, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          userType: true,
+          walletBalance: true,
+          status: true,
+          createdAt: true,
+
+          ownerProfile: {
+            select: {
+              ownerType: true,
+              gstNumber: true,
+              verificationStatus: true,
+              strikeCount: true,
+              accountHolderName: true,
+              bankAccount: true,
+              bankIfsc: true,
+            },
+          },
+          parkings: {
+            select: {
+              id: true,
+              ownerId: true,
+              name: true,
+              parkingType: true,
+              address: true,
+              latitude: true,
+              longitude: true,
+              photos: true,
+              openTime: true,
+              closeTime: true,
+              is24hr: true,
+              status: true,
+              avgRating: true,
+              addonsEnabled: true,
+              isFull: true,
+              isClosed: true,
+              reopenAt: true,
+              createdAt: true,
+              updatedAt: true,
+            },
+          },
+
+          _count: {
+            select: { parkings: true },
           },
         },
-        parkings: {
-          select: {
-            id: true,
-            ownerId: true,
-            name: true,
-            parkingType: true,
-            address: true,
-            latitude: true,
-            longitude: true,
-            photos: true,
-            openTime: true,
-            closeTime: true,
-            is24hr: true,
-            status: true,
-            avgRating: true,
-            addonsEnabled: true,
-            isFull: true,
-            isClosed: true,
-            reopenAt: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: parsedLimit,
+      }),
+      prisma.user.count({ where }),
+    ]);
 
-        _count: {
-          select: { parkings: true },
-        },
+    return {
+      data,
+      meta: {
+        total,
+        page: parsedPage,
+        limit: parsedLimit,
+        totalPages: Math.ceil(total / parsedLimit),
       },
-      orderBy: { createdAt: "desc" },
-    });
+    };
   }
 
   async findOwnerFullDetails(ownerId) {

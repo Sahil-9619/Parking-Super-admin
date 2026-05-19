@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { ConfirmDelete } from '@/components/shared/ConfirmDelete';
 import { DataTable } from '@/components/shared/DataTable';
 import { FilterBar } from '@/components/shared/FilterBar';
+import { ServerPagination } from '@/components/shared/ServerPagination';
 import { EditModal } from '../components/shared/EditModal';
 import { ViewModal } from '../components/shared/ViewModal';
 import { ParkingViewModal } from '../components/shared/ParkingViewModal';
@@ -56,6 +57,8 @@ export default function Owners() {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+    const [page, setPage] = useState(1);
+    const [meta, setMeta] = useState<any>(null);
     const [selectedOwner, setSelectedOwner] = useState<AdminOwner | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -64,21 +67,17 @@ export default function Owners() {
     const [selectedParking, setSelectedParking] = useState<any>(null);
     const [isParkingDetailsOpen, setIsParkingDetailsOpen] = useState(false);
 
-
-    useEffect(() => {
-        fetchOwners();
-
-        const handleRefresh = () => fetchOwners();
-        window.addEventListener('refresh-data', handleRefresh);
-        return () => window.removeEventListener('refresh-data', handleRefresh);
-    }, []);
-
-
     const fetchOwners = async () => {
         try {
             setLoading(true);
-            const response = await ownerService.getAllOwners();
+            const response = await ownerService.getAllOwners({
+                page,
+                limit: 10,
+                search: searchQuery,
+                status: statusFilter
+            });
             setOwners(getOwnerList(response));
+            setMeta(response.meta || null);
         } catch (error: any) {
             console.error('Failed to fetch owners:', error);
             if (error.message === 'Invalid token' || error.status === 403) {
@@ -94,6 +93,17 @@ export default function Owners() {
         }
     };
 
+    useEffect(() => {
+        fetchOwners();
+
+        const handleRefresh = () => fetchOwners();
+        window.addEventListener('refresh-data', handleRefresh);
+        return () => window.removeEventListener('refresh-data', handleRefresh);
+    }, [page, searchQuery, statusFilter]);
+
+    useEffect(() => {
+        setPage(1);
+    }, [searchQuery, statusFilter]);
 
     const handleDelete = async () => {
         if (!ownerToDelete) return;
@@ -142,39 +152,11 @@ export default function Owners() {
         }
     };
 
-    const statusOptions = useMemo(() => {
-        const statuses = owners
-            .map((owner) => owner.status)
-            .filter((status): status is AdminOwner['status'] => Boolean(status));
-
-        return Array.from(new Set(statuses)).map((status) => ({
-            label: formatLabel(status),
-            value: status
-        }));
-    }, [owners]);
-
-    const filteredOwners = owners.filter((owner) => {
-        const search = searchQuery.toLowerCase().trim();
-        const searchableValues = [
-            owner.id,
-            owner.name,
-            owner.email,
-            owner.phone,
-            owner.status,
-            owner.ownerProfile?.ownerType,
-            owner.ownerProfile?.gstNumber,
-            owner.ownerProfile?.verificationStatus,
-            ...(owner.parkings?.map((parking) => parking.name) || [])
-        ];
-
-        const matchesSearch =
-            !search ||
-            searchableValues.some((value) => value?.toString().toLowerCase().includes(search));
-
-        const matchesStatus = !statusFilter || owner.status === statusFilter;
-
-        return matchesSearch && matchesStatus;
-    });
+    const statusOptions = [
+        { label: "Active", value: "active" },
+        { label: "Inactive", value: "inactive" },
+        { label: "Suspended", value: "suspended" }
+    ];
 
     const selectedOwnerModalData = selectedOwner
         ? {
@@ -193,7 +175,12 @@ export default function Owners() {
 
             updated: formatDate(selectedOwner.updatedAt),
             parkingList: selectedOwner.parkings || [],
-            role: formatLabel(selectedOwner.userType)
+            role: formatLabel(selectedOwner.userType),
+            bankDetails: {
+                holder: selectedOwner.ownerProfile?.accountHolderName || '',
+                account: selectedOwner.ownerProfile?.bankAccount || '',
+                ifsc: selectedOwner.ownerProfile?.bankIfsc || ''
+            }
         }
 
 
@@ -241,8 +228,7 @@ export default function Owners() {
             />
 
             <DataTable
-                data={filteredOwners}
-                itemsPerPage={10}
+                data={owners}
 
                 onRowClick={(owner) => {
                     setSelectedOwner(owner);
@@ -257,7 +243,7 @@ export default function Owners() {
                         textCenter: true,
                         accessor: (_, index) => (
                             <span className="text-xs font-black text-text-muted">
-                                {(index + 1).toString().padStart(2, '0')}
+                                {((page - 1) * 10 + index + 1).toString().padStart(2, '0')}
                             </span>
                         )
                     },
@@ -368,6 +354,16 @@ export default function Owners() {
                 ]}
 
             />
+
+            {meta && (
+                <ServerPagination
+                    currentPage={page}
+                    totalPages={meta.totalPages}
+                    totalItems={meta.total}
+                    itemsPerPage={10}
+                    onPageChange={setPage}
+                />
+            )}
 
             <ViewModal
                 isOpen={isDetailsOpen}

@@ -1,23 +1,45 @@
 import { prisma } from "../../../config/prisma.js";
 
 export class ReviewsRepository {
-  async findAllReviews() {
-    // Fetch reviews with reviewer/driver info
-    const reviews = await prisma.review.findMany({
-      include: {
-        reviewer: {
-          select: { id: true, name: true, email: true, phone: true },
-        },
-        booking: {
-          select: {
-            id: true,
-            startTime: true,
-            endTime: true,
+  async findAllReviews(page = 1, limit = 10, search = "", rating = "") {
+    const skip = (page - 1) * limit;
+    const parsedLimit = parseInt(limit, 10);
+    const parsedPage = parseInt(page, 10);
+
+    const where = {};
+    if (rating) {
+      where.rating = parseInt(rating, 10);
+    }
+    if (search) {
+      where.OR = [
+        { comment: { contains: search, mode: "insensitive" } },
+        { reviewer: { name: { contains: search, mode: "insensitive" } } },
+        { reviewer: { email: { contains: search, mode: "insensitive" } } },
+      ];
+    }
+
+    // Fetch paginated reviews with reviewer/driver info
+    const [reviews, total] = await Promise.all([
+      prisma.review.findMany({
+        where,
+        include: {
+          reviewer: {
+            select: { id: true, name: true, email: true, phone: true },
+          },
+          booking: {
+            select: {
+              id: true,
+              startTime: true,
+              endTime: true,
+            },
           },
         },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: parsedLimit,
+      }),
+      prisma.review.count({ where }),
+    ]);
 
     // Populate target names (Parking or Addon)
     const parkingIds = reviews
@@ -41,7 +63,7 @@ export class ReviewsRepository {
     const parkingMap = new Map(parkings.map((p) => [p.id, p.name]));
     const addonMap = new Map(addons.map((a) => [a.id, a.name]));
 
-    return reviews.map((review) => {
+    const mappedData = reviews.map((review) => {
       let targetName = "Unknown Target";
       if (review.targetType === "parking") {
         targetName = parkingMap.get(review.targetId) || "Deleted Parking";
@@ -54,6 +76,16 @@ export class ReviewsRepository {
         targetName,
       };
     });
+
+    return {
+      data: mappedData,
+      meta: {
+        total,
+        page: parsedPage,
+        limit: parsedLimit,
+        totalPages: Math.ceil(total / parsedLimit),
+      },
+    };
   }
 
   async deleteReview(id) {

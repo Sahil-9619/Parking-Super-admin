@@ -3,7 +3,7 @@ import { catchAsync } from "../../utils/catchAsync.js";
 
 export class OwnersController {
   getAllOwners = catchAsync(async (req, res) => {
-    const result = await ownersService.getAllOwners();
+    const result = await ownersService.getAllOwners(req.query);
     res.json(result);
   });
 

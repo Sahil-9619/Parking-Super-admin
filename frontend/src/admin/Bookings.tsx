@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { FilterBar } from '@/components/shared/FilterBar';
 import { DataTable } from '@/components/shared/DataTable';
+import { ServerPagination } from '@/components/shared/ServerPagination';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ConfirmDelete } from '@/components/shared/ConfirmDelete';
@@ -23,28 +24,29 @@ const Bookings = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
     const [vehicleFilter, setVehicleFilter] = useState("");
+    const [page, setPage] = useState(1);
+    const [meta, setMeta] = useState<any>(null);
 
     const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
     const [isCancelOpen, setIsCancelOpen] = useState(false);
     const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
-    useEffect(() => {
-        fetchBookings();
-        const handleRefresh = () => fetchBookings();
-        window.addEventListener('refresh-data', handleRefresh);
-        return () => window.removeEventListener('refresh-data', handleRefresh);
-    }, [statusFilter, vehicleFilter]);
 
     const fetchBookings = async () => {
         try {
             setLoading(true);
-            const params: any = {};
+            const params: any = {
+                page,
+                limit: 10
+            };
             if (statusFilter) params.status = statusFilter.toLowerCase();
             if (vehicleFilter) params.vehicleType = vehicleFilter.toLowerCase();
+            if (searchQuery) params.search = searchQuery;
             
             const response = await bookingService.getAllBookings(params);
             const bookingList = response.data || [];
             setBookings(bookingList);
+            setMeta(response.meta || null);
         } catch (error) {
             console.error('Failed to fetch bookings:', error);
             toast.error('Error fetching bookings data');
@@ -52,6 +54,17 @@ const Bookings = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchBookings();
+        const handleRefresh = () => fetchBookings();
+        window.addEventListener('refresh-data', handleRefresh);
+        return () => window.removeEventListener('refresh-data', handleRefresh);
+    }, [page, searchQuery, statusFilter, vehicleFilter]);
+
+    useEffect(() => {
+        setPage(1);
+    }, [searchQuery, statusFilter, vehicleFilter]);
 
     const handleForceCancel = async () => {
         if (!bookingToCancel) return;
@@ -69,17 +82,6 @@ const Bookings = () => {
             toast.error(msg);
         }
     };
-
-    const filteredBookings = bookings.filter((booking) => {
-        const search = searchQuery.toLowerCase();
-        return (
-            booking.id?.toLowerCase().includes(search) ||
-            booking.user?.name?.toLowerCase().includes(search) ||
-            booking.user?.email?.toLowerCase().includes(search) ||
-            booking.parking?.name?.toLowerCase().includes(search) ||
-            booking.qrToken?.toLowerCase().includes(search)
-        );
-    });
 
     const formatIST = (dateStr: string | null) => {
         if (!dateStr) return '-';
@@ -157,8 +159,7 @@ const Bookings = () => {
 
             {/* Data Table */}
             <DataTable
-                data={filteredBookings}
-                itemsPerPage={10}
+                data={bookings}
                 onRowClick={(booking) => { setSelectedBooking(booking); setIsDetailsOpen(true); }}
                 emptyStateIcon={CalendarCheck}
                 emptyStateTitle="No bookings found"
@@ -169,7 +170,7 @@ const Bookings = () => {
                         textCenter: true,
                         accessor: (_, idx) => (
                             <span className="text-xs font-black text-text-muted">
-                                {(idx + 1).toString().padStart(2, '0')}
+                                {((page - 1) * 10 + idx + 1).toString().padStart(2, '0')}
                             </span>
                         )
                     },
@@ -265,6 +266,16 @@ const Bookings = () => {
                     }
                 ]}
             />
+
+            {meta && (
+                <ServerPagination
+                    currentPage={page}
+                    totalPages={meta.totalPages}
+                    totalItems={meta.total}
+                    itemsPerPage={10}
+                    onPageChange={setPage}
+                />
+            )}
 
             {/* Details Modal */}
             {selectedBooking && (

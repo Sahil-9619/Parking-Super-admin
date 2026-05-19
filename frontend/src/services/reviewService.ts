@@ -26,13 +26,18 @@ export interface Review {
 export interface ReviewResponse {
     success: boolean;
     data: Review[];
-    count: number;
+    meta: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
     message: string;
 }
 
 export const reviewService = {
-    getAllReviews: async () => {
-        const response = await api.get<ReviewResponse>('/admin/reviews');
+    getAllReviews: async (params?: { page?: number; limit?: number; search?: string; rating?: string }) => {
+        const response = await api.get<ReviewResponse>('/admin/reviews', { params });
         return response.data;
     },
 

@@ -40,9 +40,9 @@ export interface OnboardOwnerPayload {
 
 export const ownerService = {
     // Get all owners
-    getAllOwners: async () => {
+    getAllOwners: async (params?: { page?: number; limit?: number; search?: string; status?: string }) => {
         try {
-            const response = await api.get('/admin/owners');
+            const response = await api.get('/admin/owners', { params });
             return response.data;
         } catch (error: any) {
             throw error.response?.data || { message: 'Failed to fetch owners' };

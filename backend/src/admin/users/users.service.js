@@ -6,7 +6,11 @@ export class UsersService {
     if (query.userType) filters.userType = query.userType;
     if (query.status) filters.status = query.status;
 
-    return await usersRepository.findUsers(filters);
+    const page = parseInt(query.page, 10) || 1;
+    const limit = parseInt(query.limit, 10) || 10;
+    const search = query.search || "";
+
+    return await usersRepository.findUsers(filters, page, limit, search);
   }
 
   async updateUserStatus(id, status) {

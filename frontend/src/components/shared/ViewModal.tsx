@@ -1,4 +1,4 @@
-import { Mail, Phone, Calendar, ChevronRight, Activity, Wallet, ShieldCheck, Building2, Smartphone, Star, MapPin, Ban, User } from 'lucide-react';
+import { Mail, Phone, Calendar, ChevronRight, Activity, Wallet, ShieldCheck, Building2, Smartphone, Star, MapPin, Ban, User, CreditCard } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -93,7 +93,7 @@ export function ViewModal({ isOpen, onOpenChange, type, data, onViewParking }: V
                         <DialogDescription className="hidden">Detailed view of {type} profile</DialogDescription>
                     </DialogHeader>
 
-                    <div className={cn("grid gap-6 pt-4", isOwner ? "grid-cols-1 md:grid-cols-3" : "grid-cols-1 md:grid-cols-2")}>
+                    <div className={cn("grid gap-6 pt-4", isOwner ? "grid-cols-1 md:grid-cols-4" : "grid-cols-1 md:grid-cols-2")}>
 
                         {/* Column 1: Contact & Personal */}
                         <div className="space-y-6">
@@ -105,7 +105,6 @@ export function ViewModal({ isOpen, onOpenChange, type, data, onViewParking }: V
                                 <InfoCard icon={Mail} label="Professional Email" value={data.email} color="text-primary" />
                                 <InfoCard icon={Phone} label="Direct Contact" value={data.phone} color="text-primary" />
                                 <InfoCard icon={User} label="Assigned Role" value={data.role} color="text-primary" />
-                                {!isOwner && <InfoCard icon={Activity} label="KYC Status" value={data.verificationStatus} color="text-primary" />}
                                 <InfoCard icon={Calendar} label="Member Since" value={data.joined} color="text-primary" />
                             </div>
                         </div>
@@ -127,8 +126,23 @@ export function ViewModal({ isOpen, onOpenChange, type, data, onViewParking }: V
                         )}
 
 
+                        {/* Column 3: Financial Accounts (Owners Only) */}
+                        {isOwner && (
+                            <div className="space-y-6">
+                                <h6 className="text-[11px] font-black text-text-muted uppercase tracking-[0.25em] flex items-center gap-2 px-1 text-left">
+                                    <CreditCard size={12} className="text-primary" />
+                                    Financial Accounts
+                                </h6>
+                                <div className="space-y-3">
+                                    <InfoCard icon={User} label="Account Holder" value={data.bankDetails?.holder || 'N/A'} color="text-primary" />
+                                    <InfoCard icon={CreditCard} label="Account Number" value={data.bankDetails?.account || 'N/A'} color="text-primary" />
+                                    <InfoCard icon={Activity} label="IFSC Code" value={data.bankDetails?.ifsc || 'N/A'} color="text-primary" />
+                                </div>
+                            </div>
+                        )}
 
-                        {/* Column 3: Financial & Risk */}
+
+                        {/* Column 4: Wallet & Safety */}
                         <div className="space-y-6">
                             <h6 className="text-[11px] font-black text-text-muted uppercase tracking-[0.25em] flex items-center gap-2 px-1 text-left">
                                 <Wallet size={12} className="text-primary" />
@@ -136,7 +150,7 @@ export function ViewModal({ isOpen, onOpenChange, type, data, onViewParking }: V
                             </h6>
                             <div className="space-y-3">
                                 <InfoCard icon={Wallet} label="Total Balance" value={data.walletBalance} color="text-primary" />
-                                <InfoCard icon={Ban} label="Active Strikes" value={`${data.strikeCount} Warnings`} color={data.strikeCount && data.strikeCount > 0 ? "text-red-500" : "text-primary"} />
+                                {isOwner && <InfoCard icon={Ban} label="Active Strikes" value={`${data.strikeCount} Warnings`} color={data.strikeCount && data.strikeCount > 0 ? "text-red-500" : "text-primary"} />}
                                 <InfoCard icon={Calendar} label="Last Modified" value={data.updated || 'N/A'} color="text-text-muted" />
                             </div>
                         </div>

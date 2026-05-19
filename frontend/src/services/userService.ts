@@ -14,10 +14,10 @@ export interface User {
 
 export const userService = {
     // Get all users (drivers)
-    getAllDrivers: async () => {
+    getAllDrivers: async (params?: { page?: number; limit?: number; search?: string; status?: string }) => {
         try {
             const response = await api.get('/admin/users', {
-                params: { userType: 'driver' }
+                params: { ...params, userType: 'driver' }
             });
             return response.data;
         } catch (error: any) {

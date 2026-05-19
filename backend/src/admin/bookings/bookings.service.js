@@ -9,11 +9,15 @@ export class BookingsService {
     if (query.userId) filters.userId = query.userId;
     if (query.vehicleType) filters.vehicleType = query.vehicleType;
 
-    const bookings = await bookingsRepository.findAllBookings(filters);
+    const page = parseInt(query.page, 10) || 1;
+    const limit = parseInt(query.limit, 10) || 10;
+    const search = query.search || "";
+
+    const result = await bookingsRepository.findAllBookings(filters, page, limit, search);
     return {
       success: true,
-      data: bookings,
-      count: bookings.length,
+      data: result.data,
+      meta: result.meta,
       message: "All bookings retrieved successfully",
     };
   }

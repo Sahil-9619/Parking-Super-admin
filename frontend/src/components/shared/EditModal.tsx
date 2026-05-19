@@ -131,7 +131,7 @@ export function EditModal({ isOpen, onOpenChange, type, data, onSave }: EditModa
                         </div>
                     </DialogHeader>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+                    <div className={cn("grid gap-10", isOwner ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-4" : "grid-cols-1 md:grid-cols-2")}>
                         {/* Column 1: Communication */}
                         <div className="space-y-6">
                             <SectionHeader icon={Smartphone} title="Communication" />
@@ -165,33 +165,37 @@ export function EditModal({ isOpen, onOpenChange, type, data, onSave }: EditModa
                             </div>
                         )}
 
-                        {/* Column 3: Financial Accounts */}
-                        <div className="space-y-6">
-                            <SectionHeader icon={CreditCard} title="Financial Accounts" />
-                            <div className="space-y-4">
-                                <EditField icon={UserIcon} label="Account Holder" value={formData.bankHolder} onChange={(v: string) => setFormData({ ...formData, bankHolder: v })} />
-                                <EditField icon={CreditCard} label="Account Number" value={formData.bankAccount} onChange={(v: string) => setFormData({ ...formData, bankAccount: v })} />
-                                <EditField icon={Activity} label="IFSC Code" value={formData.bankIfsc} onChange={(v: string) => setFormData({ ...formData, bankIfsc: v })} />
+                        {/* Column 3: Financial Accounts (Owners Only) */}
+                        {isOwner && (
+                            <div className="space-y-6">
+                                <SectionHeader icon={CreditCard} title="Financial Accounts" />
+                                <div className="space-y-4">
+                                    <EditField icon={UserIcon} label="Account Holder" value={formData.bankHolder} onChange={(v: string) => setFormData({ ...formData, bankHolder: v })} />
+                                    <EditField icon={CreditCard} label="Account Number" value={formData.bankAccount} onChange={(v: string) => setFormData({ ...formData, bankAccount: v })} />
+                                    <EditField icon={Activity} label="IFSC Code" value={formData.bankIfsc} onChange={(v: string) => setFormData({ ...formData, bankIfsc: v })} />
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* Column 4: Wallet & Safety */}
                         <div className="space-y-6">
                             <SectionHeader icon={Wallet} title="Wallet & Safety" />
                             <div className="space-y-4">
                                 <EditField icon={Wallet} label="Total Balance" value={formData.walletBalance} onChange={(v: string) => setFormData({ ...formData, walletBalance: v })} />
-                                <div className="space-y-1.5">
-                                    <label className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Active Strikes</label>
-                                    <div className="flex items-center gap-3">
-                                        <Input
-                                            type="number"
-                                            value={formData.strikeCount}
-                                            onChange={(e) => setFormData({ ...formData, strikeCount: parseInt(e.target.value) })}
-                                            className="h-11 rounded-xl border-border-main bg-bg-main/50 text-xs font-bold"
-                                        />
-                                        <span className="text-[10px] font-black text-text-muted uppercase">Warnings</span>
+                                {isOwner && (
+                                    <div className="space-y-1.5">
+                                        <label className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Active Strikes</label>
+                                        <div className="flex items-center gap-3">
+                                            <Input
+                                                type="number"
+                                                value={formData.strikeCount}
+                                                onChange={(e) => setFormData({ ...formData, strikeCount: parseInt(e.target.value) })}
+                                                className="h-11 rounded-xl border-border-main bg-bg-main/50 text-xs font-bold"
+                                            />
+                                            <span className="text-[10px] font-black text-text-muted uppercase">Warnings</span>
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         </div>
                     </div>
