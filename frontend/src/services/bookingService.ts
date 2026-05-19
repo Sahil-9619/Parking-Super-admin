@@ -43,7 +43,12 @@ export interface Booking {
 export interface BookingResponse {
     success: boolean;
     data: Booking[];
-    count: number;
+    meta: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
     message: string;
 }
 
@@ -73,7 +78,7 @@ export interface BookingStatsResponse {
 }
 
 export const bookingService = {
-    getAllBookings: async (params?: { status?: string; vehicleType?: string; parkingId?: string; userId?: string }) => {
+    getAllBookings: async (params?: { page?: number; limit?: number; search?: string; status?: string; vehicleType?: string; parkingId?: string; userId?: string }) => {
         const response = await api.get<BookingResponse>('/admin/bookings', { params });
         return response.data;
     },

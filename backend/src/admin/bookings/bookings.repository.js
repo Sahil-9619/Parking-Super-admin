@@ -1,38 +1,66 @@
 import { prisma } from "../../../config/prisma.js";
 
 export class BookingsRepository {
-  async findAllBookings(filters) {
+  async findAllBookings(filters, page = 1, limit = 10, search = "") {
+    const skip = (page - 1) * limit;
+    const parsedLimit = parseInt(limit, 10);
+    const parsedPage = parseInt(page, 10);
+
     const where = {};
     if (filters.status) where.status = filters.status;
     if (filters.parkingId) where.parkingId = filters.parkingId;
     if (filters.userId) where.userId = filters.userId;
     if (filters.vehicleType) where.vehicleType = filters.vehicleType;
 
-    return await prisma.booking.findMany({
-      where,
-      include: {
-        user: {
-          select: { id: true, name: true, phone: true, email: true },
-        },
-        parking: {
-          select: {
-            id: true,
-            name: true,
-            address: true,
-            parkingType: true,
-            ownerId: true,
-            user: { select: { name: true, phone: true } },
+    if (search) {
+      where.OR = [
+        { id: { contains: search, mode: "insensitive" } },
+        { user: { name: { contains: search, mode: "insensitive" } } },
+        { user: { email: { contains: search, mode: "insensitive" } } },
+        { parking: { name: { contains: search, mode: "insensitive" } } },
+      ];
+    }
+
+    const [data, total] = await Promise.all([
+      prisma.booking.findMany({
+        where,
+        include: {
+          user: {
+            select: { id: true, name: true, phone: true, email: true },
           },
-        },
-        addonBookings: {
-          include: {
-            customAddon: { select: { name: true, price: true, image: true } },
+          parking: {
+            select: {
+              id: true,
+              name: true,
+              address: true,
+              parkingType: true,
+              ownerId: true,
+              user: { select: { name: true, phone: true } },
+            },
           },
+          addonBookings: {
+            include: {
+              customAddon: { select: { name: true, price: true, image: true } },
+            },
+          },
+          disputes: true,
         },
-        disputes: true,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: parsedLimit,
+      }),
+      prisma.booking.count({ where }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page: parsedPage,
+        limit: parsedLimit,
+        totalPages: Math.ceil(total / parsedLimit),
       },
-      orderBy: { createdAt: "desc" },
-    });
+    };
   }
 
   async findBookingById(id) {

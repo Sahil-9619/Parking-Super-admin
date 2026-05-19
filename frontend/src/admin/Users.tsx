@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Plus,
     User,
@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { FilterBar } from '@/components/shared/FilterBar';
 import { DataTable } from '@/components/shared/DataTable';
+import { ServerPagination } from '@/components/shared/ServerPagination';
 import { Button } from '@/components/ui/button';
 import { ViewModal } from '../components/shared/ViewModal';
 import { EditModal } from '../components/shared/EditModal';
@@ -18,15 +19,13 @@ import { ConfirmDelete } from '@/components/shared/ConfirmDelete';
 import { userService } from '@/services/userService';
 import type { User as PlatformUser } from '@/services/userService';
 
-
-
-import { useEffect } from 'react';
-
 const Users = () => {
     const [users, setUsers] = useState<PlatformUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
+    const [page, setPage] = useState(1);
+    const [meta, setMeta] = useState<any>(null);
 
     const [selectedUser, setSelectedUser] = useState<PlatformUser | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -34,32 +33,17 @@ const Users = () => {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState<PlatformUser | null>(null);
 
-
-    const filteredUsers = users.filter((user) => {
-        const search = searchQuery.toLowerCase();
-
-        return (
-            user.name?.toLowerCase().includes(search) ||
-            user.email?.toLowerCase().includes(search) ||
-            user.phone?.toLowerCase().includes(search)
-        );
-    });
-
-
-    useEffect(() => {
-        fetchDrivers();
-
-        const handleRefresh = () => fetchDrivers();
-        window.addEventListener('refresh-data', handleRefresh);
-        return () => window.removeEventListener('refresh-data', handleRefresh);
-    }, []);
-
-
     const fetchDrivers = async () => {
         try {
             setLoading(true);
-            const response = await userService.getAllDrivers();
+            const response = await userService.getAllDrivers({
+                page,
+                limit: 10,
+                search: searchQuery,
+                status: statusFilter
+            });
             setUsers(response.data || []);
+            setMeta(response.meta || null);
         } catch (error) {
             console.error(error);
         } finally {
@@ -67,6 +51,17 @@ const Users = () => {
         }
     };
 
+    useEffect(() => {
+        fetchDrivers();
+
+        const handleRefresh = () => fetchDrivers();
+        window.addEventListener('refresh-data', handleRefresh);
+        return () => window.removeEventListener('refresh-data', handleRefresh);
+    }, [page, searchQuery, statusFilter]);
+
+    useEffect(() => {
+        setPage(1);
+    }, [searchQuery, statusFilter]);
 
     const handleDelete = async () => {
         try {
@@ -131,8 +126,7 @@ const Users = () => {
 
             {/* User Data Table */}
             <DataTable
-                data={filteredUsers}
-                itemsPerPage={10}
+                data={users}
 
                 onRowClick={(user) => { setSelectedUser(user); setIsDetailsOpen(true); }}
                 emptyStateIcon={User}
@@ -144,7 +138,7 @@ const Users = () => {
                         textCenter: true,
                         accessor: (_, index) => (
                             <span className="text-xs font-black text-text-muted">
-                                {(index + 1).toString().padStart(2, '0')}
+                                {((page - 1) * 10 + index + 1).toString().padStart(2, '0')}
                             </span>
                         )
                     },
@@ -242,6 +236,16 @@ const Users = () => {
                     }
                 ]}
             />
+
+            {meta && (
+                <ServerPagination
+                    currentPage={page}
+                    totalPages={meta.totalPages}
+                    totalItems={meta.total}
+                    itemsPerPage={10}
+                    onPageChange={setPage}
+                />
+            )}
 
             {/* --- Modals --- */}
 

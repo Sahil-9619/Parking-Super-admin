@@ -2,12 +2,17 @@ import { ownersRepository } from "./owners.repository.js";
 import { AppError } from "../../utils/AppError.js";
 
 export class OwnersService {
-  async getAllOwners() {
-    const owners = await ownersRepository.findAllOwners();
+  async getAllOwners(query = {}) {
+    const page = parseInt(query.page, 10) || 1;
+    const limit = parseInt(query.limit, 10) || 10;
+    const search = query.search || "";
+    const status = query.status || "";
+
+    const result = await ownersRepository.findAllOwners(page, limit, search, status);
     return {
       success: true,
-      data: owners,
-      count: owners.length,
+      data: result.data,
+      meta: result.meta,
       message: "All owners retrieved successfully",
     };
   }

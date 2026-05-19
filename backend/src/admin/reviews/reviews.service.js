@@ -2,12 +2,17 @@ import { reviewsRepository } from "./reviews.repository.js";
 import { AppError } from "../../utils/AppError.js";
 
 export class ReviewsService {
-  async getAllReviews() {
-    const reviews = await reviewsRepository.findAllReviews();
+  async getAllReviews(query = {}) {
+    const page = parseInt(query.page, 10) || 1;
+    const limit = parseInt(query.limit, 10) || 10;
+    const search = query.search || "";
+    const rating = query.rating || "";
+
+    const result = await reviewsRepository.findAllReviews(page, limit, search, rating);
     return {
       success: true,
-      data: reviews,
-      count: reviews.length,
+      data: result.data,
+      meta: result.meta,
       message: "All reviews retrieved successfully",
     };
   }

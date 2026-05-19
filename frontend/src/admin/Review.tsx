@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ConfirmDelete } from '@/components/shared/ConfirmDelete';
 import { DataTable } from '@/components/shared/DataTable';
+import { ServerPagination } from '@/components/shared/ServerPagination';
 import { reviewService, type Review } from '@/services/reviewService';
 import toast from 'react-hot-toast';
 
@@ -18,22 +19,25 @@ const ReviewComponent = () => {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [ratingFilter, setRatingFilter] = useState<number | null>(null);
+    const [page, setPage] = useState(1);
+    const [meta, setMeta] = useState<any>(null);
 
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [reviewToDelete, setReviewToDelete] = useState<Review | null>(null);
 
-    useEffect(() => {
-        fetchReviews();
-        const handleRefresh = () => fetchReviews();
-        window.addEventListener('refresh-data', handleRefresh);
-        return () => window.removeEventListener('refresh-data', handleRefresh);
-    }, []);
-
     const fetchReviews = async () => {
         try {
             setLoading(true);
-            const response = await reviewService.getAllReviews();
+            const params: any = {
+                page,
+                limit: 10
+            };
+            if (searchQuery) params.search = searchQuery;
+            if (ratingFilter !== null) params.rating = ratingFilter.toString();
+
+            const response = await reviewService.getAllReviews(params);
             setReviews(response.data || []);
+            setMeta(response.meta || null);
         } catch (error) {
             console.error('Failed to fetch reviews:', error);
             toast.error('Error fetching reviews data');
@@ -41,6 +45,17 @@ const ReviewComponent = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchReviews();
+        const handleRefresh = () => fetchReviews();
+        window.addEventListener('refresh-data', handleRefresh);
+        return () => window.removeEventListener('refresh-data', handleRefresh);
+    }, [page, searchQuery, ratingFilter]);
+
+    useEffect(() => {
+        setPage(1);
+    }, [searchQuery, ratingFilter]);
 
     const handleDeleteReview = async () => {
         if (!reviewToDelete) return;
@@ -54,19 +69,6 @@ const ReviewComponent = () => {
             toast.error('Failed to delete review');
         }
     };
-
-    const filteredReviews = reviews.filter((review) => {
-        const search = searchQuery.toLowerCase();
-        const matchesSearch = 
-            (review.comment || '').toLowerCase().includes(search) ||
-            (review.reviewer?.name || '').toLowerCase().includes(search) ||
-            (review.reviewer?.email || '').toLowerCase().includes(search) ||
-            (review.targetName || '').toLowerCase().includes(search);
-        
-        const matchesRating = ratingFilter === null || review.rating === ratingFilter;
-
-        return matchesSearch && matchesRating;
-    });
 
     const formatIST = (dateStr: string) => {
         return new Date(dateStr).toLocaleString('en-IN', {
@@ -138,16 +140,17 @@ const ReviewComponent = () => {
             </div>
 
             {/* Grid of Review Cards */}
-            {filteredReviews.length > 0 ? (
-                <DataTable
-                    data={filteredReviews}
+            {reviews.length > 0 ? (
+                <>
+                    <DataTable
+                        data={reviews}
                     columns={[
                         {
                             header: 'Sr No',
                             textCenter: true,
                             accessor: (_, index) => (
                                 <span className="text-[10px] font-black text-text-muted font-mono">
-                                    {String(index + 1).padStart(2, '0')}
+                                    {String((page - 1) * 10 + index + 1).padStart(2, '0')}
                                 </span>
                             )
                         },
@@ -239,6 +242,16 @@ const ReviewComponent = () => {
                         }
                     ]}
                 />
+                {meta && (
+                    <ServerPagination
+                        currentPage={page}
+                        totalPages={meta.totalPages}
+                        totalItems={meta.total}
+                        itemsPerPage={10}
+                        onPageChange={setPage}
+                    />
+                )}
+                </>
             ) : (
                 <div className="p-16 bg-card border border-dashed border-border-main/60 rounded-[2.5rem] flex flex-col items-center justify-center text-center max-w-xl mx-auto shadow-sm">
                     <MessageSquare size={48} className="text-text-muted/40 mb-4" />

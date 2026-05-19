@@ -145,44 +145,46 @@ export function DataTable<T>({
             </div>
 
             {/* Pagination Controls */}
-            {itemsPerPage && totalPages > 1 && (
+            {itemsPerPage && data.length > 0 && (
                 <div className="flex items-center justify-between px-2 py-4 border-t border-border-main/50">
                     <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">
                         Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, data.length)} of {data.length} records
                     </p>
-                    <Pagination className="w-auto mx-0">
-                        <PaginationContent>
-                            <PaginationItem>
-                                <PaginationPrevious 
-                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                    className={`cursor-pointer hover:bg-primary/5 hover:text-primary transition-all rounded-xl text-[10px] font-black uppercase tracking-widest ${currentPage === 1 ? 'opacity-50 pointer-events-none' : ''}`}
-                                />
-                            </PaginationItem>
-                            
-                            {[...Array(totalPages)].map((_, i) => (
-                                <PaginationItem key={i}>
-                                    <PaginationLink 
-                                        onClick={() => setCurrentPage(i + 1)}
-                                        isActive={currentPage === i + 1}
-                                        className={`cursor-pointer rounded-xl text-[10px] font-black w-9 h-9 transition-all ${
-                                            currentPage === i + 1 
-                                            ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary/90' 
-                                            : 'hover:bg-primary/5 hover:text-primary'
-                                        }`}
-                                    >
-                                        {i + 1}
-                                    </PaginationLink>
+                    {totalPages > 1 && (
+                        <Pagination className="w-auto mx-0">
+                            <PaginationContent>
+                                <PaginationItem>
+                                    <PaginationPrevious 
+                                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                        className={`cursor-pointer hover:bg-primary/5 hover:text-primary transition-all rounded-xl text-[10px] font-black uppercase tracking-widest ${currentPage === 1 ? 'opacity-50 pointer-events-none' : ''}`}
+                                    />
                                 </PaginationItem>
-                            ))}
+                                
+                                {[...Array(totalPages)].map((_, i) => (
+                                    <PaginationItem key={i}>
+                                        <PaginationLink 
+                                            onClick={() => setCurrentPage(i + 1)}
+                                            isActive={currentPage === i + 1}
+                                            className={`cursor-pointer rounded-xl text-[10px] font-black w-9 h-9 transition-all ${
+                                                currentPage === i + 1 
+                                                ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary/90' 
+                                                : 'hover:bg-primary/5 hover:text-primary'
+                                            }`}
+                                        >
+                                            {i + 1}
+                                        </PaginationLink>
+                                    </PaginationItem>
+                                ))}
 
-                            <PaginationItem>
-                                <PaginationNext 
-                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                    className={`cursor-pointer hover:bg-primary/5 hover:text-primary transition-all rounded-xl text-[10px] font-black uppercase tracking-widest ${currentPage === totalPages ? 'opacity-50 pointer-events-none' : ''}`}
-                                />
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
+                                <PaginationItem>
+                                    <PaginationNext 
+                                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                        className={`cursor-pointer hover:bg-primary/5 hover:text-primary transition-all rounded-xl text-[10px] font-black uppercase tracking-widest ${currentPage === totalPages ? 'opacity-50 pointer-events-none' : ''}`}
+                                    />
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
+                    )}
                 </div>
             )}
         </div>

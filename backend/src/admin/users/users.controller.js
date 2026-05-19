@@ -3,8 +3,13 @@ import { catchAsync } from "../../utils/catchAsync.js";
 
 export class UsersController {
   getUsers = catchAsync(async (req, res) => {
-    const users = await usersService.getUsers(req.query);
-    res.json({ success: true, data: users, message: "Users list retrieved successfully" });
+    const result = await usersService.getUsers(req.query);
+    res.json({
+      success: true,
+      data: result.data,
+      meta: result.meta,
+      message: "Users list retrieved successfully",
+    });
   });
 
   updateUserStatus = catchAsync(async (req, res) => {

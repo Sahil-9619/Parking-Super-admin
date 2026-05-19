@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ConfirmDelete } from '@/components/shared/ConfirmDelete';
 import { DataTable } from '@/components/shared/DataTable';
+import { ServerPagination } from '@/components/shared/ServerPagination';
 import { userService } from '@/services/userService';
 import toast from 'react-hot-toast';
 
@@ -32,6 +33,8 @@ const Subscribers = () => {
     const [statusFilter, setStatusFilter] = useState<string>("");
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [loading, setLoading] = useState(true);
+    const [page, setPage] = useState(1);
+    const [meta, setMeta] = useState<any>(null);
 
     const [isRevokeOpen, setIsRevokeOpen] = useState(false);
     const [subToRevoke, setSubToRevoke] = useState<Subscription | null>(null);
@@ -41,12 +44,20 @@ const Subscribers = () => {
         const handleRefresh = () => fetchSubscribers();
         window.addEventListener('refresh-data', handleRefresh);
         return () => window.removeEventListener('refresh-data', handleRefresh);
-    }, []);
+    }, [page, searchQuery]);
+
+    useEffect(() => {
+        setPage(1);
+    }, [searchQuery]);
 
     const fetchSubscribers = async () => {
         try {
             setLoading(true);
-            const response = await userService.getAllDrivers();
+            const response = await userService.getAllDrivers({
+                page,
+                limit: 10,
+                search: searchQuery,
+            });
             const driversList = response.data || [];
             
             const mapped = driversList.map((user: any, index: number) => {
@@ -108,6 +119,7 @@ const Subscribers = () => {
                 };
             });
             setSubscriptions(mapped);
+            setMeta(response.meta || null);
         } catch (error) {
             console.error('Failed to fetch subscribers:', error);
             toast.error('Error fetching subscribers data');
@@ -132,16 +144,9 @@ const Subscribers = () => {
     };
 
     const filteredSubs = subscriptions.filter(sub => {
-        const search = searchQuery.toLowerCase();
-        const matchesSearch = 
-            sub.id.toLowerCase().includes(search) ||
-            sub.driverName.toLowerCase().includes(search) ||
-            sub.vehicleReg.toLowerCase().includes(search) ||
-            sub.passType.toLowerCase().includes(search);
-        
         const matchesStatus = statusFilter === "" || sub.status === statusFilter;
 
-        return matchesSearch && matchesStatus;
+        return matchesStatus;
     });
 
     if (loading && subscriptions.length === 0) {
@@ -205,7 +210,6 @@ const Subscribers = () => {
             {/* subscribers list table */}
             <DataTable
                 data={filteredSubs}
-                itemsPerPage={10}
                 emptyStateIcon={CreditCard}
                 emptyStateTitle="No matching subscribers"
                 emptyStateDescription="Adjust your status filter or search query to locate active parking pass holders."
@@ -215,7 +219,7 @@ const Subscribers = () => {
                         textCenter: true,
                         accessor: (_, index) => (
                             <span className="text-xs font-black text-text-muted">
-                                {(index + 1).toString().padStart(2, '0')}
+                                {((page - 1) * 10 + index + 1).toString().padStart(2, '0')}
                             </span>
                         )
                     },
@@ -312,6 +316,16 @@ const Subscribers = () => {
                     }
                 ]}
             />
+
+            {meta && (
+                <ServerPagination
+                    currentPage={page}
+                    totalPages={meta.totalPages}
+                    totalItems={meta.total}
+                    itemsPerPage={10}
+                    onPageChange={setPage}
+                />
+            )}
 
             {/* Revoke Pass confirmation */}
             <ConfirmDelete
