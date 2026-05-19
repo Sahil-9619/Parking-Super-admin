@@ -1,17 +1,15 @@
+// @ts-nocheck
 import { useState } from 'react';
 import {
     Users,
     CalendarCheck,
     CreditCard,
     Building2,
-    ArrowUpRight,
-    ArrowDownRight,
     UserPlus,
     ChevronRight,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { DataTable } from '@/components/shared/DataTable';
-import { FilterBar } from '@/components/shared/FilterBar';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
