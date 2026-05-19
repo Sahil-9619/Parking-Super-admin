@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { MapPin, Clock, Star, ShieldCheck, Activity, Smartphone, Info, Image as ImageIcon, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {

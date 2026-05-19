@@ -8,6 +8,7 @@ import disputesRoutes from "./disputes/disputes.routes.js";
 import settingsRoutes from "./settings/settings.routes.js";
 import ledgerRoutes from "./ledger/ledger.routes.js";
 import dashboardRoutes from "./dashboard/dashboard.routes.js";
+import parkingsRoutes from "./parkings/parkings.routes.js";
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ router.use("/users", usersRoutes);
 router.use("/bookings", bookingsRoutes);
 router.use("/owners", ownersRoutes);
 router.use("/disputes", disputesRoutes);
+router.use("/parkings", parkingsRoutes);
 router.use("/settings", settingsRoutes);
 router.use("/logs/transactions", ledgerRoutes);
 

@@ -190,13 +190,14 @@ const Users = () => {
                     {
                         header: "Status",
                         accessor: (user) => {
-                            const styles = {
-                                Active: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-                                Inactive: 'bg-slate-500/10 text-slate-500 border-slate-500/20',
-                                Suspended: 'bg-red-500/10 text-red-500 border-red-500/20'
+                            const styles: Record<string, string> = {
+                                active: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+                                inactive: 'bg-slate-500/10 text-slate-500 border-slate-500/20',
+                                suspended: 'bg-red-500/10 text-red-500 border-red-500/20'
                             };
+                            const normalizedStatus = user.status?.toLowerCase() || 'inactive';
                             return (
-                                <span className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${styles[user.status]}`}>
+                                <span className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${styles[normalizedStatus] || styles.inactive}`}>
                                     {user.status}
                                 </span>
                             );

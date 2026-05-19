@@ -1,4 +1,4 @@
-import { Mail, Phone, Calendar, ShieldCheck, Building2, Smartphone, Ban, Wallet, User as UserIcon, Activity, CreditCard } from 'lucide-react';
+import { Mail, Phone, ShieldCheck, Building2, Smartphone, Wallet, User as UserIcon, Activity, CreditCard } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,8 +6,6 @@ import {
     Dialog,
     DialogContent,
     DialogHeader,
-    DialogTitle,
-    DialogDescription,
 } from "@/components/ui/dialog";
 import { cn } from '@/lib/utils';
 import type { EntityType } from './ViewModal';
@@ -50,7 +48,7 @@ export function EditModal({ isOpen, onOpenChange, type, data, onSave }: EditModa
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (isOwner) {
             const submitData = {
                 ...formData,
@@ -63,10 +61,10 @@ export function EditModal({ isOpen, onOpenChange, type, data, onSave }: EditModa
             onSave(submitData);
         } else {
             // For users, strip owner-specific fields
-            const { 
-                company, gstNumber, verificationStatus, strikeCount, 
+            const {
+                company, gstNumber, verificationStatus, strikeCount,
                 bankHolder, bankAccount, bankIfsc,
-                ...userData 
+                ...userData
             } = formData;
             onSave(userData);
         }
@@ -75,7 +73,7 @@ export function EditModal({ isOpen, onOpenChange, type, data, onSave }: EditModa
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent 
+            <DialogContent
                 style={{ backgroundColor: 'rgba(var(--bg-card-rgb), 0.98)' }}
                 className="max-w-4xl rounded-[2.5rem] border-border-main backdrop-blur-3xl p-0 overflow-hidden shadow-2xl shadow-black/20 animate-in fade-in zoom-in duration-300 [&>button]:hidden"
             >
@@ -89,14 +87,14 @@ export function EditModal({ isOpen, onOpenChange, type, data, onSave }: EditModa
                             </div>
 
                             <div>
-                                <Input 
+                                <Input
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     className="text-4xl font-black text-text-main tracking-tighter leading-none mb-3 bg-transparent border-none p-0 h-auto focus-visible:ring-0"
                                     placeholder="Enter Name"
                                 />
                                 <div className="flex items-center gap-3">
-                                    <select 
+                                    <select
                                         value={formData.status.toLowerCase()}
                                         onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                                         className={cn(
@@ -116,15 +114,15 @@ export function EditModal({ isOpen, onOpenChange, type, data, onSave }: EditModa
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <Button 
+                            <Button
                                 type="button"
-                                variant="ghost" 
+                                variant="ghost"
                                 onClick={() => onOpenChange(false)}
                                 className="rounded-xl text-[9px] font-black uppercase tracking-widest h-11 px-6 hover:bg-red-500/10 hover:text-red-500 transition-all"
                             >
                                 Discard
                             </Button>
-                            <Button 
+                            <Button
                                 type="submit"
                                 className="rounded-xl bg-primary text-white text-[9px] font-black uppercase tracking-widest h-11 px-8 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                             >
@@ -153,7 +151,7 @@ export function EditModal({ isOpen, onOpenChange, type, data, onSave }: EditModa
                                     <EditField icon={Activity} label="GST Identification" value={formData.gstNumber} onChange={(v: string) => setFormData({ ...formData, gstNumber: v })} />
                                     <div className="space-y-1.5">
                                         <label className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">KYC Compliance</label>
-                                        <select 
+                                        <select
                                             value={formData.verificationStatus.toLowerCase()}
                                             onChange={(e) => setFormData({ ...formData, verificationStatus: e.target.value })}
                                             className="w-full h-11 bg-bg-main/50 border border-border-main rounded-xl px-4 text-xs font-bold text-text-main focus:outline-none focus:border-primary/30 transition-all"
@@ -185,7 +183,7 @@ export function EditModal({ isOpen, onOpenChange, type, data, onSave }: EditModa
                                 <div className="space-y-1.5">
                                     <label className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Active Strikes</label>
                                     <div className="flex items-center gap-3">
-                                        <Input 
+                                        <Input
                                             type="number"
                                             value={formData.strikeCount}
                                             onChange={(e) => setFormData({ ...formData, strikeCount: parseInt(e.target.value) })}
@@ -220,7 +218,7 @@ function EditField({ icon: Icon, label, value, onChange, type = "text" }: any) {
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-primary transition-colors">
                     <Icon size={14} />
                 </div>
-                <Input 
+                <Input
                     type={type}
                     value={value}
                     onChange={(e) => onChange(e.target.value)}

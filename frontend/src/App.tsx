@@ -9,6 +9,7 @@ import AdminLayout from './layout/AdminLayout';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Users from './admin/Users';
 import Settings from './admin/Settings';
+import Area from './admin/Area';
 
 // Navigation Wrapper is now handled inside AdminLayout for smoother sub-route transitions
 
@@ -29,6 +30,7 @@ function AnimatedRoutes() {
       >
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="owners" element={<Owners />} />
+        <Route path="area" element={<Area />} />
         <Route path="users" element={<Users />} />
         <Route path="settings" element={<Settings />} />
         {/* Catch-all for unimplemented admin routes */}

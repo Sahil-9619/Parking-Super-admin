@@ -1,4 +1,4 @@
-import { Mail, Phone, Calendar, ChevronRight, Activity, Wallet, ShieldCheck, Building2, Smartphone, Star, MapPin, Ban, CreditCard, User } from 'lucide-react';
+import { Mail, Phone, Calendar, ChevronRight, Activity, Wallet, ShieldCheck, Building2, Smartphone, Star, MapPin, Ban, User } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -52,7 +52,7 @@ export function ViewModal({ isOpen, onOpenChange, type, data, onViewParking }: V
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent 
+            <DialogContent
                 style={{ backgroundColor: 'rgba(var(--bg-card-rgb), 0.98)' }}
                 className="max-w-4xl rounded-[2.5rem] border-border-main backdrop-blur-3xl p-0 overflow-hidden shadow-2xl shadow-black/20 animate-in fade-in zoom-in duration-300 [&>button]:hidden"
             >
@@ -70,10 +70,9 @@ export function ViewModal({ isOpen, onOpenChange, type, data, onViewParking }: V
                                     {data.name}
                                 </DialogTitle>
                                 <div className="flex items-center gap-3">
-                                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-                                        data.status.toLowerCase() === 'active' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-sm shadow-emerald-500/5' : 
-                                        'bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-sm shadow-amber-500/5'
-                                    }`}>
+                                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${data.status.toLowerCase() === 'active' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-sm shadow-emerald-500/5' :
+                                            'bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-sm shadow-amber-500/5'
+                                        }`}>
                                         {data.status}
                                     </span>
                                     <p className="text-[11px] font-bold text-text-muted uppercase tracking-[0.2em] bg-bg-main px-3 py-1.5 rounded-lg border border-border-main/50">
@@ -82,8 +81,8 @@ export function ViewModal({ isOpen, onOpenChange, type, data, onViewParking }: V
                                 </div>
                             </div>
                         </div>
-                        <Button 
-                            variant="outline" 
+                        <Button
+                            variant="outline"
                             size="sm"
                             onClick={() => onOpenChange(false)}
                             className="rounded-xl border-border-main text-[9px] font-black uppercase tracking-widest h-9 px-6 hover:bg-bg-main transition-all shadow-sm"
@@ -155,8 +154,8 @@ export function ViewModal({ isOpen, onOpenChange, type, data, onViewParking }: V
                             </h6>
                             <div className="space-y-1 bg-bg-main/20 rounded-[2rem] border border-border-main/40 overflow-hidden backdrop-blur-sm">
                                 {data.parkingList.map((parking, idx) => (
-                                    <div 
-                                        key={idx} 
+                                    <div
+                                        key={idx}
                                         onClick={() => onViewParking?.(parking)}
                                         className="p-4 flex items-center justify-between group hover:bg-primary/[0.04] transition-all duration-300 cursor-pointer border-b border-border-main/20 last:border-0"
                                     >
