@@ -239,13 +239,13 @@ export class OwnersRepository {
         email,
         phone,
         status,
-        walletBalance: walletBalance ? parseFloat(walletBalance) : undefined,
+        walletBalance: walletBalance !== undefined && walletBalance !== "" ? parseFloat(walletBalance) : undefined,
         ownerProfile: {
           update: {
             ownerType: company,
             gstNumber,
             verificationStatus,
-            strikeCount: strikeCount ? parseInt(strikeCount) : undefined,
+            strikeCount: strikeCount !== undefined && strikeCount !== "" ? parseInt(strikeCount) : undefined,
             accountHolderName: bankDetails?.holder,
             bankAccount: bankDetails?.account,
             bankIfsc: bankDetails?.ifsc,

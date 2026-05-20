@@ -34,7 +34,7 @@ router.use(verifyToken);
  *                     walletBalance: { type: number, example: 250.50 }
  *   put:
  *     summary: Update User Profile Details
- *     description: Modify name or email address of the authenticated user.
+ *     description: Modify name, email, or phone of the authenticated user.
  *     tags: [Profile]
  *     security: [{ bearerAuth: [] }]
  *     requestBody:
@@ -46,6 +46,7 @@ router.use(verifyToken);
  *             properties:
  *               name: { type: string, example: "Rajesh Sharma" }
  *               email: { type: string, example: "sharma.r@example.com" }
+ *               phone: { type: string, example: "9876543210" }
  *     responses:
  *       200:
  *         description: Profile updated successfully
