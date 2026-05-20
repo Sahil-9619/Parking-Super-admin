@@ -22,6 +22,52 @@ export class AuthRepository {
     });
   }
 
+  async findUserByEmailWithUsage(email) {
+    return await prisma.user.findUnique({
+      where: { email },
+      include: {
+        ownerProfile: true,
+        _count: {
+          select: {
+            vehicles: true,
+            parkings: true,
+            bookings: true,
+            walletTxns: true,
+            payouts: true,
+            raisedDisputes: true,
+            reviews: true,
+          },
+        },
+      },
+    });
+  }
+
+  async findUserByPhoneWithUsage(phone) {
+    return await prisma.user.findUnique({
+      where: { phone },
+      include: {
+        ownerProfile: true,
+        _count: {
+          select: {
+            vehicles: true,
+            parkings: true,
+            bookings: true,
+            walletTxns: true,
+            payouts: true,
+            raisedDisputes: true,
+            reviews: true,
+          },
+        },
+      },
+    });
+  }
+
+  async deleteUser(id) {
+    return await prisma.user.delete({
+      where: { id },
+    });
+  }
+
   async createUser(userData) {
     return await prisma.user.create({ data: userData });
   }

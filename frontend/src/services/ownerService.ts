@@ -17,6 +17,9 @@ export interface Owner {
         gstNumber?: string;
         verificationStatus?: string;
         strikeCount?: number;
+        accountHolderName?: string;
+        bankAccount?: string;
+        bankIfsc?: string;
     };
     parkings?: {
         id: string;
@@ -120,4 +123,4 @@ export const ownerService = {
         }
     }
 };
-
+

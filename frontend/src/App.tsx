@@ -14,6 +14,16 @@ import Bookings from './admin/Bookings';
 import Review from './admin/Review';
 import Subscribers from './admin/Subscribers';
 
+// Import newly exposed database components
+import AddonBookings from './admin/AddonBookings';
+import CustomAddons from './admin/CustomAddons';
+import Slots from './admin/Slots';
+import PricingRules from './admin/PricingRules';
+import Payouts from './admin/Payouts';
+import Vehicles from './admin/Vehicles';
+import Disputes from './admin/Disputes';
+import WalletTxns from './admin/WalletTxns';
+
 // Navigation Wrapper is now handled inside AdminLayout for smoother sub-route transitions
 
 function AnimatedRoutes() {
@@ -39,6 +49,17 @@ function AnimatedRoutes() {
         <Route path="subscribers" element={<Subscribers />} />
         <Route path="users" element={<Users />} />
         <Route path="settings" element={<Settings />} />
+
+        {/* New DB Table routes */}
+        <Route path="addon-bookings" element={<AddonBookings />} />
+        <Route path="custom-addons" element={<CustomAddons />} />
+        <Route path="slots" element={<Slots />} />
+        <Route path="pricing-rules" element={<PricingRules />} />
+        <Route path="payouts" element={<Payouts />} />
+        <Route path="vehicles" element={<Vehicles />} />
+        <Route path="disputes" element={<Disputes />} />
+        <Route path="wallet-txns" element={<WalletTxns />} />
+
         {/* Catch-all for unimplemented admin routes */}
         <Route path="*" element={<NotFound />} />
       </Route>
