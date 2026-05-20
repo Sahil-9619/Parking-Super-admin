@@ -38,6 +38,12 @@ const AddonBookings = () => {
   }, [page, searchQuery, statusFilter]);
 
   useEffect(() => {
+    const handleRefresh = () => fetchBookings();
+    window.addEventListener('refresh-data', handleRefresh);
+    return () => window.removeEventListener('refresh-data', handleRefresh);
+  }, [page, searchQuery, statusFilter]);
+
+  useEffect(() => {
     setPage(1);
   }, [searchQuery, statusFilter]);
 
