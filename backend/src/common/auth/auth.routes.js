@@ -17,7 +17,7 @@ const router = express.Router();
  * /api/auth/register:
  *   post:
  *     summary: Step 1 - User/Owner Registration (Sends OTP)
- *     description: Register a new user (Driver, Owner, or Admin). Automatically sends a 4-digit OTP to mobile or email.
+ *     description: Starts registration for a new user (Driver, Owner, or Admin) and sends a 4-digit OTP.
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -45,7 +45,7 @@ const router = express.Router();
  *                 example: "driver"
  *     responses:
  *       201:
- *         description: OTP sent successfully
+ *         description: OTP sent successfully. No user record has been created yet.
  */
 router.post("/register", validate(registerSchema), authController.register);
 
@@ -54,7 +54,7 @@ router.post("/register", validate(registerSchema), authController.register);
  * /api/auth/verify-register-otp:
  *   post:
  *     summary: Step 2 - Verify Registration OTP & Activate Account
- *     description: Verify the 4-digit OTP sent during registration. Returns JWT access and refresh tokens upon success.
+ *     description: Verify the 4-digit OTP sent during registration, create the user account, and return JWT access and refresh tokens upon success.
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -75,7 +75,7 @@ router.post("/register", validate(registerSchema), authController.register);
  *                 example: "1234"
  *     responses:
  *       200:
- *         description: Account activated and tokens issued
+ *         description: Account created, activated, and tokens issued
  */
 router.post("/verify-register-otp", validate(verifyRegisterOtpSchema), authController.verifyRegisterOtp);
 

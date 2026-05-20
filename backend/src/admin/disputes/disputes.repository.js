@@ -1,7 +1,8 @@
 import { prisma } from "../../../config/prisma.js";
 
 export class DisputesRepository {
-  async findDisputes() {
+  async findDisputes(options = {}) {
+    const { skip, take } = options;
     return await prisma.dispute.findMany({
       include: {
         booking: {
@@ -13,7 +14,13 @@ export class DisputesRepository {
         raisedBy: { select: { name: true, userType: true } },
       },
       orderBy: { createdAt: "desc" },
+      ...(skip !== undefined && { skip }),
+      ...(take !== undefined && { take }),
     });
+  }
+
+  async countDisputes() {
+    return await prisma.dispute.count();
   }
 
   async findDisputeById(id) {

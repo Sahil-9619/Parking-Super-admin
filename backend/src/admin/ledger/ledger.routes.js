@@ -30,4 +30,23 @@ const router = express.Router();
  */
 router.get("/", ledgerController.getTransactionLedger);
 
+/**
+ * @openapi
+ * /api/admin/logs/transactions/{id}:
+ *   delete:
+ *     summary: Admin - Delete Transaction Record
+ *     description: Permanently removes a wallet transaction record from the audit ledger. Use with caution.
+ *     tags: [Admin Transaction Ledger]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Transaction deleted successfully
+ */
+router.delete("/:id", ledgerController.deleteTransaction);
+
 export default router;

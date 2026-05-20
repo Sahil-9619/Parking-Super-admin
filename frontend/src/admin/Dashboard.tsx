@@ -140,7 +140,7 @@ export default function Dashboard() {
         <div className="space-y-3 pb-12 transition-colors duration-300">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard label="Platform Revenue" value="$0.00" icon={CreditCard} color="var(--primary)" />
-                <StatCard label="Total Owners" value={stats?.totalOwners || 0} icon={Building2} color="var(--secondary)" />
+                <StatCard label="Total Owners" value={stats?.totalOwners || 0} icon={Building2} color="#059669" />
                 <StatCard label="Total Users" value={stats?.totalDrivers || 0} icon={Users} color="#f59e0b" />
                 <StatCard label="Total Bookings" value="0" icon={CalendarCheck} color="#d946ef" />
 

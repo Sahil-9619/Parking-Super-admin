@@ -10,6 +10,7 @@ import ledgerRoutes from "./ledger/ledger.routes.js";
 import dashboardRoutes from "./dashboard/dashboard.routes.js";
 import parkingsRoutes from "./parkings/parkings.routes.js";
 import reviewsRoutes from "./reviews/reviews.routes.js";
+import dbRoutes from "./db/db.routes.js";
 
 const router = express.Router();
 
@@ -27,5 +28,7 @@ router.use("/parkings", parkingsRoutes);
 router.use("/reviews", reviewsRoutes);
 router.use("/settings", settingsRoutes);
 router.use("/logs/transactions", ledgerRoutes);
+router.use("/db", dbRoutes);
 
 export default router;
+

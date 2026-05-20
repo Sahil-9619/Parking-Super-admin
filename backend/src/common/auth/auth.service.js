@@ -5,6 +5,10 @@ import { otpService } from "../../utils/otp.service.js";
 import { AppError } from "../../utils/AppError.js";
 
 export class AuthService {
+  constructor() {
+    this.pendingRegistrations = new Map();
+  }
+
   generateTokens(user) {
     const payload = {
       id: user.id,
@@ -25,32 +29,67 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
+  getRegistrationIdentifier({ phone, email }) {
+    return email || phone;
+  }
+
+  cachePendingRegistration(identifier, registrationData) {
+    this.pendingRegistrations.set(identifier, {
+      data: registrationData,
+      expiresAt: Date.now() + 10 * 60 * 1000,
+    });
+  }
+
+  getPendingRegistration(identifier) {
+    const pending = this.pendingRegistrations.get(identifier);
+    if (!pending) throw new AppError("Registration session expired. Please register again.", 400);
+
+    if (Date.now() > pending.expiresAt) {
+      this.pendingRegistrations.delete(identifier);
+      throw new AppError("Registration session expired. Please register again.", 400);
+    }
+
+    return pending.data;
+  }
+
+  async ensureIdentifierAvailable(existingUser, fieldLabel) {
+    if (!existingUser) return;
+
+    const usageCounts = Object.values(existingUser._count || {});
+    const hasActivity = usageCounts.some((count) => count > 0);
+    const hasZeroWallet = Number(existingUser.walletBalance || 0) === 0;
+
+    if (existingUser.status === "suspended" && !hasActivity && hasZeroWallet) {
+      await authRepository.deleteUser(existingUser.id);
+      return;
+    }
+
+    throw new AppError(`${fieldLabel} already registered`, 400);
+  }
+
   async register({ name, email, password, phone, userType, adminRole }) {
     if (phone) {
-      const existingPhone = await authRepository.findUserByPhone(phone);
-      if (existingPhone) throw new AppError("Phone number already registered", 400);
+      const existingPhone = await authRepository.findUserByPhoneWithUsage(phone);
+      await this.ensureIdentifierAvailable(existingPhone, "Phone number");
     }
 
     if (email) {
-      const existingEmail = await authRepository.findUserByEmail(email);
-      if (existingEmail) throw new AppError("Email already registered", 400);
+      const existingEmail = await authRepository.findUserByEmailWithUsage(email);
+      await this.ensureIdentifierAvailable(existingEmail, "Email");
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
+    const identifier = this.getRegistrationIdentifier({ phone, email });
 
-    const user = await authRepository.createUser({
+    this.cachePendingRegistration(identifier, {
       name,
       email,
       phone,
       passwordHash,
       userType,
       adminRole: userType === "admin" ? adminRole || "ops_staff" : null,
-      status: "suspended",
+      status: "active",
     });
-
-    if (userType === "owner") {
-      await authRepository.createOwnerProfile(user.id, "commercial");
-    }
 
     await otpService.sendOtp({ phone, email, purpose: "Registration" });
 
@@ -63,16 +102,29 @@ export class AuthService {
   }
 
   async verifyRegisterOtp({ phone, email, otp }) {
-    const identifier = phone || email;
+    const identifier = this.getRegistrationIdentifier({ phone, email });
     otpService.verifyOtp({ identifier, inputOtp: otp });
 
-    const user = phone
-      ? await authRepository.findUserByPhone(phone)
-      : await authRepository.findUserByEmail(email);
+    const pendingRegistration = this.getPendingRegistration(identifier);
 
-    if (!user) throw new AppError("User not found", 404);
+    if (pendingRegistration.phone) {
+      const existingPhone = await authRepository.findUserByPhoneWithUsage(pendingRegistration.phone);
+      await this.ensureIdentifierAvailable(existingPhone, "Phone number");
+    }
 
-    const activeUser = await authRepository.updateUserStatus(user.id, "active");
+    if (pendingRegistration.email) {
+      const existingEmail = await authRepository.findUserByEmailWithUsage(pendingRegistration.email);
+      await this.ensureIdentifierAvailable(existingEmail, "Email");
+    }
+
+    const createdUser = await authRepository.createUser(pendingRegistration);
+
+    if (createdUser.userType === "owner") {
+      await authRepository.createOwnerProfile(createdUser.id, "commercial");
+    }
+
+    const activeUser = await authRepository.findUserById(createdUser.id);
+    this.pendingRegistrations.delete(identifier);
     const tokens = this.generateTokens(activeUser);
 
     return {

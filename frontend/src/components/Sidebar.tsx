@@ -14,6 +14,11 @@ import {
     Menu,
     LogOut,
     Building2,
+    Tag,
+    PackagePlus,
+    Car,
+    Sparkles,
+    Scale,
     type LucideIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -47,21 +52,26 @@ export const menuItems: MenuGroup[] = [
         group: 'OWNER MANAGEMENT', items: [
             { icon: Building2, label: 'Owners List', path: '/admin/owners' },
             { icon: MapPin, label: 'Parking Areas', path: '/admin/area' },
-            { icon: Layers, label: 'Parking Zones', path: '/admin/zone' },
-            { icon: Wallet, label: 'Owner Revenue', path: '/admin/owner-revenue' },
+            { icon: Layers, label: 'Slots Occupancy', path: '/admin/slots' },
+            { icon: Tag, label: 'Pricing & Peaks', path: '/admin/pricing-rules' },
+            { icon: PackagePlus, label: 'Custom Addons', path: '/admin/custom-addons' },
+            { icon: Wallet, label: 'Partner Payouts', path: '/admin/payouts' },
         ]
     },
     {
         group: 'USER MANAGEMENT', items: [
             { icon: Users, label: 'User List', path: '/admin/users' },
-            { icon: CalendarCheck, label: 'User Bookings', path: '/admin/bookings' },
-            { icon: Star, label: 'User Reviews', path: '/admin/review' },
+            { icon: Car, label: 'User Vehicles', path: '/admin/vehicles' },
+            { icon: CalendarCheck, label: 'Main Bookings', path: '/admin/bookings' },
+            { icon: Sparkles, label: 'Service Bookings', path: '/admin/addon-bookings' },
             { icon: UserPlus, label: 'Subscriptions', path: '/admin/subscribers' },
+            { icon: Star, label: 'Reviews & Ratings', path: '/admin/review' },
         ]
     },
     {
-        group: 'SYSTEM ADMIN', items: [
-            { icon: History, label: 'System Logs', path: '/admin/history' },
+        group: 'OPERATION DESK', items: [
+            { icon: Scale, label: 'Disputes Resolver', path: '/admin/disputes' },
+            { icon: History, label: 'Financial Ledger', path: '/admin/wallet-txns' },
             { icon: Settings, label: 'General Settings', path: '/admin/settings' },
         ]
     }
