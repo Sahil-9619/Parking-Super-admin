@@ -220,6 +220,38 @@ export class AuthService {
       message: "Logged in successfully",
     };
   }
+  async refreshToken(refreshToken) {
+    if (!refreshToken) {
+      throw new AppError("Refresh token not provided", 401);
+    }
+
+    try {
+      const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET || "fallback_secret");
+      const user = await authRepository.findUserById(decoded.id);
+
+      if (!user) {
+        throw new AppError("User not found", 404);
+      }
+
+      if (user.status !== "active") {
+        throw new AppError(`Account is ${user.status}`, 403);
+      }
+
+      const tokens = this.generateTokens(user);
+
+      return {
+        success: true,
+        data: tokens,
+        message: "Token refreshed successfully",
+      };
+    } catch (err) {
+      if (err instanceof AppError) {
+        throw err;
+      }
+      throw new AppError("Invalid or expired refresh token", 401);
+    }
+  }
+
   async getUserProfile(id) {
     const user = await authRepository.getUserProfile(id);
     return user;

@@ -158,6 +158,32 @@ router.post("/login-password", validate(loginPasswordSchema), authController.log
 
 /**
  * @openapi
+ * /api/auth/refresh:
+ *   post:
+ *     summary: Refresh Access Token
+ *     description: Use refresh token to get a new access token without logging in again.
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [refreshToken]
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *     responses:
+ *       200:
+ *         description: Token refreshed successfully, returns new accessToken and refreshToken
+ *       401:
+ *         description: Invalid or expired refresh token
+ */
+router.post("/refresh", authController.refreshToken);
+
+/**
+ * @openapi
  * /api/auth/logout:
  *   post:
  *     summary: Logout current user session

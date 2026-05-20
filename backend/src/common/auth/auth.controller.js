@@ -27,6 +27,11 @@ export class AuthController {
     res.json(result);
   });
 
+  refreshToken = catchAsync(async (req, res) => {
+    const result = await authService.refreshToken(req.body.refreshToken);
+    res.json(result);
+  });
+
   logout = catchAsync(async (req, res) => {
     res.json({
       success: true,
