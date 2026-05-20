@@ -37,6 +37,12 @@ const Payouts = () => {
   }, [page, searchQuery]);
 
   useEffect(() => {
+    const handleRefresh = () => fetchPayouts();
+    window.addEventListener('refresh-data', handleRefresh);
+    return () => window.removeEventListener('refresh-data', handleRefresh);
+  }, [page, searchQuery]);
+
+  useEffect(() => {
     setPage(1);
   }, [searchQuery]);
 

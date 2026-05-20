@@ -117,6 +117,12 @@ const WalletTxns = () => {
   }, [page, typeFilter, refTypeFilter, userIdFilter, searchQuery]);
 
   useEffect(() => {
+    const handleRefresh = () => fetchTransactions();
+    window.addEventListener('refresh-data', handleRefresh);
+    return () => window.removeEventListener('refresh-data', handleRefresh);
+  }, [page, typeFilter, refTypeFilter, userIdFilter, searchQuery]);
+
+  useEffect(() => {
     setPage(1);
   }, [typeFilter, refTypeFilter, userIdFilter, searchQuery]);
 

@@ -36,6 +36,12 @@ const Vehicles = () => {
   }, [page, searchQuery]);
 
   useEffect(() => {
+    const handleRefresh = () => fetchVehicles();
+    window.addEventListener('refresh-data', handleRefresh);
+    return () => window.removeEventListener('refresh-data', handleRefresh);
+  }, [page, searchQuery]);
+
+  useEffect(() => {
     setPage(1);
   }, [searchQuery]);
 

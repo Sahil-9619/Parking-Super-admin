@@ -23,29 +23,29 @@ export function ParkingViewModal({ isOpen, onOpenChange, data }: ParkingViewModa
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent 
                 style={{ backgroundColor: 'rgba(var(--bg-card-rgb), 0.98)' }}
-                className="max-w-4xl rounded-[2.5rem] border-border-main backdrop-blur-3xl p-0 overflow-hidden shadow-2xl shadow-black/20 animate-in fade-in zoom-in duration-300 [&>button]:hidden"
+                className="max-w-4xl rounded-2xl sm:rounded-[2.5rem] border-border-main backdrop-blur-3xl p-0 shadow-2xl shadow-black/20 animate-in fade-in zoom-in duration-300 [&>button]:hidden"
             >
                 <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-primary/10 to-transparent -z-10" />
 
-                <div className="p-10 space-y-10 max-h-[90vh] overflow-y-auto custom-scrollbar">
-                    <DialogHeader className="flex flex-row items-center justify-between space-y-0 text-left">
-                        <div className="flex items-center gap-6">
-                            <div className="w-24 h-24 bg-bg-card shadow-2xl rounded-[2rem] flex items-center justify-center text-4xl font-black border-4 border-primary/20 text-primary">
+                <div className="p-5 sm:p-10 space-y-7 sm:space-y-10 max-h-[calc(100dvh-1rem)] overflow-y-auto custom-scrollbar">
+                    <DialogHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 space-y-0 text-left">
+                        <div className="flex items-center gap-4 sm:gap-6 min-w-0">
+                            <div className="w-16 h-16 sm:w-24 sm:h-24 shrink-0 bg-bg-card shadow-2xl rounded-2xl sm:rounded-[2rem] flex items-center justify-center text-2xl sm:text-4xl font-black border-4 border-primary/20 text-primary">
                                 {data.name?.charAt(0)}
                             </div>
 
-                            <div>
-                                <DialogTitle className="text-4xl font-black text-text-main tracking-tighter leading-none mb-2">
+                            <div className="min-w-0">
+                                <DialogTitle className="text-2xl sm:text-4xl font-black text-text-main tracking-tighter leading-tight sm:leading-none mb-2 truncate">
                                     {data.name}
                                 </DialogTitle>
-                                <div className="flex items-center gap-3">
+                                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                                     <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
                                         data.status?.toLowerCase() === 'active' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-sm shadow-emerald-500/5' : 
                                         'bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-sm shadow-amber-500/5'
                                     }`}>
                                         {data.status}
                                     </span>
-                                    <p className="text-[11px] font-bold text-text-muted uppercase tracking-[0.2em] bg-bg-main px-3 py-1.5 rounded-lg border border-border-main/50">
+                                    <p className="text-[10px] sm:text-[11px] font-bold text-text-muted uppercase tracking-[0.14em] sm:tracking-[0.2em] bg-bg-main px-3 py-1.5 rounded-lg border border-border-main/50">
                                         Type: {data.parkingType}
                                     </p>
                                 </div>
@@ -55,14 +55,14 @@ export function ParkingViewModal({ isOpen, onOpenChange, data }: ParkingViewModa
                             variant="outline" 
                             size="sm"
                             onClick={() => onOpenChange(false)}
-                            className="rounded-xl border-border-main text-[9px] font-black uppercase tracking-widest h-9 px-6 hover:bg-bg-main transition-all shadow-sm"
+                            className="w-full sm:w-auto rounded-xl border-border-main text-[9px] font-black uppercase tracking-widest h-9 px-6 hover:bg-bg-main transition-all shadow-sm"
                         >
                             Close Details
                         </Button>
 
                     </DialogHeader>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-7 sm:gap-10">
                         {/* Left Column: Essential Info */}
                         <div className="space-y-8">
                             <section className="space-y-4">
@@ -70,17 +70,17 @@ export function ParkingViewModal({ isOpen, onOpenChange, data }: ParkingViewModa
                                     <MapPin size={12} className="text-primary" />
                                     Geographical Location
                                 </h6>
-                                <div className="p-6 bg-bg-main/20 rounded-[2rem] border border-border-main/40 shadow-sm space-y-5 text-left backdrop-blur-sm">
+                                <div className="p-5 sm:p-6 bg-bg-main/20 rounded-2xl sm:rounded-[2rem] border border-border-main/40 shadow-sm space-y-5 text-left backdrop-blur-sm">
                                     <div className="space-y-1.5">
                                         <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Physical Address</p>
                                         <p className="text-sm font-black text-text-main leading-relaxed">{data.address}</p>
                                     </div>
-                                    <div className="flex items-center gap-10 border-t border-border-main/20 pt-5">
+                                    <div className="grid grid-cols-2 gap-4 sm:flex sm:items-center sm:gap-10 border-t border-border-main/20 pt-5">
                                         <div>
                                             <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Latitude</p>
                                             <p className="text-xs font-black text-text-main mt-1">{data.latitude}</p>
                                         </div>
-                                        <div className="w-px h-8 bg-border-main/20" />
+                                        <div className="hidden sm:block w-px h-8 bg-border-main/20" />
                                         <div>
                                             <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Longitude</p>
                                             <p className="text-xs font-black text-text-main mt-1">{data.longitude}</p>

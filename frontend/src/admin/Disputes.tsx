@@ -46,6 +46,12 @@ const Disputes = () => {
     fetchDisputes();
   }, [page]);
 
+  useEffect(() => {
+    const handleRefresh = () => fetchDisputes();
+    window.addEventListener('refresh-data', handleRefresh);
+    return () => window.removeEventListener('refresh-data', handleRefresh);
+  }, [page]);
+
   const handleOpenResolve = (dispute: Dispute) => {
     setSelectedDispute(dispute);
     // Suggest refund based on booking charges

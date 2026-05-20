@@ -14,6 +14,7 @@ import { FilterBar } from '@/components/shared/FilterBar';
 import { ConfirmDelete } from '@/components/shared/ConfirmDelete';
 import { ViewModal } from '../components/shared/ViewModal';
 import { EditModal } from '../components/shared/EditModal';
+import { ParkingViewModal } from '@/components/shared/ParkingViewModal';
 import type { Owner } from '@/services/ownerService';
 import { ownerService } from '@/services/ownerService';
 
@@ -27,6 +28,8 @@ export default function Owners() {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [ownerToDelete, setOwnerToDelete] = useState<Owner | null>(null);
+    const [selectedParking, setSelectedParking] = useState<any | null>(null);
+    const [isParkingDetailsOpen, setIsParkingDetailsOpen] = useState(false);
 
     const fetchOwners = async () => {
         try {
@@ -42,6 +45,12 @@ export default function Owners() {
 
     useEffect(() => {
         fetchOwners();
+    }, []);
+
+    useEffect(() => {
+        const handleRefresh = () => fetchOwners();
+        window.addEventListener('refresh-data', handleRefresh);
+        return () => window.removeEventListener('refresh-data', handleRefresh);
     }, []);
 
     const filteredOwners = owners.filter((owner) => {
@@ -85,6 +94,11 @@ export default function Owners() {
             ifsc: selectedOwner.ownerProfile?.bankIfsc,
         },
     } : null;
+
+    const handleViewParking = (parking: any) => {
+        setSelectedParking(parking);
+        setIsParkingDetailsOpen(true);
+    };
 
     return (
         <div className="space-y-6 pb-12">
@@ -228,6 +242,13 @@ export default function Owners() {
                 onOpenChange={setIsDetailsOpen}
                 type="owner"
                 data={selectedOwnerModalData}
+                onViewParking={handleViewParking}
+            />
+
+            <ParkingViewModal
+                isOpen={isParkingDetailsOpen}
+                onOpenChange={setIsParkingDetailsOpen}
+                data={selectedParking}
             />
 
             <EditModal

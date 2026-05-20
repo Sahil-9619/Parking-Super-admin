@@ -53,25 +53,25 @@ export function ParkingEditModal({ isOpen, onOpenChange, data, onSave }: Parking
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent 
                 style={{ backgroundColor: 'rgba(var(--bg-card-rgb), 0.98)' }}
-                className="max-w-4xl rounded-[2.5rem] border-border-main backdrop-blur-3xl p-0 overflow-hidden shadow-2xl shadow-black/20 animate-in fade-in zoom-in duration-300 [&>button]:hidden"
+                className="max-w-4xl rounded-2xl sm:rounded-[2.5rem] border-border-main backdrop-blur-3xl p-0 shadow-2xl shadow-black/20 animate-in fade-in zoom-in duration-300 [&>button]:hidden"
             >
                 <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-primary/10 to-transparent -z-10" />
 
-                <form onSubmit={handleSubmit} className="p-10 space-y-10 max-h-[90vh] overflow-y-auto custom-scrollbar">
-                    <DialogHeader className="flex flex-row items-center justify-between space-y-0 text-left">
-                        <div className="flex items-center gap-6">
-                            <div className="w-24 h-24 bg-primary/10 text-primary border-4 border-bg-card shadow-2xl rounded-[2rem] flex items-center justify-center text-4xl font-black">
+                <form onSubmit={handleSubmit} className="p-5 sm:p-10 space-y-7 sm:space-y-10 max-h-[calc(100dvh-1rem)] overflow-y-auto custom-scrollbar">
+                    <DialogHeader className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 space-y-0 text-left">
+                        <div className="flex items-center gap-4 sm:gap-6 min-w-0">
+                            <div className="w-16 h-16 sm:w-24 sm:h-24 shrink-0 bg-primary/10 text-primary border-4 border-bg-card shadow-2xl rounded-2xl sm:rounded-[2rem] flex items-center justify-center text-2xl sm:text-4xl font-black">
                                 {formData.name?.charAt(0)}
                             </div>
 
-                            <div>
+                            <div className="min-w-0 flex-1">
                                 <Input 
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="text-4xl font-black text-text-main tracking-tighter leading-none mb-3 bg-transparent border-none p-0 h-auto focus-visible:ring-0"
+                                    className="text-2xl sm:text-4xl font-black text-text-main tracking-tighter leading-tight sm:leading-none mb-3 bg-transparent border-none p-0 h-auto focus-visible:ring-0"
                                     placeholder="Enter Parking Name"
                                 />
-                                <div className="flex items-center gap-3">
+                                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                                     <select 
                                         value={formData.status.toLowerCase()}
                                         onChange={(e) => setFormData({ ...formData, status: e.target.value })}
@@ -85,31 +85,31 @@ export function ParkingEditModal({ isOpen, onOpenChange, data, onSave }: Parking
                                         <option value="banned">Banned</option>
                                         <option value="pending">Pending</option>
                                     </select>
-                                    <p className="text-[11px] font-bold text-text-muted uppercase tracking-[0.2em] bg-bg-main px-3 py-1.5 rounded-lg border border-border-main/50">
+                                    <p className="max-w-full truncate text-[10px] sm:text-[11px] font-bold text-text-muted uppercase tracking-[0.14em] sm:tracking-[0.2em] bg-bg-main px-3 py-1.5 rounded-lg border border-border-main/50">
                                         Parking ID: {data.id}
                                     </p>
                                 </div>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="grid grid-cols-2 gap-3 w-full lg:w-auto">
                             <Button 
                                 type="button"
                                 variant="ghost" 
                                 onClick={() => onOpenChange(false)}
-                                className="rounded-xl text-[9px] font-black uppercase tracking-widest h-11 px-6 hover:bg-red-500/10 hover:text-red-500 transition-all"
+                                className="rounded-xl text-[9px] font-black uppercase tracking-widest h-11 px-4 sm:px-6 hover:bg-red-500/10 hover:text-red-500 transition-all"
                             >
                                 Discard
                             </Button>
                             <Button 
                                 type="submit"
-                                className="rounded-xl bg-primary text-white text-[9px] font-black uppercase tracking-widest h-11 px-8 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                className="rounded-xl bg-primary text-white text-[9px] font-black uppercase tracking-widest h-11 px-4 sm:px-8 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                             >
                                 Save Changes
                             </Button>
                         </div>
                     </DialogHeader>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-7 sm:gap-10">
                         {/* Column 1: Location & Info */}
                         <div className="space-y-6">
                             <SectionHeader icon={MapPin} title="Location & Basic Details" />
@@ -136,7 +136,7 @@ export function ParkingEditModal({ isOpen, onOpenChange, data, onSave }: Parking
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <EditField icon={Globe} label="Latitude" type="number" step="any" value={formData.latitude} onChange={(v: string) => setFormData({ ...formData, latitude: v })} />
                                     <EditField icon={Globe} label="Longitude" type="number" step="any" value={formData.longitude} onChange={(v: string) => setFormData({ ...formData, longitude: v })} />
                                 </div>
@@ -166,7 +166,7 @@ export function ParkingEditModal({ isOpen, onOpenChange, data, onSave }: Parking
                                 </div>
 
                                 {!formData.is24hr && (
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <EditField icon={Clock} label="Opening Time" type="time" value={formData.openTime} onChange={(v: string) => setFormData({ ...formData, openTime: v })} />
                                         <EditField icon={Clock} label="Closing Time" type="time" value={formData.closeTime} onChange={(v: string) => setFormData({ ...formData, closeTime: v })} />
                                     </div>
