@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { CheckCircle, XCircle } from 'lucide-react';
 // Framer motion is now handled inside AdminLayout and individual components where needed
 import Login from './admin/Login';
 import Dashboard from './admin/Dashboard';
@@ -23,6 +24,7 @@ import Payouts from './admin/Payouts';
 import Vehicles from './admin/Vehicles';
 import Disputes from './admin/Disputes';
 import WalletTxns from './admin/WalletTxns';
+import KycApprovals from './admin/KycApprovals';
 
 // Navigation Wrapper is now handled inside AdminLayout for smoother sub-route transitions
 
@@ -59,6 +61,7 @@ function AnimatedRoutes() {
         <Route path="vehicles" element={<Vehicles />} />
         <Route path="disputes" element={<Disputes />} />
         <Route path="wallet-txns" element={<WalletTxns />} />
+        <Route path="kyc-approvals" element={<KycApprovals />} />
 
         {/* Catch-all for unimplemented admin routes */}
         <Route path="*" element={<NotFound />} />
@@ -70,7 +73,18 @@ function AnimatedRoutes() {
 function App() {
   return (
     <Router>
-      <Toaster position="top-right" reverseOrder={false} />
+      <Toaster 
+        position="top-right" 
+        reverseOrder={false} 
+        toastOptions={{
+          success: {
+            icon: <CheckCircle className="w-5 h-5 text-emerald-500" />,
+          },
+          error: {
+            icon: <XCircle className="w-5 h-5 text-red-500" />,
+          },
+        }}
+      />
       <AnimatedRoutes />
     </Router>
   );

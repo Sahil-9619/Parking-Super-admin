@@ -5,6 +5,7 @@ import { FilterBar } from '@/components/shared/FilterBar';
 import { Button } from '@/components/ui/button';
 import { ServerPagination } from '@/components/shared/ServerPagination';
 import { parkingService, type ParkingArea, type PaginationMeta } from '@/services/parkingService';
+import { showStatusToast } from '@/lib/utils';
 import toast from 'react-hot-toast';
 import { ParkingViewModal } from '@/components/shared/ParkingViewModal';
 import { ParkingEditModal } from '@/components/shared/ParkingEditModal';
@@ -24,6 +25,7 @@ export default function Area() {
     // Filters and Pagination
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+    const [typeFilter, setTypeFilter] = useState('');
     const [page, setPage] = useState(1);
     const limit = 9;
 
@@ -34,12 +36,14 @@ export default function Area() {
                 page,
                 limit,
                 search: searchQuery,
-                status: statusFilter
+                status: statusFilter,
+                parkingType: typeFilter
             });
             setAreas(response.data);
             setMeta(response.meta);
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Failed to fetch parking areas');
+            console.error('Error fetching areas:', error);
+            showStatusToast('rejected', error.response?.data?.message || 'Failed to fetch parking areas');
         } finally {
             setLoading(false);
         }
@@ -55,31 +59,34 @@ export default function Area() {
         };
         window.addEventListener('refresh-data', handleRefresh);
         return () => window.removeEventListener('refresh-data', handleRefresh);
-    }, [page, searchQuery, statusFilter]);
+    }, [page, searchQuery, statusFilter, typeFilter]);
 
-    // Reset page to 1 when search or status filter changes
+    // Reset page to 1 when search or filters change
     useEffect(() => {
         setPage(1);
-    }, [searchQuery, statusFilter]);
+    }, [searchQuery, statusFilter, typeFilter]);
 
     const handleStatusUpdate = async (id: string, newStatus: string) => {
         try {
             await parkingService.updateParkingStatus(id, newStatus);
-            toast.success(`Parking status updated to ${newStatus}`);
+            showStatusToast(newStatus, `Parking status updated to ${newStatus}`);
             fetchAreas();
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Failed to update parking status');
+            console.error('Error updating status:', error);
+            showStatusToast('rejected', error.response?.data?.message || 'Failed to update parking status');
         }
     };
 
     const handleEdit = async (data: any) => {
         try {
             await parkingService.updateParking(selectedArea!.id, data);
-            toast.success('Parking details updated successfully');
+            toast.success('Parking details updated successfully', {
+                style: { border: '1px solid rgba(16, 185, 129, 0.2)', padding: '16px', color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '12px' },
+            });
             setIsEditOpen(false);
             fetchAreas();
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Failed to update parking details');
+            showStatusToast('rejected', error.response?.data?.message || 'Failed to update parking details');
         }
     };
 
@@ -118,12 +125,21 @@ export default function Area() {
                         filterOptions={[
                             { label: 'Active', value: 'active' },
                             { label: 'Paused', value: 'paused' },
-                            { label: 'Pending', value: 'pending' },
                             { label: 'Banned', value: 'banned' },
                         ]}
                         filterValue={statusFilter}
                         onFilterChange={setStatusFilter}
                         searchPlaceholder="Search by area, location or owner..."
+                        secondFilterValue={typeFilter}
+                        onSecondFilterChange={setTypeFilter}
+                        secondFilterPlaceholder="All Types"
+                        secondFilterOptions={[
+                            { label: 'Home / Individual', value: 'home' },
+                            { label: 'Society', value: 'society' },
+                            { label: 'Commercial', value: 'commercial' },
+                            { label: 'Government', value: 'govt' },
+                            { label: 'Municipal', value: 'municipality' },
+                        ]}
                     />
                 </div>
 
@@ -225,29 +241,29 @@ export default function Area() {
                                                 {/* Actions Footer */}
                                                 <div className="pt-4 border-t border-border-main/50 flex items-center justify-between gap-2 relative z-10">
                                                     <div className="flex items-center gap-1">
-                                                        <Button 
-                                                            variant="ghost" 
+                                                        <Button
+                                                            variant="ghost"
                                                             className="h-8 w-8 p-0 text-text-muted hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                                                             onClick={() => { setSelectedArea(area); setIsViewOpen(true); }}
                                                         >
                                                             <Eye size={14} />
                                                         </Button>
-                                                        <Button 
-                                                            variant="ghost" 
+                                                        <Button
+                                                            variant="ghost"
                                                             className="h-8 w-8 p-0 text-text-muted hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
                                                             onClick={() => { setSelectedArea(area); setIsEditOpen(true); }}
                                                         >
                                                             <Edit2 size={14} />
                                                         </Button>
-                                                        <Button 
-                                                            variant="ghost" 
+                                                        <Button
+                                                            variant="ghost"
                                                             className="h-8 w-8 p-0 text-text-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
                                                             onClick={() => { setSelectedArea(area); setIsDeleteOpen(true); }}
                                                         >
                                                             <Trash2 size={14} />
                                                         </Button>
                                                     </div>
-                                                    
+
                                                     <div className="flex items-center gap-2">
                                                         {area.status !== 'active' && (
                                                             <Button

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Landmark } from 'lucide-react';
+import { Landmark, Eye } from 'lucide-react';
 import { FilterBar } from '@/components/shared/FilterBar';
 import { DataTable } from '@/components/shared/DataTable';
 import { ServerPagination } from '@/components/shared/ServerPagination';
 import { dbService, type Payout } from '@/services/dbService';
+import { Button } from '@/components/ui/button';
 import toast from 'react-hot-toast';
+import { DetailsModal } from '@/components/shared/DetailsModal';
 
 const Payouts = () => {
   const [payouts, setPayouts] = useState<Payout[]>([]);
@@ -13,6 +15,9 @@ const Payouts = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState<any>(null);
+
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [selectedPayout, setSelectedPayout] = useState<Payout | null>(null);
 
   const fetchPayouts = async () => {
     try {
@@ -49,6 +54,11 @@ const Payouts = () => {
   const filteredPayouts = statusFilter
     ? payouts.filter((p) => p.status === statusFilter)
     : payouts;
+
+  const handleOpenView = (payout: Payout) => {
+    setSelectedPayout(payout);
+    setIsViewOpen(true);
+  };
 
   return (
     <div className="space-y-6 pb-12">
@@ -185,6 +195,21 @@ const Payouts = () => {
                   </div>
                 ),
               },
+              {
+                header: 'Actions',
+                textRight: true,
+                accessor: (payout) => (
+                  <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      size="sm"
+                      onClick={() => handleOpenView(payout)}
+                      className="bg-bg-main/50 text-text-main border-border-main shadow-sm hover:bg-bg-main hover:text-primary text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 h-auto rounded-lg flex items-center gap-1.5"
+                    >
+                      <Eye size={11} /> View
+                    </Button>
+                  </div>
+                ),
+              },
             ]}
           />
 
@@ -199,6 +224,13 @@ const Payouts = () => {
           )}
         </>
       )}
+
+      <DetailsModal 
+        isOpen={isViewOpen} 
+        onClose={() => setIsViewOpen(false)} 
+        title="Payout" 
+        data={selectedPayout} 
+      />
     </div>
   );
 };

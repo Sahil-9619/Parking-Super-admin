@@ -8,6 +8,7 @@ import {
   loginOtpSendSchema,
   loginOtpVerifySchema,
   loginPasswordSchema,
+  changePasswordSchema,
 } from "./auth.schema.js";
 
 const router = express.Router();
@@ -209,5 +210,33 @@ router.post("/logout", verifyToken, authController.logout);
  *         description: Profile payload retrieved successfully
  */
 router.get("/profile", verifyToken, authController.getProfile);
+
+/**
+ * @openapi
+ * /api/auth/change-password:
+ *   post:
+ *     summary: Change User Password
+ *     description: Allows an authenticated user to change their password.
+ *     tags: [Authentication]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [oldPassword, newPassword]
+ *             properties:
+ *               oldPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ *       400:
+ *         description: Incorrect old password
+ */
+router.post("/change-password", verifyToken, validate(changePasswordSchema), authController.changePassword);
 
 export default router;

@@ -21,7 +21,6 @@ enum AdminRole {
 
 enum UserStatus {
   active
-  suspended
   banned
 }
 
@@ -48,7 +47,6 @@ enum ParkingType {
 }
 
 enum ParkingStatus {
-  pending
   active
   paused
   banned
@@ -106,6 +104,18 @@ enum ReviewTargetType {
   addon
 }
 
+enum SubscriptionPlan {
+  basic
+  premium
+  pro
+}
+
+enum SubscriptionStatus {
+  active
+  cancelled
+  expired
+}
+
 model User {
   id             String         @id @default(uuid())
   phone          String?        @unique
@@ -128,6 +138,7 @@ model User {
   payouts           Payout[]
   raisedDisputes    Dispute[]
   reviews           Review[]
+  subscriptions     Subscription[]
 
   @@map("users")
 }
@@ -140,6 +151,8 @@ model OwnerProfile {
   bankIfsc          String?   @map("bank_ifsc")    // AES-256 encrypted
   accountHolderName String?   @map("account_holder_name")
   gstNumber          String?   @map("gst_number")
+  aadharNumber       String?   @map("aadhar_number")
+  panNumber          String?   @map("pan_number")
   verificationStatus String    @default("pending") @map("verification_status")
   strikeCount        Int       @default(0) @map("strike_count")
   createdAt          DateTime  @default(now()) @map("created_at")
@@ -177,7 +190,7 @@ model Parking {
   openTime      String        @map("open_time") // HH:mm format
   closeTime     String        @map("close_time") // HH:mm format
   is24hr        Boolean       @default(false) @map("is_24hr")
-  status        ParkingStatus @default(pending)
+  status        ParkingStatus @default(active)
   avgRating     Decimal       @default(0.0) @map("avg_rating")
   addonsEnabled String[]      @map("addons_enabled")
   isFull        Boolean       @default(false) @map("is_full")
@@ -367,4 +380,20 @@ model Review {
   reviewer User   @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
 
   @@map("reviews")
+}
+
+model Subscription {
+  id        String             @id @default(uuid())
+  userId    String             @map("user_id")
+  plan      SubscriptionPlan   @default(basic)
+  status    SubscriptionStatus @default(active)
+  startDate DateTime           @default(now()) @map("start_date")
+  endDate   DateTime           @map("end_date")
+  price     Decimal            @default(0.0)
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @updatedAt @map("updated_at")
+
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
 }

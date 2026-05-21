@@ -3,7 +3,8 @@ import {
     Sliders,
     Search,
     CreditCard,
-    Trash2
+    Trash2,
+    Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +13,7 @@ import { DataTable } from '@/components/shared/DataTable';
 import { ServerPagination } from '@/components/shared/ServerPagination';
 import { userService } from '@/services/userService';
 import toast from 'react-hot-toast';
+import { DetailsModal } from '@/components/shared/DetailsModal';
 
 interface Subscription {
     id: string;
@@ -38,6 +40,9 @@ const Subscribers = () => {
 
     const [isRevokeOpen, setIsRevokeOpen] = useState(false);
     const [subToRevoke, setSubToRevoke] = useState<Subscription | null>(null);
+
+    const [isViewOpen, setIsViewOpen] = useState(false);
+    const [selectedSub, setSelectedSub] = useState<Subscription | null>(null);
 
     useEffect(() => {
         fetchSubscribers();
@@ -141,6 +146,11 @@ const Subscribers = () => {
         }));
         setIsRevokeOpen(false);
         setSubToRevoke(null);
+    };
+
+    const handleOpenView = (sub: Subscription) => {
+        setSelectedSub(sub);
+        setIsViewOpen(true);
     };
 
     const filteredSubs = subscriptions.filter(sub => {
@@ -301,6 +311,13 @@ const Subscribers = () => {
                         textRight: true,
                         accessor: (sub) => (
                             <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                                <Button
+                                    size="sm"
+                                    onClick={() => handleOpenView(sub)}
+                                    className="bg-bg-main/50 text-text-main border-border-main shadow-sm hover:bg-bg-main hover:text-primary text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 h-auto rounded-lg flex items-center gap-1.5"
+                                >
+                                    <Eye size={11} /> View
+                                </Button>
                                 {sub.status !== 'Expired' && sub.status !== 'Revoked' && (
                                     <Button
                                         variant="ghost"
@@ -340,6 +357,13 @@ const Subscribers = () => {
                         and disable gate access checks.
                     </span>
                 }
+            />
+
+            <DetailsModal 
+                isOpen={isViewOpen} 
+                onClose={() => setIsViewOpen(false)} 
+                title="Subscription" 
+                data={selectedSub} 
             />
         </div>
     );

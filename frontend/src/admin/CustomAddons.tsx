@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/shared/DataTable';
 import { ServerPagination } from '@/components/shared/ServerPagination';
 import { dbService, type CustomAddon } from '@/services/dbService';
 import toast from 'react-hot-toast';
+import { DetailsModal } from '@/components/shared/DetailsModal';
 
 const CustomAddons = () => {
   const [addons, setAddons] = useState<CustomAddon[]>([]);
@@ -12,6 +14,9 @@ const CustomAddons = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState<any>(null);
+  
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [selectedAddon, setSelectedAddon] = useState<CustomAddon | null>(null);
 
   const fetchAddons = async () => {
     try {
@@ -44,6 +49,11 @@ const CustomAddons = () => {
   useEffect(() => {
     setPage(1);
   }, [searchQuery]);
+
+  const handleOpenView = (addon: CustomAddon) => {
+    setSelectedAddon(addon);
+    setIsViewOpen(true);
+  };
 
   return (
     <div className="space-y-6 pb-12">
@@ -146,6 +156,21 @@ const CustomAddons = () => {
                   </div>
                 ),
               },
+              {
+                header: 'Actions',
+                textCenter: true,
+                accessor: (addon) => (
+                  <div className="flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      size="sm"
+                      onClick={() => handleOpenView(addon)}
+                      className="bg-bg-main/50 text-text-main border-border-main shadow-sm hover:bg-bg-main hover:text-primary text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 h-auto rounded-lg flex items-center gap-1.5"
+                    >
+                      <Eye size={11} /> View
+                    </Button>
+                  </div>
+                )
+              }
             ]}
           />
 
@@ -160,6 +185,13 @@ const CustomAddons = () => {
           )}
         </>
       )}
+
+      <DetailsModal 
+        isOpen={isViewOpen} 
+        onClose={() => setIsViewOpen(false)} 
+        title="Custom Addon" 
+        data={selectedAddon} 
+      />
     </div>
   );
 };

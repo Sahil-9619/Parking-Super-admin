@@ -51,7 +51,7 @@ export interface ParkingAreaResponse {
 }
 
 export const parkingService = {
-    getAllParkings: async (params?: { page?: number; limit?: number; search?: string; status?: string }) => {
+    getAllParkings: async (params?: { page?: number; limit?: number; search?: string; status?: string; parkingType?: string }) => {
         const response = await api.get<ParkingAreaResponse>('/admin/parkings', { params });
         return response.data;
     },

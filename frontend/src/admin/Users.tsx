@@ -16,6 +16,8 @@ import { Button } from '@/components/ui/button';
 import { ViewModal } from '../components/shared/ViewModal';
 import { EditModal } from '../components/shared/EditModal';
 import { ConfirmDelete } from '@/components/shared/ConfirmDelete';
+import { showStatusToast } from '@/lib/utils';
+import toast from 'react-hot-toast';
 import { userService } from '@/services/userService';
 import type { User as PlatformUser } from '@/services/userService';
 
@@ -79,10 +81,14 @@ const Users = () => {
         if (!selectedUser) return;
         try {
             await userService.updateUser(selectedUser.id, formData);
+            toast.success('User details updated successfully', {
+                style: { border: '1px solid rgba(16, 185, 129, 0.2)', padding: '16px', color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '12px' },
+            });
             fetchDrivers();
             setIsEditOpen(false);
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
+            showStatusToast('rejected', error.message || 'Failed to update user');
         }
     };
 
@@ -117,9 +123,8 @@ const Users = () => {
                 filterValue={statusFilter}
                 onFilterChange={setStatusFilter}
                 filterOptions={[
-                    { label: "Active", value: "Active" },
-                    { label: "Inactive", value: "Inactive" },
-                    { label: "Suspended", value: "Suspended" }
+                    { label: "Active", value: "active" },
+                    { label: "Banned", value: "banned" }
                 ]}
                 filterPlaceholder="All Status"
             />
@@ -186,12 +191,11 @@ const Users = () => {
                         accessor: (user) => {
                             const styles: Record<string, string> = {
                                 active: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-                                inactive: 'bg-slate-500/10 text-slate-500 border-slate-500/20',
-                                suspended: 'bg-red-500/10 text-red-500 border-red-500/20'
+                                banned: 'bg-red-500/10 text-red-500 border-red-500/20'
                             };
-                            const normalizedStatus = user.status?.toLowerCase() || 'inactive';
+                            const normalizedStatus = user.status?.toLowerCase() || 'active';
                             return (
-                                <span className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${styles[normalizedStatus] || styles.inactive}`}>
+                                <span className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${styles[normalizedStatus] || styles.active}`}>
                                     {user.status}
                                 </span>
                             );
@@ -257,6 +261,7 @@ const Users = () => {
                     ...selectedUser,
                     role: selectedUser.userType ? selectedUser.userType.charAt(0).toUpperCase() + selectedUser.userType.slice(1) : 'User',
                     joined: selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : 'N/A',
+                    updated: selectedUser.updatedAt ? new Date(selectedUser.updatedAt).toLocaleDateString() : 'N/A',
                     walletBalance: selectedUser.walletBalance?.toString() || '0'
                 } : null}
 
@@ -271,6 +276,7 @@ const Users = () => {
                     ...selectedUser,
                     role: selectedUser.userType ? selectedUser.userType.charAt(0).toUpperCase() + selectedUser.userType.slice(1) : 'User',
                     joined: selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : 'N/A',
+                    updated: selectedUser.updatedAt ? new Date(selectedUser.updatedAt).toLocaleDateString() : 'N/A',
                     walletBalance: selectedUser.walletBalance?.toString() || '0'
                 } : null}
 

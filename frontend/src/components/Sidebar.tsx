@@ -19,6 +19,7 @@ import {
     Car,
     Sparkles,
     Scale,
+    ShieldCheck,
     type LucideIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -51,6 +52,7 @@ export const menuItems: MenuGroup[] = [
     {
         group: 'OWNER MANAGEMENT', items: [
             { icon: Building2, label: 'Owners List', path: '/admin/owners' },
+            { icon: ShieldCheck, label: 'KYC Approvals', path: '/admin/kyc-approvals' },
             { icon: MapPin, label: 'Parking Areas', path: '/admin/area' },
             { icon: Layers, label: 'Slots Occupancy', path: '/admin/slots' },
             { icon: Tag, label: 'Pricing & Peaks', path: '/admin/pricing-rules' },

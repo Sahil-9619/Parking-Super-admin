@@ -1,12 +1,15 @@
 import { prisma } from "../../../config/prisma.js";
 
 export class ParkingsRepository {
-  async findAllParkings(page = 1, limit = 10, search = '', status = '') {
+  async findAllParkings(page = 1, limit = 10, search = '', status = '', parkingType = '') {
     const skip = (page - 1) * limit;
     
     const where = {};
     if (status && status !== 'All') {
       where.status = status.toLowerCase();
+    }
+    if (parkingType && parkingType !== 'All') {
+      where.parkingType = parkingType;
     }
     if (search) {
       where.OR = [

@@ -50,4 +50,14 @@ export const authService = {
   isAuthenticated: () => {
     return !!localStorage.getItem('token');
   },
+
+  changePassword: async (data: Record<string, unknown>) => {
+    try {
+      const response = await api.post('/auth/change-password', data);
+      return response.data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw err.response?.data || { message: 'Network Error' };
+    }
+  },
 };

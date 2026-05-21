@@ -74,8 +74,9 @@ export function EditModal({ isOpen, onOpenChange, type, data, onSave }: EditModa
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent
+                onOpenAutoFocus={(e) => e.preventDefault()}
                 style={{ backgroundColor: 'rgba(var(--bg-card-rgb), 0.98)' }}
-                className="max-w-4xl rounded-2xl sm:rounded-[2.5rem] border-border-main backdrop-blur-3xl p-0 shadow-2xl shadow-black/20 animate-in fade-in zoom-in duration-300 [&>button]:hidden"
+                className="max-w-4xl rounded-xl sm:rounded-2xl border-border-main backdrop-blur-3xl p-0 shadow-2xl shadow-black/20 animate-in fade-in zoom-in duration-300 [&>button]:hidden"
             >
                 <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-primary/10 to-transparent -z-10" />
 
@@ -90,23 +91,32 @@ export function EditModal({ isOpen, onOpenChange, type, data, onSave }: EditModa
                                 <Input
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="text-2xl sm:text-4xl font-black text-text-main tracking-tighter leading-tight sm:leading-none mb-3 bg-transparent border-none p-0 h-auto focus-visible:ring-0"
+                                    className="text-2xl sm:text-3xl font-black text-text-main tracking-tighter leading-tight sm:leading-none mb-3 bg-bg-main/50 border border-border-main rounded-xl px-4 py-2 h-auto focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
                                     placeholder="Enter Name"
                                 />
                                 <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                                    <select
-                                        value={formData.status.toLowerCase()}
-                                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                        className={cn(
-                                            "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all cursor-pointer appearance-none bg-bg-main",
-                                            formData.status.toLowerCase() === 'active' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
-                                        )}
-                                    >
-                                        <option value="active">Active</option>
-                                        <option value="suspended">Suspended</option>
-                                        <option value="banned">Banned</option>
-                                        <option value="pending">Pending</option>
-                                    </select>
+                                    <div className="flex items-center gap-1 bg-bg-main p-1 rounded-xl border border-border-main/50">
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, status: 'active' })}
+                                            className={cn(
+                                                "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                                                formData.status.toLowerCase() === 'active' ? "bg-emerald-500/20 text-emerald-500 border border-emerald-500/20" : "text-text-muted hover:bg-bg-card border border-transparent"
+                                            )}
+                                        >
+                                            Active
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, status: 'banned' })}
+                                            className={cn(
+                                                "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                                                formData.status.toLowerCase() === 'banned' ? "bg-red-500/20 text-red-500 border border-red-500/20" : "text-text-muted hover:bg-bg-card border border-transparent"
+                                            )}
+                                        >
+                                            Banned
+                                        </button>
+                                    </div>
                                     <p className="max-w-full truncate text-[10px] sm:text-[11px] font-bold text-text-muted uppercase tracking-[0.14em] sm:tracking-[0.2em] bg-bg-main px-3 py-1.5 rounded-lg border border-border-main/50">
                                         Partner ID: {data.id}
                                     </p>

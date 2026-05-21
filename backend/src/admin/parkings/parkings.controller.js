@@ -3,8 +3,8 @@ import { catchAsync } from "../../utils/catchAsync.js";
 
 export class ParkingsController {
   getAllParkings = catchAsync(async (req, res) => {
-    const { page, limit, search, status } = req.query;
-    const result = await parkingsService.getAllParkings(page, limit, search, status);
+    const { page, limit, search, status, parkingType } = req.query;
+    const result = await parkingsService.getAllParkings(page, limit, search, status, parkingType);
     res.json(result);
   });
 

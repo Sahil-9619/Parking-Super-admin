@@ -256,6 +256,24 @@ export class AuthService {
     const user = await authRepository.getUserProfile(id);
     return user;
   }
+
+  async changePassword(userId, { oldPassword, newPassword }) {
+    const user = await authRepository.findUserById(userId);
+    if (!user) throw new AppError("User not found", 404);
+
+    if (!user.passwordHash) throw new AppError("Password not set for this account.", 400);
+
+    const isMatch = await bcrypt.compare(oldPassword, user.passwordHash);
+    if (!isMatch) throw new AppError("Incorrect old password", 400);
+
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+    await authRepository.updatePassword(userId, newPasswordHash);
+
+    return {
+      success: true,
+      message: "Password changed successfully",
+    };
+  }
 }
 
 export const authService = new AuthService();

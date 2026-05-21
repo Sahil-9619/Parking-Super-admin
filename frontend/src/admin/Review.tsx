@@ -4,7 +4,8 @@ import {
     Trash2,
     MessageSquare,
     Sliders,
-    Search
+    Search,
+    Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,7 @@ import { DataTable } from '@/components/shared/DataTable';
 import { ServerPagination } from '@/components/shared/ServerPagination';
 import { reviewService, type Review } from '@/services/reviewService';
 import toast from 'react-hot-toast';
+import { DetailsModal } from '@/components/shared/DetailsModal';
 
 const ReviewComponent = () => {
     const [reviews, setReviews] = useState<Review[]>([]);
@@ -24,6 +26,9 @@ const ReviewComponent = () => {
 
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [reviewToDelete, setReviewToDelete] = useState<Review | null>(null);
+
+    const [isViewOpen, setIsViewOpen] = useState(false);
+    const [selectedReview, setSelectedReview] = useState<Review | null>(null);
 
     const fetchReviews = async () => {
         try {
@@ -81,6 +86,10 @@ const ReviewComponent = () => {
         });
     };
 
+    const handleOpenView = (review: Review) => {
+        setSelectedReview(review);
+        setIsViewOpen(true);
+    };
 
     if (loading && reviews.length === 0) {
         return (
@@ -228,7 +237,14 @@ const ReviewComponent = () => {
                             header: 'Actions',
                             textRight: true,
                             accessor: (review) => (
-                                <div className="flex items-center justify-end" onClick={(e) => e.stopPropagation()}>
+                                <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                                    <Button
+                                        size="sm"
+                                        onClick={() => handleOpenView(review)}
+                                        className="bg-bg-main/50 text-text-main border-border-main shadow-sm hover:bg-bg-main hover:text-primary text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 h-auto rounded-lg flex items-center gap-1.5"
+                                    >
+                                        <Eye size={11} /> View
+                                    </Button>
                                     <Button
                                         variant="ghost"
                                         size="icon"
@@ -273,6 +289,13 @@ const ReviewComponent = () => {
                         and recalculate the average score metrics for this parking hub.
                     </span>
                 }
+            />
+
+            <DetailsModal 
+                isOpen={isViewOpen} 
+                onClose={() => setIsViewOpen(false)} 
+                title="Review" 
+                data={selectedReview} 
             />
         </div>
     );

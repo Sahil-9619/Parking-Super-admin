@@ -5,7 +5,8 @@ import {
     CalendarCheck,
     CreditCard,
     Building2,
-    UserPlus,
+    FileText,
+    Settings,
     ChevronRight,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -286,19 +287,23 @@ export default function Dashboard() {
                         </div>
 
                         <div className="flex flex-wrap gap-2 w-full md:w-auto">
-                            <Button
-                                className="flex-1 md:flex-none bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 px-4 py-2.5 h-auto rounded-xl flex items-center justify-center gap-2 group transition-all"
-                            >
-                                <UserPlus size={14} className="group-hover:scale-110 transition-transform" />
-                                <span className="text-[9px] font-black uppercase tracking-widest">Create New User</span>
-                            </Button>
+                            <Link to="/admin/bookings">
+                                <Button
+                                    className="flex-1 md:flex-none bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 px-4 py-2.5 h-auto rounded-xl flex items-center justify-center gap-2 group transition-all"
+                                >
+                                    <CalendarCheck size={14} className="group-hover:scale-110 transition-transform" />
+                                    <span className="text-[9px] font-black uppercase tracking-widest">View Bookings</span>
+                                </Button>
+                            </Link>
 
-                            <Button
-                                className="flex-1 md:flex-none bg-primary text-white border-primary shadow-lg shadow-primary/20 hover:bg-primary/90 px-4 py-2.5 h-auto rounded-xl flex items-center justify-center gap-2 group transition-all"
-                            >
-                                <Building2 size={14} className="group-hover:scale-110 transition-transform" />
-                                <span className="text-[9px] font-black uppercase tracking-widest">Register Owner</span>
-                            </Button>
+                            <Link to="/admin/settings">
+                                <Button
+                                    className="flex-1 md:flex-none bg-primary text-white border-primary shadow-lg shadow-primary/20 hover:bg-primary/90 px-4 py-2.5 h-auto rounded-xl flex items-center justify-center gap-2 group transition-all"
+                                >
+                                    <Settings size={14} className="group-hover:scale-110 transition-transform" />
+                                    <span className="text-[9px] font-black uppercase tracking-widest">System Settings</span>
+                                </Button>
+                            </Link>
                         </div>
                     </div>
                 </div>

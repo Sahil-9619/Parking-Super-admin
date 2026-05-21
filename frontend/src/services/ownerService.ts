@@ -62,6 +62,16 @@ export const ownerService = {
         }
     },
 
+    // Get KYC List
+    getOwnerKycList: async (status?: string) => {
+        try {
+            const response = await api.get('/admin/owners/kyc', { params: { status } });
+            return response.data;
+        } catch (error: any) {
+            throw error.response?.data || { message: 'Failed to fetch KYC profiles' };
+        }
+    },
+
 
     // Onboard owner
     onboardOwner: async (data: OnboardOwnerPayload) => {
