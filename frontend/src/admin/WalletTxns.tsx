@@ -392,7 +392,7 @@ const WalletTxns = () => {
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-primary hover:text-white bg-primary/5 hover:bg-primary border border-primary/20 hover:border-primary rounded-lg transition-all group"
                   >
                     <Eye className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
-                    Inspect
+                    View
                   </button>
                 ),
               },

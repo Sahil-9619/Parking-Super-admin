@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-    Plus,
+    Download,
     Edit2,
     Trash2,
     Eye,
@@ -15,6 +15,8 @@ import { ConfirmDelete } from '@/components/shared/ConfirmDelete';
 import { ViewModal } from '../components/shared/ViewModal';
 import { EditModal } from '../components/shared/EditModal';
 import { ParkingViewModal } from '@/components/shared/ParkingViewModal';
+import { showStatusToast } from '@/lib/utils';
+import toast from 'react-hot-toast';
 import type { Owner } from '@/services/ownerService';
 import { ownerService } from '@/services/ownerService';
 
@@ -73,6 +75,21 @@ export default function Owners() {
         setOwnerToDelete(null);
     };
 
+    const handleUpdate = async (formData: any) => {
+        if (!selectedOwner) return;
+        try {
+            await ownerService.updateOwner(selectedOwner.id, formData);
+            toast.success('Owner details updated successfully', {
+                style: { border: '1px solid rgba(16, 185, 129, 0.2)', padding: '16px', color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '12px' },
+            });
+            fetchOwners();
+            setIsEditOpen(false);
+        } catch (error: any) {
+            console.error(error);
+            showStatusToast('rejected', error.message || 'Failed to update owner');
+        }
+    };
+
     const selectedOwnerModalData = selectedOwner ? {
         id: selectedOwner.id,
         name: selectedOwner.name,
@@ -85,7 +102,7 @@ export default function Owners() {
         gstNumber: selectedOwner.ownerProfile?.gstNumber,
         verificationStatus: selectedOwner.ownerProfile?.verificationStatus,
         strikeCount: selectedOwner.ownerProfile?.strikeCount,
-        walletBalance: `Rs. ${Number(selectedOwner.walletBalance || 0).toLocaleString('en-IN')}`,
+        walletBalance: selectedOwner.walletBalance?.toString() || '0',
         parkingList: selectedOwner.parkings || [],
         role: selectedOwner.userType,
         bankDetails: {
@@ -100,6 +117,40 @@ export default function Owners() {
         setIsParkingDetailsOpen(true);
     };
 
+    const handleExportExcel = () => {
+        if (filteredOwners.length === 0) {
+            toast.error('No data to export');
+            return;
+        }
+
+        const headers = ['ID', 'Name', 'Email', 'Phone', 'Status', 'Wallet Balance', 'Joined Date', 'Total Parkings'];
+        
+        const csvRows = filteredOwners.map(owner => [
+            owner.id,
+            `"${owner.name || ''}"`,
+            `"${owner.email || ''}"`,
+            `"${owner.phone || ''}"`,
+            owner.status || '',
+            owner.walletBalance || 0,
+            owner.createdAt ? new Date(owner.createdAt).toLocaleDateString() : '',
+            owner._count?.parkings || 0
+        ].join(','));
+        
+        const csvString = [headers.join(','), ...csvRows].join('\n');
+        
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `owners_export_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        toast.success('Export downloaded successfully');
+    };
+
     return (
         <div className="space-y-6 pb-12">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -109,9 +160,12 @@ export default function Owners() {
                         Manage and monitor all parking facility owners
                     </p>
                 </div>
-                <Button className="bg-primary text-white border-primary shadow-md shadow-primary/20 hover:bg-primary/90 px-4 py-2.5 h-auto rounded-lg flex items-center gap-2 group transition-all">
-                    <Plus size={14} className="group-hover:scale-110 transition-transform" />
-                    <span className="text-[9px] font-black uppercase tracking-widest">Add New Owner</span>
+                <Button 
+                    onClick={handleExportExcel}
+                    className="bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/20 hover:bg-emerald-600 px-4 py-2.5 h-auto rounded-lg flex items-center gap-2 group transition-all"
+                >
+                    <Download size={14} className="group-hover:translate-y-0.5 transition-transform" />
+                    <span className="text-[9px] font-black uppercase tracking-widest">Export to Excel</span>
                 </Button>
             </div>
 
@@ -123,8 +177,6 @@ export default function Owners() {
                 onFilterChange={setStatusFilter}
                 filterOptions={[
                     { label: 'Active', value: 'active' },
-                    { label: 'Pending', value: 'pending' },
-                    { label: 'Suspended', value: 'suspended' },
                     { label: 'Banned', value: 'banned' },
                 ]}
                 filterPlaceholder="All Status"
@@ -195,7 +247,7 @@ export default function Owners() {
                             accessor: (owner) => (
                                 <span className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${owner.status === 'active'
                                     ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-sm shadow-emerald-500/5'
-                                    : 'bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-sm shadow-amber-500/5'
+                                    : 'bg-red-500/10 text-red-500 border-red-500/20 shadow-sm shadow-red-500/5'
                                     }`}>
                                     {owner.status}
                                 </span>
@@ -256,7 +308,7 @@ export default function Owners() {
                 onOpenChange={setIsEditOpen}
                 type="owner"
                 data={selectedOwnerModalData}
-                onSave={() => setIsEditOpen(false)}
+                onSave={handleUpdate}
             />
 
             <ConfirmDelete

@@ -48,6 +48,11 @@ export class AuthController {
       message: "Profile retrieved successfully",
     });
   });
+
+  changePassword = catchAsync(async (req, res) => {
+    const result = await authService.changePassword(req.user.id, req.body);
+    res.json(result);
+  });
 }
 
 export const authController = new AuthController();

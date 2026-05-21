@@ -54,18 +54,18 @@ export function ViewModal({ isOpen, onOpenChange, type, data, onViewParking }: V
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent
                 style={{ backgroundColor: 'rgba(var(--bg-card-rgb), 0.98)' }}
-                className="max-w-4xl rounded-2xl sm:rounded-[2.5rem] border-border-main backdrop-blur-3xl p-0 shadow-2xl shadow-black/20 animate-in fade-in zoom-in duration-300 [&>button]:hidden"
+                className="max-w-4xl rounded-xl sm:rounded-2xl border-border-main backdrop-blur-3xl p-0 shadow-2xl shadow-black/20 animate-in fade-in zoom-in duration-300 [&>button]:hidden"
             >
                 <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-primary/10 to-transparent -z-10" />
 
                 <div className="p-5 sm:p-10 space-y-7 sm:space-y-10 max-h-[calc(100dvh-1rem)] overflow-y-auto custom-scrollbar">
-                    <DialogHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 space-y-0 text-left">
-                        <div className="flex items-center gap-4 sm:gap-6 min-w-0">
-                            <div className="w-16 h-16 sm:w-24 sm:h-24 shrink-0 bg-primary/10 text-primary border-4 border-bg-card shadow-2xl rounded-2xl sm:rounded-[2rem] flex items-center justify-center text-2xl sm:text-4xl font-black">
+                    <DialogHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 space-y-0 text-left border-b border-border-main/50 pb-6">
+                        <div className="flex items-center gap-5 sm:gap-6 min-w-0">
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 bg-bg-main text-primary border border-border-main rounded-full flex items-center justify-center text-2xl sm:text-3xl font-black relative overflow-hidden">
                                 {data.avatar || data.name?.charAt(0)}
                             </div>
 
-                            <div className="min-w-0">
+                            <div className="min-w-0 py-1">
                                 <DialogTitle className="text-2xl sm:text-4xl font-black text-text-main tracking-tighter leading-tight sm:leading-none mb-2 truncate">
                                     {data.name}
                                 </DialogTitle>
@@ -85,7 +85,7 @@ export function ViewModal({ isOpen, onOpenChange, type, data, onViewParking }: V
                             variant="outline"
                             size="sm"
                             onClick={() => onOpenChange(false)}
-                            className="w-full sm:w-auto rounded-xl border-border-main text-[9px] font-black uppercase tracking-widest h-9 px-6 hover:bg-bg-main transition-all shadow-sm"
+                            className="w-full sm:w-auto rounded-xl border-border-main text-[9px] font-black uppercase tracking-widest h-10 px-6 hover:bg-bg-main hover:text-text-main transition-all shadow-sm"
                         >
                             Close Profile
                         </Button>
@@ -93,64 +93,56 @@ export function ViewModal({ isOpen, onOpenChange, type, data, onViewParking }: V
                         <DialogDescription className="hidden">Detailed view of {type} profile</DialogDescription>
                     </DialogHeader>
 
-                    <div className={cn("grid gap-6 pt-2 sm:pt-4", isOwner ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-4" : "grid-cols-1 md:grid-cols-2")}>
-
+                    <div className={cn("grid gap-6 pt-4", isOwner ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-4" : "grid-cols-1 md:grid-cols-2")}>
                         {/* Column 1: Contact & Personal */}
-                        <div className="space-y-6">
-                            <h6 className="text-[11px] font-black text-text-muted uppercase tracking-[0.25em] flex items-center gap-2 px-1 text-left">
-                                <Smartphone size={12} className="text-primary" />
+                        <div className="space-y-4">
+                            <h6 className="text-[11px] font-black text-text-main uppercase tracking-[0.2em] border-b border-border-main/50 pb-2">
                                 Communication
                             </h6>
-                            <div className="space-y-3">
-                                <InfoCard icon={Mail} label="Professional Email" value={data.email} color="text-primary" />
-                                <InfoCard icon={Phone} label="Direct Contact" value={data.phone} color="text-primary" />
-                                <InfoCard icon={User} label="Assigned Role" value={data.role} color="text-primary" />
-                                <InfoCard icon={Calendar} label="Member Since" value={data.joined} color="text-primary" />
+                            <div className="space-y-1">
+                                <InfoCard icon={Mail} label="Email" value={data.email} color="text-text-muted" />
+                                <InfoCard icon={Phone} label="Contact" value={data.phone} color="text-text-muted" />
+                                <InfoCard icon={User} label="Role" value={data.role} color="text-text-muted" />
+                                <InfoCard icon={Calendar} label="Member Since" value={data.joined} color="text-text-muted" />
                             </div>
                         </div>
 
-
                         {/* Column 2: Business & KYC (Owners Only) */}
                         {isOwner && (
-                            <div className="space-y-6">
-                                <h6 className="text-[11px] font-black text-text-muted uppercase tracking-[0.25em] flex items-center gap-2 px-1 text-left">
-                                    <Building2 size={12} className="text-primary" />
+                            <div className="space-y-4">
+                                <h6 className="text-[11px] font-black text-text-main uppercase tracking-[0.2em] border-b border-border-main/50 pb-2">
                                     Business Profile
                                 </h6>
-                                <div className="space-y-3">
-                                    <InfoCard icon={ShieldCheck} label="Account Category" value={data.company} color="text-primary" />
-                                    <InfoCard icon={Activity} label="GST Identification" value={data.gstNumber} color="text-primary" />
-                                    <InfoCard icon={Activity} label="KYC Compliance" value={data.verificationStatus} color="text-primary" />
+                                <div className="space-y-1">
+                                    <InfoCard icon={ShieldCheck} label="Account Category" value={data.company} color="text-emerald-500" />
+                                    <InfoCard icon={Activity} label="GST Identification" value={data.gstNumber} color="text-emerald-500" />
+                                    <InfoCard icon={Activity} label="KYC Compliance" value={data.verificationStatus} color="text-emerald-500" />
                                 </div>
                             </div>
                         )}
-
 
                         {/* Column 3: Financial Accounts (Owners Only) */}
                         {isOwner && (
-                            <div className="space-y-6">
-                                <h6 className="text-[11px] font-black text-text-muted uppercase tracking-[0.25em] flex items-center gap-2 px-1 text-left">
-                                    <CreditCard size={12} className="text-primary" />
+                            <div className="space-y-4">
+                                <h6 className="text-[11px] font-black text-text-main uppercase tracking-[0.2em] border-b border-border-main/50 pb-2">
                                     Financial Accounts
                                 </h6>
-                                <div className="space-y-3">
-                                    <InfoCard icon={User} label="Account Holder" value={data.bankDetails?.holder || 'N/A'} color="text-primary" />
-                                    <InfoCard icon={CreditCard} label="Account Number" value={data.bankDetails?.account || 'N/A'} color="text-primary" />
-                                    <InfoCard icon={Activity} label="IFSC Code" value={data.bankDetails?.ifsc || 'N/A'} color="text-primary" />
+                                <div className="space-y-1">
+                                    <InfoCard icon={User} label="Account Holder" value={data.bankDetails?.holder || 'N/A'} color="text-blue-500" />
+                                    <InfoCard icon={CreditCard} label="Account Number" value={data.bankDetails?.account || 'N/A'} color="text-blue-500" />
+                                    <InfoCard icon={Activity} label="IFSC Code" value={data.bankDetails?.ifsc || 'N/A'} color="text-blue-500" />
                                 </div>
                             </div>
                         )}
 
-
                         {/* Column 4: Wallet & Safety */}
-                        <div className="space-y-6">
-                            <h6 className="text-[11px] font-black text-text-muted uppercase tracking-[0.25em] flex items-center gap-2 px-1 text-left">
-                                <Wallet size={12} className="text-primary" />
+                        <div className="space-y-4">
+                            <h6 className="text-[11px] font-black text-text-main uppercase tracking-[0.2em] border-b border-border-main/50 pb-2">
                                 Wallet & Safety
                             </h6>
-                            <div className="space-y-3">
-                                <InfoCard icon={Wallet} label="Total Balance" value={data.walletBalance} color="text-primary" />
-                                {isOwner && <InfoCard icon={Ban} label="Active Strikes" value={`${data.strikeCount} Warnings`} color={data.strikeCount && data.strikeCount > 0 ? "text-red-500" : "text-primary"} />}
+                            <div className="space-y-1">
+                                <InfoCard icon={Wallet} label="Total Balance" value={data.walletBalance} color="text-amber-500" />
+                                {isOwner && <InfoCard icon={Ban} label="Active Strikes" value={`${data.strikeCount} Warnings`} color={data.strikeCount && data.strikeCount > 0 ? "text-red-500" : "text-text-muted"} />}
                                 <InfoCard icon={Calendar} label="Last Modified" value={data.updated || 'N/A'} color="text-text-muted" />
                             </div>
                         </div>
@@ -209,14 +201,12 @@ export function ViewModal({ isOpen, onOpenChange, type, data, onViewParking }: V
 
 function InfoCard({ icon: Icon, label, value, color }: any) {
     return (
-        <div className="flex items-center gap-4 py-3 group transition-all border-b border-border-main/20 last:border-0">
-            <div className={cn("p-2.5 bg-primary/5 rounded-xl transition-transform border border-primary/10", color || "text-primary")}>
-                <Icon size={16} strokeWidth={2.5} />
-            </div>
-            <div className="min-w-0 flex-1">
-                <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] mb-0.5 leading-none">{label}</p>
-                <p className="text-sm font-black text-text-main truncate leading-tight">{value || 'N/A'}</p>
-            </div>
+        <div className="flex flex-col gap-1 p-2 hover:bg-bg-main/40 rounded-xl transition-colors group">
+            <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2 leading-none">
+                <Icon size={12} className={color || "text-text-muted"} strokeWidth={3} />
+                {label}
+            </p>
+            <p className="text-sm font-bold text-text-main break-all leading-tight mt-1">{value || 'N/A'}</p>
         </div>
     );
 }

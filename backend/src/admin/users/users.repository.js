@@ -27,6 +27,7 @@ export class UsersRepository {
           walletBalance: true,
           status: true,
           createdAt: true,
+          updatedAt: true,
         },
         orderBy: { createdAt: "desc" },
         skip,

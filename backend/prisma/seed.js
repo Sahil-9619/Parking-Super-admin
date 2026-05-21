@@ -18,6 +18,7 @@ function encrypt(text) {
 
 async function main() {
   console.log("🧹 Cleaning database...");
+  await prisma.subscription.deleteMany();
   await prisma.review.deleteMany();
   await prisma.addonBooking.deleteMany();
   await prisma.customAddon.deleteMany();
@@ -83,13 +84,32 @@ async function main() {
   // ═══════════════════════════════════════════════════════════
   console.log("🏢 Seeding owner profiles...");
   await prisma.ownerProfile.create({
-    data: { userId: owner1.id, ownerType: "commercial", bankAccount: encrypt("1234567890123456"), bankIfsc: encrypt("HDFC0001234"), accountHolderName: "Rajesh Sharma", gstNumber: "07AABCU9603R1ZM", verificationStatus: "approved" },
+    data: { userId: owner1.id, ownerType: "commercial", bankAccount: encrypt("1234567890123456"), bankIfsc: encrypt("HDFC0001234"), accountHolderName: "Rajesh Sharma", gstNumber: "07AABCU9603R1ZM", aadharNumber: "123456789012", panNumber: "ABCDE1234F", verificationStatus: "approved" },
   });
   await prisma.ownerProfile.create({
-    data: { userId: owner2.id, ownerType: "society", bankAccount: encrypt("9876543210987654"), bankIfsc: encrypt("ICIC0002345"), accountHolderName: "Priya Enterprises Pvt Ltd", gstNumber: "27AADCB2230M1ZT", verificationStatus: "approved" },
+    data: { userId: owner2.id, ownerType: "society", bankAccount: encrypt("9876543210987654"), bankIfsc: encrypt("ICIC0002345"), accountHolderName: "Priya Enterprises Pvt Ltd", gstNumber: "27AADCB2230M1ZT", aadharNumber: "234567890123", panNumber: "BCDEF2345G", verificationStatus: "approved" },
   });
   await prisma.ownerProfile.create({
-    data: { userId: owner3.id, ownerType: "municipality", bankAccount: encrypt("5555666677778888"), bankIfsc: encrypt("SBIN0003456"), accountHolderName: "Delhi Municipal Corporation", gstNumber: "07AAAGD0001A1ZR", verificationStatus: "pending" },
+    data: { userId: owner3.id, ownerType: "municipality", bankAccount: encrypt("5555666677778888"), bankIfsc: encrypt("SBIN0003456"), accountHolderName: "Delhi Municipal Corporation", gstNumber: "07AAAGD0001A1ZR", aadharNumber: "345678901234", panNumber: "CDEFG3456H", verificationStatus: "pending" },
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // 3.1 SUBSCRIPTIONS
+  // ═══════════════════════════════════════════════════════════
+  console.log("🎟️  Seeding subscriptions...");
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const thirtyDaysFromNow = new Date();
+  thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
+  await prisma.subscription.createMany({
+    data: [
+      { userId: drivers[0].id, plan: "premium", status: "active", startDate: new Date(), endDate: thirtyDaysFromNow, price: 499 },
+      { userId: drivers[1].id, plan: "pro", status: "active", startDate: new Date(), endDate: thirtyDaysFromNow, price: 999 },
+      { userId: drivers[2].id, plan: "basic", status: "expired", startDate: thirtyDaysAgo, endDate: new Date(), price: 199 },
+      { userId: owner1.id, plan: "pro", status: "active", startDate: new Date(), endDate: thirtyDaysFromNow, price: 1999 },
+      { userId: owner2.id, plan: "premium", status: "cancelled", startDate: thirtyDaysAgo, endDate: thirtyDaysFromNow, price: 999 },
+    ]
   });
 
   // ═══════════════════════════════════════════════════════════

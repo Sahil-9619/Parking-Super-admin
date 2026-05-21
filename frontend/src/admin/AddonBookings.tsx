@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Box, Calendar } from 'lucide-react';
+import { Box, Calendar, Eye } from 'lucide-react';
 import { FilterBar } from '@/components/shared/FilterBar';
 import { DataTable } from '@/components/shared/DataTable';
 import { ServerPagination } from '@/components/shared/ServerPagination';
 import { dbService, type AddonBooking } from '@/services/dbService';
+import { Button } from '@/components/ui/button';
 import toast from 'react-hot-toast';
+import { DetailsModal } from '@/components/shared/DetailsModal';
 
 const AddonBookings = () => {
   const [bookings, setBookings] = useState<AddonBooking[]>([]);
@@ -13,6 +15,9 @@ const AddonBookings = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState<any>(null);
+
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<AddonBooking | null>(null);
 
   const fetchBookings = async () => {
     try {
@@ -46,6 +51,11 @@ const AddonBookings = () => {
   useEffect(() => {
     setPage(1);
   }, [searchQuery, statusFilter]);
+
+  const handleOpenView = (booking: AddonBooking) => {
+    setSelectedBooking(booking);
+    setIsViewOpen(true);
+  };
 
   return (
     <div className="space-y-6 pb-12">
@@ -171,6 +181,21 @@ const AddonBookings = () => {
                   </div>
                 ),
               },
+              {
+                header: 'Actions',
+                textRight: true,
+                accessor: (booking) => (
+                  <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      size="sm"
+                      onClick={() => handleOpenView(booking)}
+                      className="bg-bg-main/50 text-text-main border-border-main shadow-sm hover:bg-bg-main hover:text-primary text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 h-auto rounded-lg flex items-center gap-1.5"
+                    >
+                      <Eye size={11} /> View
+                    </Button>
+                  </div>
+                ),
+              },
             ]}
           />
 
@@ -185,6 +210,13 @@ const AddonBookings = () => {
           )}
         </>
       )}
+
+      <DetailsModal 
+        isOpen={isViewOpen} 
+        onClose={() => setIsViewOpen(false)} 
+        title="Add-on Booking" 
+        data={selectedBooking} 
+      />
     </div>
   );
 };

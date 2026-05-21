@@ -2,8 +2,8 @@ import { parkingsRepository } from "./parkings.repository.js";
 import { AppError } from "../../utils/AppError.js";
 
 export class ParkingsService {
-  async getAllParkings(page, limit, search, status) {
-    const result = await parkingsRepository.findAllParkings(page, limit, search, status);
+  async getAllParkings(page, limit, search, status, parkingType) {
+    const result = await parkingsRepository.findAllParkings(page, limit, search, status, parkingType);
     return {
       status: "success",
       results: result.data.length,

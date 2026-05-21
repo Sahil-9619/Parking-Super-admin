@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AlertOctagon, CheckCircle2, Scale } from 'lucide-react';
+import { AlertOctagon, CheckCircle2, Scale, Eye } from 'lucide-react';
 import { DataTable } from '@/components/shared/DataTable';
 import { ServerPagination } from '@/components/shared/ServerPagination';
 import { dbService, type Dispute } from '@/services/dbService';
@@ -13,6 +13,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import toast from 'react-hot-toast';
+import { DetailsModal } from '@/components/shared/DetailsModal';
 
 const Disputes = () => {
   const [disputes, setDisputes] = useState<Dispute[]>([]);
@@ -27,6 +28,10 @@ const Disputes = () => {
   const [refundAmount, setRefundAmount] = useState('0');
   const [adminNote, setAdminNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // View Details Modal state
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [selectedDisputeForView, setSelectedDisputeForView] = useState<Dispute | null>(null);
 
   const fetchDisputes = async () => {
     try {
@@ -60,6 +65,11 @@ const Disputes = () => {
     setResolution('full_refund');
     setAdminNote('');
     setIsResolveOpen(true);
+  };
+
+  const handleOpenView = (dispute: Dispute) => {
+    setSelectedDisputeForView(dispute);
+    setIsViewOpen(true);
   };
 
   const handleResolveSubmit = async (e: React.FormEvent) => {
@@ -198,7 +208,14 @@ const Disputes = () => {
                 header: 'Settle / Actions',
                 textRight: true,
                 accessor: (dispute) => (
-                  <div className="flex items-center justify-end" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      size="sm"
+                      onClick={() => handleOpenView(dispute)}
+                      className="bg-bg-main/50 text-text-main border-border-main shadow-sm hover:bg-bg-main hover:text-primary text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 h-auto rounded-lg flex items-center gap-1.5"
+                    >
+                      <Eye size={11} /> View
+                    </Button>
                     {dispute.status !== 'resolved' ? (
                       <Button
                         size="sm"
@@ -315,6 +332,13 @@ const Disputes = () => {
           </form>
         </DialogContent>
       </Dialog>
+      
+      <DetailsModal 
+        isOpen={isViewOpen} 
+        onClose={() => setIsViewOpen(false)} 
+        title="Dispute" 
+        data={selectedDisputeForView} 
+      />
     </div>
   );
 };

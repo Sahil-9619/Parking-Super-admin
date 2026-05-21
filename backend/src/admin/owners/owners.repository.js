@@ -30,6 +30,7 @@ export class OwnersRepository {
           walletBalance: true,
           status: true,
           createdAt: true,
+          updatedAt: true,
 
           ownerProfile: {
             select: {
@@ -186,7 +187,7 @@ export class OwnersRepository {
 
       await tx.parking.updateMany({
         where: { ownerId, status: "paused" },
-        data: { status: "pending" },
+        data: { status: "active" },
       });
 
       return user;

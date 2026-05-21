@@ -23,7 +23,7 @@ export function ParkingViewModal({ isOpen, onOpenChange, data }: ParkingViewModa
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent 
                 style={{ backgroundColor: 'rgba(var(--bg-card-rgb), 0.98)' }}
-                className="max-w-4xl rounded-2xl sm:rounded-[2.5rem] border-border-main backdrop-blur-3xl p-0 shadow-2xl shadow-black/20 animate-in fade-in zoom-in duration-300 [&>button]:hidden"
+                className="max-w-4xl rounded-xl sm:rounded-2xl border-border-main backdrop-blur-3xl p-0 shadow-2xl shadow-black/20 animate-in fade-in zoom-in duration-300 [&>button]:hidden"
             >
                 <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-primary/10 to-transparent -z-10" />
 
