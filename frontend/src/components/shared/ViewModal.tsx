@@ -1,4 +1,4 @@
-import { Mail, Phone, Calendar, ChevronRight, Activity, Wallet, ShieldCheck, Building2, Smartphone, Star, MapPin, Ban, User, CreditCard } from 'lucide-react';
+import { Mail, Phone, Calendar, ChevronRight, Activity, Wallet, ShieldCheck, Star, MapPin, Ban, User, CreditCard } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {

@@ -59,6 +59,16 @@ export default function KycApprovals() {
         }
     };
 
+    const handleDirectApprove = async (id: string) => {
+        try {
+            await ownerService.approveKyc(id, 'approved');
+            showStatusToast('approved', `KYC approved successfully`);
+            fetchKycList();
+        } catch (error: any) {
+            showStatusToast('rejected', error.message || `Failed to approve KYC`);
+        }
+    };
+
     const handleOpenView = (profile: any) => {
         setSelectedProfile(profile);
         setIsViewOpen(true);
@@ -180,8 +190,7 @@ export default function KycApprovals() {
                                                 size="sm"
                                                 className="h-8 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all rounded-lg text-xs font-bold"
                                                 onClick={() => {
-                                                    setSelectedAction({ id: profile.userId, name: profile.user?.name, status: 'approved' });
-                                                    setIsConfirmOpen(true);
+                                                    handleDirectApprove(profile.userId);
                                                 }}
                                             >
                                                 <CheckCircle size={14} className="mr-1" /> Approve
@@ -217,6 +226,7 @@ export default function KycApprovals() {
                         {selectedAction?.status === 'approved' ? ' This will allow them to create parking lots.' : ' They will need to re-submit their documents.'}
                     </>
                 }
+                confirmText="Confirm Reject"
             />
 
             <DetailsModal
