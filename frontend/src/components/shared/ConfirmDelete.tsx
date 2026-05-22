@@ -16,6 +16,7 @@ interface ConfirmDeleteProps {
     onConfirm: () => void;
     title: string;
     description: React.ReactNode;
+    confirmText?: string;
 }
 
 export function ConfirmDelete({ 
@@ -23,7 +24,8 @@ export function ConfirmDelete({
     onOpenChange, 
     onConfirm, 
     title, 
-    description 
+    description,
+    confirmText = "Confirm Delete"
 }: ConfirmDeleteProps) {
     return (
         <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
@@ -58,7 +60,7 @@ export function ConfirmDelete({
                         onClick={onConfirm}
                         className="w-full h-11 rounded-xl font-black uppercase tracking-widest text-[10px] bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/20 active:scale-95 transition-all"
                     >
-                        Confirm Delete
+                        {confirmText}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
