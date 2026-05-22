@@ -135,7 +135,7 @@ async function main() {
     { ownerId: owner1.id, name: "Rajesh Tower Basement", type: "commercial", address: "Connaught Place, New Delhi 110001", lat: 28.6315, lng: 77.2167, open: "00:00", close: "23:59", is24: true, addons: ["car_wash"], status: "active" },
     { ownerId: owner2.id, name: "Green Valley Society Parking", type: "society", address: "Andheri West, Mumbai 400053", lat: 19.1364, lng: 72.8296, open: "07:00", close: "22:00", is24: false, addons: ["tyre_inflation"], status: "active" },
     { ownerId: owner2.id, name: "Priya Business Hub", type: "commercial", address: "BKC, Mumbai 400051", lat: 19.0654, lng: 72.8697, open: "00:00", close: "23:59", is24: true, addons: ["car_wash", "ev_charging", "tyre_inflation"], status: "active" },
-    { ownerId: owner3.id, name: "DMC Public Parking Zone A", type: "municipality", address: "Chandni Chowk, Delhi 110006", lat: 28.6506, lng: 77.2303, open: "08:00", close: "20:00", is24: false, addons: [], status: "pending" },
+    { ownerId: owner3.id, name: "DMC Public Parking Zone A", type: "municipality", address: "Chandni Chowk, Delhi 110006", lat: 28.6506, lng: 77.2303, open: "08:00", close: "20:00", is24: false, addons: [], status: "paused" },
   ];
 
   const parkings = [];

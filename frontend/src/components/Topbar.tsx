@@ -1,13 +1,35 @@
 import ThemeToggle from './ThemeToggle';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { menuItems } from './Sidebar';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Maximize, Minimize } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function Topbar() {
     const location = useLocation();
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            setIsFullscreen(!!document.fullscreenElement);
+        };
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    }, []);
+
+    const toggleFullscreen = () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch((err) => {
+                console.error(`Error attempting to enable fullscreen mode: ${err.message}`);
+            });
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    };
 
     // Dynamically fetch the label from the Sidebar's menu configuration
     const getActivePageLabel = (pathname: string) => {
@@ -44,6 +66,14 @@ export default function Topbar() {
 
             {/* Right Actions */}
             <div className="flex items-center gap-2 sm:gap-4">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleFullscreen}
+                    className="rounded-xl h-10 w-10 text-text-muted hover:text-primary hover:bg-primary/10 transition-all"
+                >
+                    {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
+                </Button>
                 <Button 
                     variant="ghost" 
                     size="icon" 
