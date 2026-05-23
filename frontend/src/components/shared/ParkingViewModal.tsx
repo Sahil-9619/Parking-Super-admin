@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { MapPin, Clock, Star, ShieldCheck, Activity, Smartphone, Info, Image as ImageIcon, Calendar } from 'lucide-react';
+import { MapPin, Clock, Star, ShieldCheck, Activity, Smartphone, Info, Image as ImageIcon, Calendar, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -141,11 +141,11 @@ export function ParkingViewModal({ isOpen, onOpenChange, data }: ParkingViewModa
                             <section className="space-y-4">
                                 <h6 className="text-[11px] font-black text-text-muted uppercase tracking-[0.25em] flex items-center gap-2 px-1 text-left">
                                     <ImageIcon size={12} className="text-primary" />
-                                    Visual Assets ({data.photos?.length || 0})
+                                    Visual Assets ({data.parkingAreaPics?.length || 0})
                                 </h6>
-                                {data.photos && data.photos.length > 0 ? (
+                                {data.parkingAreaPics && data.parkingAreaPics.length > 0 ? (
                                     <div className="grid grid-cols-2 gap-3">
-                                        {data.photos.map((photo: string, i: number) => (
+                                        {data.parkingAreaPics.map((photo: string, i: number) => (
                                             <div key={i} className="aspect-video rounded-2xl bg-bg-main border border-border-main/60 overflow-hidden group relative">
                                                 <img src={photo} alt={`Parking ${i}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                             </div>
@@ -230,6 +230,42 @@ export function ParkingViewModal({ isOpen, onOpenChange, data }: ParkingViewModa
                                 <div className="flex items-center justify-between">
                                     <p className="text-[9px] font-black text-text-muted uppercase tracking-widest">Last Synced</p>
                                     <p className="text-[10px] font-bold text-text-main">{new Date(data.updatedAt).toLocaleString()}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* KYC & Ownership Documents */}
+                        <div className="space-y-4 md:col-span-2">
+                            <h6 className="text-[11px] font-black text-text-muted uppercase tracking-[0.25em] flex items-center gap-2 px-1 text-left">
+                                <FileText size={12} className="text-primary" />
+                                KYC & Ownership Documents
+                            </h6>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-5 bg-bg-main/20 rounded-[1.5rem] border border-border-main/40 backdrop-blur-sm">
+                                <div className="space-y-3">
+                                    <div>
+                                        <p className="text-[9px] font-black text-text-muted uppercase tracking-widest">KYC Status</p>
+                                        <p className={`text-xs font-black uppercase mt-1 ${data.kycStatus === 'approved' ? 'text-emerald-500' : data.kycStatus === 'rejected' ? 'text-red-500' : 'text-amber-500'}`}>
+                                            {data.kycStatus}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[9px] font-black text-text-muted uppercase tracking-widest">Ownership Type</p>
+                                        <p className="text-sm font-black text-text-main capitalize mt-1">{data.ownershipType}</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    {data.ownershipType === 'owned' && data.propertyPaper && (
+                                        <div>
+                                            <p className="text-[9px] font-black text-text-muted uppercase tracking-widest">Property Paper</p>
+                                            <a href={data.propertyPaper} target="_blank" rel="noreferrer" className="text-xs font-black text-primary hover:underline mt-1 inline-block">View Document</a>
+                                        </div>
+                                    )}
+                                    {data.ownershipType === 'rental' && data.leaseAgreement && (
+                                        <div>
+                                            <p className="text-[9px] font-black text-text-muted uppercase tracking-widest">Lease Agreement</p>
+                                            <a href={data.leaseAgreement} target="_blank" rel="noreferrer" className="text-xs font-black text-primary hover:underline mt-1 inline-block">View Document</a>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

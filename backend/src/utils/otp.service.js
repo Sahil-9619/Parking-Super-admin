@@ -30,7 +30,7 @@ class OtpService {
    */
   async sendOtp({ phone, email, purpose = "Verification" }) {
     const otp = this.generateOtp();
-    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes TTL
+    const expiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes TTL
 
     // ─── EMAIL CHANNEL (PRIORITY 1) ───────────────────────────────
     if (email) {
@@ -48,7 +48,7 @@ class OtpService {
               <div style="background: #f4f4f4; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #e94560;">
                 ${otp}
               </div>
-              <p>This OTP is valid for 10 minutes. Please do not share this code.</p>
+              <p>This OTP is valid for 15 minutes. Please do not share this code.</p>
               <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
               <p style="font-size: 12px; color: #888; text-align: center;">© 2026 ParkPal Inc.</p>
             </div>

@@ -1,7 +1,7 @@
 import { prisma } from "../../../config/prisma.js";
 
 export class ParkingsRepository {
-  async findAllParkings(page = 1, limit = 10, search = '', status = '', parkingType = '') {
+  async findAllParkings(page = 1, limit = 10, search = '', status = '', parkingType = '', kycStatus = '') {
     const skip = (page - 1) * limit;
     
     const where = {};
@@ -10,6 +10,9 @@ export class ParkingsRepository {
     }
     if (parkingType && parkingType !== 'All') {
       where.parkingType = parkingType;
+    }
+    if (kycStatus && kycStatus !== 'All') {
+      where.kycStatus = kycStatus.toLowerCase();
     }
     if (search) {
       where.OR = [
@@ -54,16 +57,42 @@ export class ParkingsRepository {
     });
   }
 
+  async updateParkingKycStatus(parkingId, kycStatus) {
+    return await prisma.parking.update({
+      where: { id: parkingId },
+      data: { kycStatus },
+      include: {
+        user: { select: { name: true, email: true } },
+      },
+    });
+  }
+
   async findParkingById(parkingId) {
     return await prisma.parking.findUnique({
       where: { id: parkingId },
     });
   }
   async updateParking(parkingId, data) {
-    return await prisma.parking.update({
+    if (data.ownershipType === 'owned') {
+      data.leaseAgreement = null;
+    } else if (data.ownershipType === 'rental') {
+      data.propertyPaper = null;
+    }
+
+    const updated = await prisma.parking.update({
       where: { id: parkingId },
       data,
     });
+
+    if (data.latitude !== undefined && data.longitude !== undefined) {
+      await prisma.$executeRawUnsafe(`
+        UPDATE parkings 
+        SET location = ST_SetSRID(ST_MakePoint(${data.longitude}, ${data.latitude}), 4326) 
+        WHERE id = '${parkingId}';
+      `);
+    }
+
+    return updated;
   }
 
   async deleteParking(parkingId) {

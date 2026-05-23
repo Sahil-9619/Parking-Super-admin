@@ -15,6 +15,7 @@ import { ConfirmDelete } from '@/components/shared/ConfirmDelete';
 import { ViewModal } from '../components/shared/ViewModal';
 import { EditModal } from '../components/shared/EditModal';
 import { ParkingViewModal } from '@/components/shared/ParkingViewModal';
+import { ServerPagination } from '@/components/shared/ServerPagination';
 import { showStatusToast } from '@/lib/utils';
 import toast from 'react-hot-toast';
 import type { Owner } from '@/services/ownerService';
@@ -25,6 +26,8 @@ export default function Owners() {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+    const [page, setPage] = useState(1);
+    const [meta, setMeta] = useState<any>(null);
     const [selectedOwner, setSelectedOwner] = useState<Owner | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -36,8 +39,14 @@ export default function Owners() {
     const fetchOwners = async () => {
         try {
             setLoading(true);
-            const response = await ownerService.getAllOwners();
+            const response = await ownerService.getAllOwners({
+                page,
+                limit: 10,
+                search: searchQuery,
+                status: statusFilter
+            });
             setOwners(response.data || []);
+            setMeta(response.meta || null);
         } catch (error) {
             console.error(error);
         } finally {
@@ -47,24 +56,19 @@ export default function Owners() {
 
     useEffect(() => {
         fetchOwners();
-    }, []);
+    }, [page, searchQuery, statusFilter]);
 
     useEffect(() => {
         const handleRefresh = () => fetchOwners();
         window.addEventListener('refresh-data', handleRefresh);
         return () => window.removeEventListener('refresh-data', handleRefresh);
-    }, []);
+    }, [page, searchQuery, statusFilter]);
 
-    const filteredOwners = owners.filter((owner) => {
-        const search = searchQuery.toLowerCase();
-        const matchesSearch =
-            owner.name?.toLowerCase().includes(search) ||
-            owner.email?.toLowerCase().includes(search) ||
-            owner.phone?.toLowerCase().includes(search);
+    useEffect(() => {
+        setPage(1);
+    }, [searchQuery, statusFilter]);
 
-        const matchesStatus = !statusFilter || owner.status === statusFilter;
-        return matchesSearch && matchesStatus;
-    });
+    const filteredOwners = owners;
 
     const handleDelete = async () => {
         if (!ownerToDelete) return;
@@ -187,9 +191,9 @@ export default function Owners() {
                     <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
                 </div>
             ) : (
+                <>
                 <DataTable
                     data={filteredOwners}
-                    itemsPerPage={3}
                     onRowClick={(owner) => { setSelectedOwner(owner); setIsDetailsOpen(true); }}
                     emptyStateIcon={Building2}
                     emptyStateTitle="No owners found"
@@ -287,6 +291,16 @@ export default function Owners() {
                         },
                     ]}
                 />
+                {meta && (
+                    <ServerPagination
+                        currentPage={page}
+                        totalPages={meta.totalPages}
+                        totalItems={meta.total}
+                        itemsPerPage={10}
+                        onPageChange={setPage}
+                    />
+                )}
+                </>
             )}
 
             <ViewModal

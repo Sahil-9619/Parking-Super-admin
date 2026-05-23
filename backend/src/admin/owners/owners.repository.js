@@ -132,17 +132,44 @@ export class OwnersRepository {
     });
   }
 
-  async findOwnerProfiles(status) {
-    const where = status ? { verificationStatus: status } : {};
-    return await prisma.ownerProfile.findMany({
-      where,
-      include: {
-        user: {
-          select: { name: true, phone: true, email: true, status: true },
+  async findOwnerProfiles(page = 1, limit = 10, search = "", status = "") {
+    const skip = (page - 1) * limit;
+    const where = {};
+    if (status) {
+      where.verificationStatus = status;
+    }
+    if (search) {
+      where.OR = [
+        { gstNumber: { contains: search, mode: "insensitive" } },
+        { user: { name: { contains: search, mode: "insensitive" } } },
+        { user: { email: { contains: search, mode: "insensitive" } } },
+      ];
+    }
+
+    const [data, total] = await Promise.all([
+      prisma.ownerProfile.findMany({
+        where,
+        include: {
+          user: {
+            select: { name: true, phone: true, email: true, status: true },
+          },
         },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.ownerProfile.count({ where }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
       },
-      orderBy: { createdAt: "desc" },
-    });
+    };
   }
 
   async findOwnerProfileById(ownerId) {
@@ -158,6 +185,19 @@ export class OwnersRepository {
       data: { verificationStatus: status },
       include: {
         user: { select: { name: true, phone: true, email: true } },
+      },
+    });
+  }
+
+  async clearKycDetails(ownerId) {
+    return await prisma.ownerProfile.update({
+      where: { userId: ownerId },
+      data: {
+        aadharNumber: null,
+        aadharPic: null,
+        bankAccount: null,
+        bankIfsc: null,
+        accountHolderName: null,
       },
     });
   }

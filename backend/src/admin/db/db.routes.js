@@ -131,4 +131,29 @@ router.get("/vehicles", dbController.getVehicles);
  */
 router.get("/payouts", dbController.getPayouts);
 
+/**
+ * @openapi
+ * /api/admin/db/parking-slots:
+ *   get:
+ *     summary: Admin - List Parking Slots
+ *     description: Retrieve a global paginated list of parking slots across all parking locations.
+ *     tags: [Admin Database Views]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 10 }
+ *       - in: query
+ *         name: search
+ *         schema: { type: string }
+ *         description: Search by parking facility name.
+ *     responses:
+ *       200:
+ *         description: Parking slots retrieved successfully
+ */
+router.get("/parking-slots", dbController.getParkingSlots);
+
 export default router;

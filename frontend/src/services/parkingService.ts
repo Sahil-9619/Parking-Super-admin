@@ -26,6 +26,11 @@ export interface ParkingArea {
     isFull: boolean;
     isClosed: boolean;
     reopenAt: string | null;
+    ownershipType: 'owned' | 'rental';
+    propertyPaper: string | null;
+    leaseAgreement: string | null;
+    parkingAreaPics: string[];
+    kycStatus: 'pending' | 'approved' | 'rejected';
     createdAt: string;
     updatedAt: string;
     user?: {
@@ -51,7 +56,7 @@ export interface ParkingAreaResponse {
 }
 
 export const parkingService = {
-    getAllParkings: async (params?: { page?: number; limit?: number; search?: string; status?: string; parkingType?: string }) => {
+    getAllParkings: async (params?: { page?: number; limit?: number; search?: string; status?: string; parkingType?: string; kycStatus?: string }) => {
         const response = await api.get<ParkingAreaResponse>('/admin/parkings', { params });
         return response.data;
     },
@@ -59,6 +64,14 @@ export const parkingService = {
     updateParkingStatus: async (parkingId: string, status: string) => {
         const response = await api.put<{ status: string; message: string; data: ParkingArea }>(
             `/admin/parkings/${parkingId}/status`,
+            { status }
+        );
+        return response.data;
+    },
+
+    updateParkingKycStatus: async (parkingId: string, status: 'approved' | 'rejected') => {
+        const response = await api.put<{ status: string; message: string; data: ParkingArea }>(
+            `/admin/parkings/${parkingId}/kyc`,
             { status }
         );
         return response.data;

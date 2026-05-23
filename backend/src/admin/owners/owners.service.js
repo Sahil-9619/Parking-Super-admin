@@ -56,10 +56,16 @@ export class OwnersService {
   }
 
   async getOwnerKycList(query) {
-    const profiles = await ownersRepository.findOwnerProfiles(query.status);
+    const page = parseInt(query.page, 10) || 1;
+    const limit = parseInt(query.limit, 10) || 10;
+    const search = query.search || "";
+    const status = query.status || "";
+
+    const profiles = await ownersRepository.findOwnerProfiles(page, limit, search, status);
     return {
       success: true,
-      data: profiles,
+      data: profiles.data,
+      meta: profiles.meta,
       message: "Owner KYC profiles retrieved successfully",
     };
   }
@@ -67,6 +73,14 @@ export class OwnersService {
   async approveOwnerKyc(ownerId, status) {
     const profile = await ownersRepository.findOwnerProfileById(ownerId);
     if (!profile) throw new AppError("Owner profile not found", 404);
+
+    if (status === "approved") {
+        if (!profile.aadharNumber || !profile.aadharPic || !profile.bankAccount || !profile.bankIfsc) {
+            throw new AppError("kyc details not found", 400);
+        }
+    } else if (status === "rejected") {
+        await ownersRepository.clearKycDetails(ownerId);
+    }
 
     const updated = await ownersRepository.updateOwnerKycStatus(ownerId, status);
     return {

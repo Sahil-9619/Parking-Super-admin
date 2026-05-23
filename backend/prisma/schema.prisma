@@ -152,7 +152,7 @@ model OwnerProfile {
   accountHolderName String?   @map("account_holder_name")
   gstNumber          String?   @map("gst_number")
   aadharNumber       String?   @map("aadhar_number")
-  panNumber          String?   @map("pan_number")
+  aadharPic          String?   @map("aadhar_pic")
   verificationStatus String    @default("pending") @map("verification_status")
   strikeCount        Int       @default(0) @map("strike_count")
   createdAt          DateTime  @default(now()) @map("created_at")
@@ -187,6 +187,11 @@ model Parking {
   longitude     Float
   location      Unsupported("geography(Point, 4326)")?
   photos        String[]
+  ownershipType String?       @map("ownership_type")
+  propertyPaper String?       @map("property_paper")
+  leaseAgreement String?      @map("lease_agreement")
+  parkingAreaPics String[]    @map("parking_area_pics")
+  kycStatus     String        @default("pending") @map("kyc_status")
   openTime      String        @map("open_time") // HH:mm format
   closeTime     String        @map("close_time") // HH:mm format
   is24hr        Boolean       @default(false) @map("is_24hr")

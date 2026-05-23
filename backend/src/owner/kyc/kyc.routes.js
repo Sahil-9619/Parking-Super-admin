@@ -64,6 +64,8 @@ router.put("/profile", validate(updateOwnerProfileSchema), kycController.updateP
  *                     accountLast4: { type: string, example: "4321" }
  *                     bankIfsc: { type: string, example: "HDFC0001234" }
  *                     accountHolderName: { type: string, example: "City Center Parking Corp" }
+ *                     aadharNumber: { type: string, example: "123456789012" }
+ *                     aadharPic: { type: string, example: "https://example.com/aadhar.jpg" }
  *   put:
  *     summary: Secure Storage of Encrypted Bank Credentials
  *     description: Stores bank account details. Account number and IFSC code are automatically encrypted at rest using AES-256-CBC encryption algorithms.
@@ -75,11 +77,13 @@ router.put("/profile", validate(updateOwnerProfileSchema), kycController.updateP
  *         application/json:
  *           schema:
  *             type: object
- *             required: [bankAccount, bankIfsc, accountHolderName]
+ *             required: [bankAccount, bankIfsc, accountHolderName, aadharNumber, aadharPic]
  *             properties:
  *               bankAccount: { type: string, example: "50100234567890" }
  *               bankIfsc: { type: string, example: "HDFC0001234" }
  *               accountHolderName: { type: string, example: "City Center Parking Corp" }
+ *               aadharNumber: { type: string, example: "123456789012" }
+ *               aadharPic: { type: string, example: "https://example.com/aadhar.jpg" }
  *     responses:
  *       200:
  *         description: Bank details encrypted and stored successfully
