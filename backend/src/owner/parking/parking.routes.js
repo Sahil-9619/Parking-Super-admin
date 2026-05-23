@@ -35,7 +35,7 @@ router.use(verifyToken);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name, parkingType, address, latitude, longitude, openTime, closeTime]
+ *             required: [name, parkingType, address, latitude, longitude, openTime, closeTime, ownershipType, parkingAreaPics]
  *             properties:
  *               name: { type: string, example: "Metro Station Plaza Lot 1" }
  *               parkingType: { type: string, enum: [home, society, commercial, govt, municipality], example: "commercial" }
@@ -49,6 +49,13 @@ router.use(verifyToken);
  *                 type: array
  *                 items: { type: string }
  *                 example: ["car_wash", "ev_charging"]
+ *               ownershipType: { type: string, enum: [owned, rental], example: "owned" }
+ *               propertyPaper: { type: string, format: uri, example: "https://example.com/doc.pdf" }
+ *               leaseAgreement: { type: string, format: uri, example: "https://example.com/lease.pdf" }
+ *               parkingAreaPics:
+ *                 type: array
+ *                 items: { type: string, format: uri }
+ *                 example: ["https://example.com/pic1.jpg"]
  *     responses:
  *       201:
  *         description: Parking lot created successfully
@@ -92,6 +99,13 @@ router.post("/", validate(createParkingSchema), parkingController.createParking)
  *               name: { type: string, example: "Metro Station Plaza Lot 1 Updated" }
  *               openTime: { type: string, example: "05:00" }
  *               closeTime: { type: string, example: "23:59" }
+ *               ownershipType: { type: string, enum: [owned, rental], example: "owned" }
+ *               propertyPaper: { type: string, format: uri, example: "https://example.com/doc.pdf" }
+ *               leaseAgreement: { type: string, format: uri, example: "https://example.com/lease.pdf" }
+ *               parkingAreaPics:
+ *                 type: array
+ *                 items: { type: string, format: uri }
+ *                 example: ["https://example.com/pic1.jpg"]
  *     responses:
  *       200:
  *         description: Parking updated successfully

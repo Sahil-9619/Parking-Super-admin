@@ -26,10 +26,10 @@ export class KycRepository {
     });
   }
 
-  async updateBankDetails(userId, { bankAccount, bankIfsc, accountHolderName, aadharNumber, panNumber }) {
+  async updateBankDetails(userId, { bankAccount, bankIfsc, accountHolderName, aadharNumber, aadharPic }) {
     return await prisma.ownerProfile.update({
       where: { userId },
-      data: { bankAccount, bankIfsc, accountHolderName, aadharNumber, panNumber },
+      data: { bankAccount, bankIfsc, accountHolderName, aadharNumber, aadharPic },
     });
   }
 }

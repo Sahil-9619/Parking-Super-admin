@@ -38,6 +38,10 @@ export function ParkingEditModal({ isOpen, onOpenChange, data, onSave }: Parking
                 openTime: data.openTime || '00:00',
                 closeTime: data.closeTime || '23:59',
                 isClosed: data.isClosed ?? false,
+                ownershipType: data.ownershipType || 'owned',
+                propertyPaper: data.propertyPaper || '',
+                leaseAgreement: data.leaseAgreement || '',
+                parkingAreaPics: data.parkingAreaPics ? data.parkingAreaPics.join('\n') : '',
             });
         }
     }, [data]);
@@ -51,6 +55,7 @@ export function ParkingEditModal({ isOpen, onOpenChange, data, onSave }: Parking
             ...formData,
             latitude: parseFloat(formData.latitude),
             longitude: parseFloat(formData.longitude),
+            parkingAreaPics: formData.parkingAreaPics.split('\n').filter((url: string) => url.trim() !== ''),
         };
         onSave(submitData);
     };
@@ -263,7 +268,99 @@ export function ParkingEditModal({ isOpen, onOpenChange, data, onSave }: Parking
                                 </div>
                             </div>
                         </div>
+                    </div>
 
+                    {/* KYC and Ownership Details Section */}
+                    <div className="space-y-6 pt-6 border-t border-border-main/20">
+                        <SectionHeader icon={Info} title="KYC & Ownership Documents" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-1.5 group">
+                                <label className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] ml-1 group-focus-within:text-primary transition-colors">Ownership Type</label>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className="w-full h-11 bg-bg-main/50 border border-border-main rounded-xl px-4 text-xs font-bold text-text-main hover:bg-bg-card hover:text-text-main transition-all justify-between group-focus-within:border-primary/30"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <Info size={14} className="text-text-muted group-focus-within:text-primary transition-colors" />
+                                                <span className="truncate">{formData.ownershipType === 'owned' ? 'Owned Property' : 'Rental Property'}</span>
+                                            </div>
+                                            <ChevronDown size={14} className="text-text-muted opacity-50" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-[200px] bg-bg-card border border-border-main rounded-xl shadow-xl p-1">
+                                        <DropdownMenuItem
+                                            onClick={() => setFormData({ ...formData, ownershipType: 'owned' })}
+                                            className={`px-3 py-2 rounded-lg text-xs font-bold tracking-wide cursor-pointer transition-colors ${formData.ownershipType === 'owned' ? 'bg-primary/10 text-primary' : 'text-text-main hover:bg-bg-main'}`}
+                                        >
+                                            Owned Property
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onClick={() => setFormData({ ...formData, ownershipType: 'rental' })}
+                                            className={`px-3 py-2 rounded-lg text-xs font-bold tracking-wide cursor-pointer transition-colors ${formData.ownershipType === 'rental' ? 'bg-primary/10 text-primary' : 'text-text-main hover:bg-bg-main'}`}
+                                        >
+                                            Rental Property
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+
+                            {formData.ownershipType === 'owned' ? (
+                                <div className="space-y-3">
+                                    <EditField icon={Globe} label="Property Paper URL" value={formData.propertyPaper} onChange={(v: string) => setFormData({ ...formData, propertyPaper: v })} />
+                                    {formData.propertyPaper && (
+                                        <div className="h-24 w-24 rounded-xl overflow-hidden border border-border-main/50 bg-bg-main">
+                                            <img src={formData.propertyPaper} alt="Property Paper" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    <EditField icon={Globe} label="Lease Agreement URL" value={formData.leaseAgreement} onChange={(v: string) => setFormData({ ...formData, leaseAgreement: v })} />
+                                    {formData.leaseAgreement && (
+                                        <div className="h-24 w-24 rounded-xl overflow-hidden border border-border-main/50 bg-bg-main">
+                                            <img src={formData.leaseAgreement} alt="Lease Agreement" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                        
+                        <div className="space-y-4">
+                            <div className="space-y-1.5 group">
+                                <label className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] ml-1 group-focus-within:text-primary transition-colors">Parking Area Pictures (1 URL per line)</label>
+                                <textarea 
+                                    value={formData.parkingAreaPics}
+                                    onChange={(e) => setFormData({ ...formData, parkingAreaPics: e.target.value })}
+                                    rows={4}
+                                    className="w-full rounded-xl border border-border-main bg-bg-main/50 text-text-main p-4 focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all text-xs font-bold custom-scrollbar"
+                                    placeholder="https://example.com/pic1.jpg&#10;https://example.com/pic2.jpg"
+                                />
+                            </div>
+                            
+                            {formData.parkingAreaPics && formData.parkingAreaPics.trim() && (
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                    {formData.parkingAreaPics.split('\n').filter((url: string) => url.trim() !== '').map((url: string, i: number) => (
+                                        <div key={i} className="aspect-video rounded-xl overflow-hidden border border-border-main/50 bg-bg-main relative group">
+                                            <img 
+                                                src={url.trim()} 
+                                                alt={`Preview ${i + 1}`} 
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    e.currentTarget.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-image-off"><line x1="2" x2="22" y1="2" y2="22"/><path d="M10.41 10.41a2 2 0 1 1-2.83-2.83"/><line x1="13.5" x2="6" y1="13.5" y2="21"/><line x1="18" x2="21" y1="12" y2="15"/><path d="M3.59 3.59A1.99 1.99 0 0 0 3 5v14a2 2 0 0 0 2 2h14c.55 0 1.05-.22 1.41-.59"/><path d="M21 15V5a2 2 0 0 0-2-2H9"/></svg>';
+                                                    e.currentTarget.className = "w-8 h-8 m-auto opacity-20";
+                                                    e.currentTarget.parentElement!.className += " flex items-center justify-center";
+                                                }}
+                                            />
+                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                                                <span className="text-[10px] font-black text-white uppercase tracking-widest">Image {i + 1}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </form>
             </DialogContent>

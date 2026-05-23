@@ -15,6 +15,7 @@ import { ConfirmDelete } from '@/components/shared/ConfirmDelete';
 import { ViewModal } from '../components/shared/ViewModal';
 import { EditModal } from '../components/shared/EditModal';
 import { ParkingViewModal } from '@/components/shared/ParkingViewModal';
+import { ServerPagination } from '@/components/shared/ServerPagination';
 import { showStatusToast } from '@/lib/utils';
 import toast from 'react-hot-toast';
 import type { Owner } from '@/services/ownerService';
@@ -25,6 +26,8 @@ export default function Owners() {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+    const [page, setPage] = useState(1);
+    const [meta, setMeta] = useState<any>(null);
     const [selectedOwner, setSelectedOwner] = useState<Owner | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -36,8 +39,14 @@ export default function Owners() {
     const fetchOwners = async () => {
         try {
             setLoading(true);
-            const response = await ownerService.getAllOwners();
+            const response = await ownerService.getAllOwners({
+                page,
+                limit: 10,
+                search: searchQuery,
+                status: statusFilter
+            });
             setOwners(response.data || []);
+            setMeta(response.meta || null);
         } catch (error) {
             console.error(error);
         } finally {
@@ -47,24 +56,19 @@ export default function Owners() {
 
     useEffect(() => {
         fetchOwners();
-    }, []);
+    }, [page, searchQuery, statusFilter]);
 
     useEffect(() => {
         const handleRefresh = () => fetchOwners();
         window.addEventListener('refresh-data', handleRefresh);
         return () => window.removeEventListener('refresh-data', handleRefresh);
-    }, []);
+    }, [page, searchQuery, statusFilter]);
 
-    const filteredOwners = owners.filter((owner) => {
-        const search = searchQuery.toLowerCase();
-        const matchesSearch =
-            owner.name?.toLowerCase().includes(search) ||
-            owner.email?.toLowerCase().includes(search) ||
-            owner.phone?.toLowerCase().includes(search);
+    useEffect(() => {
+        setPage(1);
+    }, [searchQuery, statusFilter]);
 
-        const matchesStatus = !statusFilter || owner.status === statusFilter;
-        return matchesSearch && matchesStatus;
-    });
+    const filteredOwners = owners;
 
     const handleDelete = async () => {
         if (!ownerToDelete) return;
@@ -124,7 +128,7 @@ export default function Owners() {
         }
 
         const headers = ['ID', 'Name', 'Email', 'Phone', 'Status', 'Wallet Balance', 'Joined Date', 'Total Parkings'];
-        
+
         const csvRows = filteredOwners.map(owner => [
             owner.id,
             `"${owner.name || ''}"`,
@@ -135,9 +139,9 @@ export default function Owners() {
             owner.createdAt ? new Date(owner.createdAt).toLocaleDateString() : '',
             owner._count?.parkings || 0
         ].join(','));
-        
+
         const csvString = [headers.join(','), ...csvRows].join('\n');
-        
+
         const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -147,7 +151,7 @@ export default function Owners() {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        
+
         toast.success('Export downloaded successfully');
     };
 
@@ -160,7 +164,7 @@ export default function Owners() {
                         Manage and monitor all parking facility owners
                     </p>
                 </div>
-                <Button 
+                <Button
                     onClick={handleExportExcel}
                     className="bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/20 hover:bg-emerald-600 px-4 py-2.5 h-auto rounded-lg flex items-center gap-2 group transition-all"
                 >
@@ -187,106 +191,121 @@ export default function Owners() {
                     <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
                 </div>
             ) : (
-                <DataTable
-                    data={filteredOwners}
-                    itemsPerPage={3}
-                    onRowClick={(owner) => { setSelectedOwner(owner); setIsDetailsOpen(true); }}
-                    emptyStateIcon={Building2}
-                    emptyStateTitle="No owners found"
-                    emptyStateDescription="Adjust your search or filters to find what you're looking for."
-                    columns={[
-                        {
-                            header: 'Owner & Company',
-                            accessor: (owner) => (
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-primary/10 text-primary border border-primary/20 rounded-2xl flex items-center justify-center text-xs font-black group-hover:scale-105 transition-transform duration-300">
-                                        {owner.name?.charAt(0).toUpperCase()}
-                                    </div>
-                                    <div className="min-w-0">
-                                        <h5 className="text-sm font-black text-text-main leading-tight group-hover:text-primary transition-colors truncate">
-                                            {owner.name}
-                                        </h5>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">ID: {owner.id}</span>
-                                            <span className="w-1 h-1 rounded-full bg-border-main" />
-                                            <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest truncate">{owner.email}</span>
+                <>
+                    <DataTable
+                        data={filteredOwners}
+                        onRowClick={(owner) => { setSelectedOwner(owner); setIsDetailsOpen(true); }}
+                        emptyStateIcon={Building2}
+                        emptyStateTitle="No owners found"
+                        emptyStateDescription="Adjust your search or filters to find what you're looking for."
+                        columns={[
+                            {
+                                header: 'Owner & Company',
+                                className: 'w-[35%]',
+                                accessor: (owner) => (
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 bg-primary/10 text-primary border border-primary/20 rounded-2xl flex items-center justify-center text-xs font-black group-hover:scale-105 transition-transform duration-300 shrink-0">
+                                            {owner.name?.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <h5 className="text-sm font-black text-text-main leading-tight group-hover:text-primary transition-colors truncate">
+                                                {owner.name}
+                                            </h5>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest shrink-0">ID: {owner.id}</span>
+                                                <span className="w-1 h-1 rounded-full bg-border-main shrink-0" />
+                                                <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest truncate">{owner.email}</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ),
-                        },
-                        {
-                            header: 'Inventory',
-                            accessor: (owner) => (
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-bg-main rounded-xl text-text-muted border border-border-main/50">
-                                        <MapPin size={14} />
+                                ),
+                            },
+                            {
+                                header: 'Inventory',
+                                className: 'w-[20%]',
+                                accessor: (owner) => (
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-bg-main rounded-xl text-text-muted border border-border-main/50 shrink-0">
+                                            <MapPin size={14} />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-black text-text-main leading-none truncate">{owner.phone}</p>
+                                            <p className="text-[9px] font-bold text-text-muted uppercase mt-1 truncate">Phone Number</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-sm font-black text-text-main leading-none">{owner.phone}</p>
-                                        <p className="text-[9px] font-bold text-text-muted uppercase mt-1">Phone Number</p>
+                                ),
+                            },
+                            {
+                                header: 'Wallet Balance',
+                                className: 'w-[20%]',
+                                accessor: (owner) => (
+                                    <div className="flex flex-col gap-0.5 min-w-0">
+                                        <span className="text-sm font-black text-text-main truncate">
+                                            Rs. {Number(owner.walletBalance || 0).toLocaleString('en-IN')}
+                                        </span>
+                                        <p className="text-[9px] font-bold text-text-muted uppercase tracking-widest truncate">
+                                            Parking Count: {owner._count?.parkings || 0}
+                                        </p>
                                     </div>
-                                </div>
-                            ),
-                        },
-                        {
-                            header: 'Wallet Balance',
-                            accessor: (owner) => (
-                                <div className="flex flex-col gap-0.5">
-                                    <span className="text-sm font-black text-text-main">
-                                        Rs. {Number(owner.walletBalance || 0).toLocaleString('en-IN')}
+                                ),
+                            },
+                            {
+                                header: 'Status',
+                                className: 'w-[12%]',
+                                accessor: (owner) => (
+                                    <span className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${owner.status === 'active'
+                                        ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-sm shadow-emerald-500/5'
+                                        : 'bg-red-500/10 text-red-500 border-red-500/20 shadow-sm shadow-red-500/5'
+                                        }`}>
+                                        {owner.status}
                                     </span>
-                                    <p className="text-[9px] font-bold text-text-muted uppercase tracking-widest">
-                                        Parking Count: {owner._count?.parkings || 0}
-                                    </p>
-                                </div>
-                            ),
-                        },
-                        {
-                            header: 'Status',
-                            accessor: (owner) => (
-                                <span className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${owner.status === 'active'
-                                    ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-sm shadow-emerald-500/5'
-                                    : 'bg-red-500/10 text-red-500 border-red-500/20 shadow-sm shadow-red-500/5'
-                                    }`}>
-                                    {owner.status}
-                                </span>
-                            ),
-                        },
-                        {
-                            header: 'Actions',
-                            textRight: true,
-                            accessor: (owner) => (
-                                <div className="flex items-center justify-end gap-2">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="rounded-xl h-10 w-10 text-text-muted hover:text-primary hover:bg-primary/10 transition-colors"
-                                        onClick={(e) => { e.stopPropagation(); setSelectedOwner(owner); setIsDetailsOpen(true); }}
-                                    >
-                                        <Eye size={16} />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="rounded-xl h-10 w-10 text-text-muted hover:text-amber-500 hover:bg-amber-500/10 transition-colors"
-                                        onClick={(e) => { e.stopPropagation(); setSelectedOwner(owner); setIsEditOpen(true); }}
-                                    >
-                                        <Edit2 size={16} />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="rounded-xl h-10 w-10 text-text-muted hover:text-red-500 hover:bg-red-500/10 transition-colors"
-                                        onClick={(e) => { e.stopPropagation(); setOwnerToDelete(owner); setIsDeleteOpen(true); }}
-                                    >
-                                        <Trash2 size={16} />
-                                    </Button>
-                                </div>
-                            ),
-                        },
-                    ]}
-                />
+                                ),
+                            },
+                            {
+                                header: 'Actions',
+                                className: 'w-[13%]',
+                                textRight: true,
+                                accessor: (owner) => (
+                                    <div className="flex items-center justify-end gap-1">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="rounded-xl h-9 w-9 text-text-muted hover:text-primary hover:bg-primary/10 transition-colors shrink-0"
+                                            onClick={(e) => { e.stopPropagation(); setSelectedOwner(owner); setIsDetailsOpen(true); }}
+                                        >
+                                            <Eye size={16} />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="rounded-xl h-9 w-9 text-text-muted hover:text-amber-500 hover:bg-amber-500/10 transition-colors shrink-0"
+                                            onClick={(e) => { e.stopPropagation(); setSelectedOwner(owner); setIsEditOpen(true); }}
+                                        >
+                                            <Edit2 size={16} />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="rounded-xl h-9 w-9 text-text-muted hover:text-red-500 hover:bg-red-500/10 transition-colors shrink-0"
+                                            onClick={(e) => { e.stopPropagation(); setOwnerToDelete(owner); setIsDeleteOpen(true); }}
+                                        >
+                                            <Trash2 size={16} />
+                                        </Button>
+                                    </div>
+                                ),
+                            },
+                        ]}
+                    />
+                    {meta && (
+                        <ServerPagination
+                            currentPage={page}
+                            totalPages={meta.totalPages}
+                            totalItems={meta.total}
+                            itemsPerPage={10}
+                            onPageChange={setPage}
+                        />
+                    )}
+                </>
             )}
 
             <ViewModal

@@ -11,6 +11,20 @@ export const createParkingSchema = z.object({
     closeTime: z.string().regex(/^([01]\d|2[0-3]):?([0-5]\d)$/, "Format HH:MM required"),
     is24hr: z.boolean().default(false),
     addonsEnabled: z.array(z.string()).optional(),
+    
+    ownershipType: z.enum(["owned", "rental"]),
+    propertyPaper: z.string().optional(),
+    leaseAgreement: z.string().optional(),
+    parkingAreaPics: z.array(z.string())
+      .min(1, "At least 1 picture is required")
+      .max(4, "Maximum 4 pictures allowed"),
+  }).refine((data) => {
+    if (data.ownershipType === "owned") return !!data.propertyPaper;
+    if (data.ownershipType === "rental") return !!data.leaseAgreement;
+    return false;
+  }, {
+    message: "If owned, property paper is required. If rental, lease agreement is required.",
+    path: ["ownershipType"],
   }),
 });
 

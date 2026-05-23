@@ -27,7 +27,7 @@ export default function Area() {
     const [statusFilter, setStatusFilter] = useState('');
     const [typeFilter, setTypeFilter] = useState('');
     const [page, setPage] = useState(1);
-    const limit = 9;
+    const limit = 10;
 
     const fetchAreas = async () => {
         try {

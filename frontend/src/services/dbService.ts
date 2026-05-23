@@ -156,37 +156,8 @@ export const dbService = {
   },
 
   getParkingSlots: async (params?: { page?: number; limit?: number; search?: string }) => {
-    const page = params?.page || 1;
-    const limit = params?.limit || 10;
-    const search = params?.search || '';
-
-    const response = await api.get<{ data: any[] }>('/admin/parkings', {
-      params: { page: 1, limit: 1000, search },
-    });
-
-    const slots = (response.data.data || []).flatMap((parking) =>
-      (parking.slots || []).map((slot: any) => ({
-        ...slot,
-        parking: {
-          name: parking.name,
-          address: parking.address,
-        },
-      }))
-    );
-
-    const start = (page - 1) * limit;
-    const data = slots.slice(start, start + limit);
-
-    return {
-      success: true,
-      data,
-      meta: {
-        total: slots.length,
-        page,
-        limit,
-        totalPages: Math.ceil(slots.length / limit),
-      },
-    };
+    const response = await api.get<{ success: boolean; data: ParkingSlot[]; meta: any }>('/admin/db/parking-slots', { params });
+    return response.data;
   },
 
   getPricingRules: async (params?: { page?: number; limit?: number; search?: string }) => {

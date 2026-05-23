@@ -15,7 +15,7 @@ export class KycService {
     return await kycRepository.updateProfile(userId, data);
   }
 
-  async updateBankDetails(userId, { bankAccount, bankIfsc, accountHolderName, aadharNumber, panNumber }) {
+  async updateBankDetails(userId, { bankAccount, bankIfsc, accountHolderName, aadharNumber, aadharPic }) {
     const profile = await kycRepository.findProfileByUserId(userId);
     if (!profile) throw new AppError("Owner profile not found", 404);
 
@@ -27,7 +27,7 @@ export class KycService {
       bankIfsc: encryptedIfsc,
       accountHolderName,
       aadharNumber,
-      panNumber,
+      aadharPic,
     });
 
     return { success: true, message: "Bank details encrypted and stored successfully" };
@@ -51,7 +51,7 @@ export class KycService {
         bankIfsc: decryptedIfsc,
         accountHolderName: profile.accountHolderName,
         aadharNumber: profile.aadharNumber,
-        panNumber: profile.panNumber,
+        aadharPic: profile.aadharPic,
       },
       message: "Masked bank details retrieved successfully",
     };

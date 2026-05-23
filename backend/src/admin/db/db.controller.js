@@ -208,6 +208,43 @@ export class DbController {
     });
   });
 
+  getParkingSlots = catchAsync(async (req, res) => {
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const search = req.query.search || "";
+    const skip = (page - 1) * limit;
+
+    const where = {};
+    if (search) {
+      where.parking = {
+        name: { contains: search, mode: "insensitive" },
+      };
+    }
+
+    const [data, total] = await Promise.all([
+      prisma.parkingSlot.findMany({
+        where,
+        include: {
+          parking: { select: { name: true, address: true } },
+        },
+        skip,
+        take: limit,
+      }),
+      prisma.parkingSlot.count({ where }),
+    ]);
+
+    res.json({
+      success: true,
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  });
+
   getGisMetadata = catchAsync(async (req, res) => {
     let geography_columns = [];
     let geometry_columns = [];

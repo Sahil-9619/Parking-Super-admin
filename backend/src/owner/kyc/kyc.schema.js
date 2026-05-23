@@ -14,6 +14,6 @@ export const updateBankDetailsSchema = z.object({
     bankIfsc: z.string().length(11, "IFSC code must be exactly 11 characters"),
     accountHolderName: z.string().min(1, "Account holder name is required"),
     aadharNumber: z.string().length(12, "Aadhar number must be exactly 12 digits"),
-    panNumber: z.string().optional(),
+    aadharPic: z.string().min(1, "Aadhar picture is required"),
   }),
 });

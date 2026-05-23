@@ -15,6 +15,11 @@ export class ParkingRepository {
         is24hr: data.is24hr,
         addonsEnabled: data.addonsEnabled || [],
         status: "pending",
+        ownershipType: data.ownershipType,
+        propertyPaper: data.propertyPaper || null,
+        leaseAgreement: data.leaseAgreement || null,
+        parkingAreaPics: data.parkingAreaPics || [],
+        kycStatus: "pending",
       },
     });
 
@@ -62,6 +67,11 @@ export class ParkingRepository {
         closeTime: data.closeTime,
         is24hr: data.is24hr,
         addonsEnabled: data.addonsEnabled,
+        ownershipType: data.ownershipType,
+        propertyPaper: data.ownershipType === "owned" ? data.propertyPaper : null,
+        leaseAgreement: data.ownershipType === "rental" ? data.leaseAgreement : null,
+        parkingAreaPics: data.parkingAreaPics,
+        kycStatus: "pending", // Reset to pending if they update it
       },
     });
 

@@ -84,13 +84,13 @@ async function main() {
   // ═══════════════════════════════════════════════════════════
   console.log("🏢 Seeding owner profiles...");
   await prisma.ownerProfile.create({
-    data: { userId: owner1.id, ownerType: "commercial", bankAccount: encrypt("1234567890123456"), bankIfsc: encrypt("HDFC0001234"), accountHolderName: "Rajesh Sharma", gstNumber: "07AABCU9603R1ZM", aadharNumber: "123456789012", panNumber: "ABCDE1234F", verificationStatus: "approved" },
+    data: { userId: owner1.id, ownerType: "commercial", bankAccount: encrypt("1234567890123456"), bankIfsc: encrypt("HDFC0001234"), accountHolderName: "Rajesh Sharma", gstNumber: "07AABCU9603R1ZM", aadharNumber: "123456789012", aadharPic: "https://example.com/aadhar1.jpg", verificationStatus: "approved" },
   });
   await prisma.ownerProfile.create({
-    data: { userId: owner2.id, ownerType: "society", bankAccount: encrypt("9876543210987654"), bankIfsc: encrypt("ICIC0002345"), accountHolderName: "Priya Enterprises Pvt Ltd", gstNumber: "27AADCB2230M1ZT", aadharNumber: "234567890123", panNumber: "BCDEF2345G", verificationStatus: "approved" },
+    data: { userId: owner2.id, ownerType: "society", bankAccount: encrypt("9876543210987654"), bankIfsc: encrypt("ICIC0002345"), accountHolderName: "Priya Enterprises Pvt Ltd", gstNumber: "27AADCB2230M1ZT", aadharNumber: "234567890123", aadharPic: "https://example.com/aadhar2.jpg", verificationStatus: "approved" },
   });
   await prisma.ownerProfile.create({
-    data: { userId: owner3.id, ownerType: "municipality", bankAccount: encrypt("5555666677778888"), bankIfsc: encrypt("SBIN0003456"), accountHolderName: "Delhi Municipal Corporation", gstNumber: "07AAAGD0001A1ZR", aadharNumber: "345678901234", panNumber: "CDEFG3456H", verificationStatus: "pending" },
+    data: { userId: owner3.id, ownerType: "municipality", bankAccount: encrypt("5555666677778888"), bankIfsc: encrypt("SBIN0003456"), accountHolderName: "Delhi Municipal Corporation", gstNumber: "07AAAGD0001A1ZR", aadharNumber: "345678901234", aadharPic: "https://example.com/aadhar3.jpg", verificationStatus: "pending" },
   });
 
   // ═══════════════════════════════════════════════════════════
@@ -131,17 +131,17 @@ async function main() {
   // ═══════════════════════════════════════════════════════════
   console.log("🅿️  Seeding parking lots...");
   const parkingData = [
-    { ownerId: owner1.id, name: "Metro Mall Parking", type: "commercial", address: "Sector 18, Noida, UP 201301", lat: 28.5706, lng: 77.3219, open: "06:00", close: "23:00", is24: false, addons: ["car_wash", "ev_charging"], status: "active" },
-    { ownerId: owner1.id, name: "Rajesh Tower Basement", type: "commercial", address: "Connaught Place, New Delhi 110001", lat: 28.6315, lng: 77.2167, open: "00:00", close: "23:59", is24: true, addons: ["car_wash"], status: "active" },
-    { ownerId: owner2.id, name: "Green Valley Society Parking", type: "society", address: "Andheri West, Mumbai 400053", lat: 19.1364, lng: 72.8296, open: "07:00", close: "22:00", is24: false, addons: ["tyre_inflation"], status: "active" },
-    { ownerId: owner2.id, name: "Priya Business Hub", type: "commercial", address: "BKC, Mumbai 400051", lat: 19.0654, lng: 72.8697, open: "00:00", close: "23:59", is24: true, addons: ["car_wash", "ev_charging", "tyre_inflation"], status: "active" },
-    { ownerId: owner3.id, name: "DMC Public Parking Zone A", type: "municipality", address: "Chandni Chowk, Delhi 110006", lat: 28.6506, lng: 77.2303, open: "08:00", close: "20:00", is24: false, addons: [], status: "paused" },
+    { ownerId: owner1.id, name: "Metro Mall Parking", type: "commercial", address: "Sector 18, Noida, UP 201301", lat: 28.5706, lng: 77.3219, open: "06:00", close: "23:00", is24: false, addons: ["car_wash", "ev_charging"], status: "active", ownershipType: "owned", propertyPaper: "https://example.com/property1.pdf", leaseAgreement: null, kycStatus: "approved", pics: ["https://example.com/pic1.jpg", "https://example.com/pic2.jpg"] },
+    { ownerId: owner1.id, name: "Rajesh Tower Basement", type: "commercial", address: "Connaught Place, New Delhi 110001", lat: 28.6315, lng: 77.2167, open: "00:00", close: "23:59", is24: true, addons: ["car_wash"], status: "active", ownershipType: "rental", propertyPaper: null, leaseAgreement: "https://example.com/lease1.pdf", kycStatus: "approved", pics: ["https://example.com/pic3.jpg"] },
+    { ownerId: owner2.id, name: "Green Valley Society Parking", type: "society", address: "Andheri West, Mumbai 400053", lat: 19.1364, lng: 72.8296, open: "07:00", close: "22:00", is24: false, addons: ["tyre_inflation"], status: "active", ownershipType: "owned", propertyPaper: "https://example.com/property3.pdf", leaseAgreement: null, kycStatus: "approved", pics: ["https://example.com/pic4.jpg"] },
+    { ownerId: owner2.id, name: "Priya Business Hub", type: "commercial", address: "BKC, Mumbai 400051", lat: 19.0654, lng: 72.8697, open: "00:00", close: "23:59", is24: true, addons: ["car_wash", "ev_charging", "tyre_inflation"], status: "active", ownershipType: "rental", propertyPaper: null, leaseAgreement: "https://example.com/lease4.pdf", kycStatus: "pending", pics: ["https://example.com/pic5.jpg", "https://example.com/pic6.jpg"] },
+    { ownerId: owner3.id, name: "DMC Public Parking Zone A", type: "municipality", address: "Chandni Chowk, Delhi 110006", lat: 28.6506, lng: 77.2303, open: "08:00", close: "20:00", is24: false, addons: [], status: "paused", ownershipType: "owned", propertyPaper: "https://example.com/property5.pdf", leaseAgreement: null, kycStatus: "pending", pics: ["https://example.com/pic7.jpg"] },
   ];
 
   const parkings = [];
   for (const p of parkingData) {
     const parking = await prisma.parking.create({
-      data: { ownerId: p.ownerId, name: p.name, parkingType: p.type, address: p.address, latitude: p.lat, longitude: p.lng, openTime: p.open, closeTime: p.close, is24hr: p.is24, addonsEnabled: p.addons, status: p.status, photos: ["https://placehold.co/800x400/1a1a2e/e94560?text=" + encodeURIComponent(p.name)] },
+      data: { ownerId: p.ownerId, name: p.name, parkingType: p.type, address: p.address, latitude: p.lat, longitude: p.lng, openTime: p.open, closeTime: p.close, is24hr: p.is24, addonsEnabled: p.addons, status: p.status, photos: ["https://placehold.co/800x400/1a1a2e/e94560?text=" + encodeURIComponent(p.name)], ownershipType: p.ownershipType, propertyPaper: p.propertyPaper, leaseAgreement: p.leaseAgreement, kycStatus: p.kycStatus, parkingAreaPics: p.pics },
     });
     await prisma.$executeRawUnsafe(`UPDATE parkings SET location = ST_SetSRID(ST_MakePoint(${p.lng}, ${p.lat}), 4326) WHERE id = '${parking.id}'`);
     parkings.push(parking);

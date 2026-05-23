@@ -63,9 +63,9 @@ export const ownerService = {
     },
 
     // Get KYC List
-    getOwnerKycList: async (status?: string) => {
+    getOwnerKycList: async (params?: { status?: string; page?: number; limit?: number }) => {
         try {
-            const response = await api.get('/admin/owners/kyc', { params: { status } });
+            const response = await api.get('/admin/owners/kyc', { params });
             return response.data;
         } catch (error: any) {
             throw error.response?.data || { message: 'Failed to fetch KYC profiles' };

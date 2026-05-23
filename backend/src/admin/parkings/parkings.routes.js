@@ -11,6 +11,11 @@ const router = express.Router();
  *     description: Retrieve all parking areas with their owners and slot details.
  *     tags: [Admin Parking Management]
  *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: query
+ *         name: kycStatus
+ *         schema: { type: string, enum: [pending, approved, rejected, All] }
+ *         description: Filter parkings by their KYC verification status.
  *     responses:
  *       200:
  *         description: All parkings retrieved successfully
@@ -44,6 +49,34 @@ router.get("/", parkingsController.getAllParkings);
  *         description: Parking status updated successfully
  */
 router.put("/:id/status", parkingsController.updateParkingStatus);
+
+/**
+ * @openapi
+ * /api/admin/parkings/{id}/kyc:
+ *   put:
+ *     summary: Admin - Update Parking Area KYC Status
+ *     description: Approve or reject the KYC documents for a parking area.
+ *     tags: [Admin Parking Management]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [status]
+ *             properties:
+ *               status: { type: string, enum: [approved, rejected] }
+ *     responses:
+ *       200:
+ *         description: Parking KYC status updated successfully
+ */
+router.put("/:id/kyc", parkingsController.updateParkingKycStatus);
 
 /**
  * @openapi

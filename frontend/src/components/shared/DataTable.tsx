@@ -63,7 +63,7 @@ export function DataTable<T>({
     return (
         <div className="space-y-4">
             <div className="overflow-hidden rounded-xl border border-border-main/50 bg-bg-card/30 backdrop-blur-md shadow-2xl shadow-primary/5">
-                <Table>
+                <Table className="table-fixed w-full">
                     <TableHeader className="bg-bg-card/60 backdrop-blur-lg">
                         <TableRow className="hover:bg-transparent border-b border-border-main/40">
                             {columns.map((col, i) => (
@@ -108,7 +108,7 @@ export function DataTable<T>({
                                         <TableCell
                                             key={colIdx}
                                             className={cn(
-                                                "px-6 py-6 border-none relative z-10",
+                                                "px-6 py-6 border-none relative z-10 break-words",
                                                 col.textRight && "text-right",
                                                 col.textCenter && "text-center",
                                                 col.className
