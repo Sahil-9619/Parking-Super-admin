@@ -78,12 +78,16 @@ export default function KycApprovals() {
         );
     });
 
+    const hasPendingOwner = filteredKyc.some((profile: any) => profile.verificationStatus === 'pending');
+
     const filteredParkingKyc = parkingKycList.filter((parking) => {
         const search = searchQuery.toLowerCase();
         return parking.name.toLowerCase().includes(search) ||
-               (parking.user?.name || '').toLowerCase().includes(search) ||
-               parking.address.toLowerCase().includes(search);
+            (parking.user?.name || '').toLowerCase().includes(search) ||
+            parking.address.toLowerCase().includes(search);
     });
+
+    const hasPendingParking = filteredParkingKyc.some((parking: any) => parking.kycStatus === 'pending');
 
     const handleAction = async () => {
         if (!selectedAction) return;
@@ -172,12 +176,11 @@ export default function KycApprovals() {
                 filterValue={statusFilter}
                 onFilterChange={setStatusFilter}
                 filterOptions={[
-                    { label: 'All Status', value: '' },
                     { label: 'Pending', value: 'pending' },
                     { label: 'Approved', value: 'approved' },
                     { label: 'Rejected', value: 'rejected' },
                 ]}
-                filterPlaceholder="Filter by status"
+                filterPlaceholder="All Status"
             />
 
             {activeTab === 'owner' && (
@@ -257,6 +260,7 @@ export default function KycApprovals() {
                             },
                             {
                                 header: 'Actions',
+                                className: hasPendingOwner ? 'w-[200px]' : 'w-[90px]',
                                 textRight: true,
                                 accessor: (profile) => (
                                     <div className="flex items-center justify-end gap-2">
@@ -393,6 +397,7 @@ export default function KycApprovals() {
                             },
                             {
                                 header: 'Actions',
+                                className: hasPendingParking ? 'w-[200px]' : 'w-[90px]',
                                 textRight: true,
                                 accessor: (parking) => (
                                     <div className="flex items-center justify-end gap-2">

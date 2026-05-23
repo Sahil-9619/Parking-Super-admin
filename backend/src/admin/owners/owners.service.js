@@ -1,5 +1,6 @@
 import { ownersRepository } from "./owners.repository.js";
 import { AppError } from "../../utils/AppError.js";
+import { cryptoService } from "../../utils/crypto.service.js";
 
 export class OwnersService {
   async getAllOwners(query = {}) {
@@ -9,9 +10,19 @@ export class OwnersService {
     const status = query.status || "";
 
     const result = await ownersRepository.findAllOwners(page, limit, search, status);
+    
+    // Decrypt bank details
+    const decryptedData = result.data.map(user => {
+      if (user.ownerProfile) {
+        try { user.ownerProfile.bankAccount = cryptoService.decrypt(user.ownerProfile.bankAccount); } catch (e) {}
+        try { user.ownerProfile.bankIfsc = cryptoService.decrypt(user.ownerProfile.bankIfsc); } catch (e) {}
+      }
+      return user;
+    });
+
     return {
       success: true,
-      data: result.data,
+      data: decryptedData,
       meta: result.meta,
       message: "All owners retrieved successfully",
     };
@@ -21,6 +32,11 @@ export class OwnersService {
     const owner = await ownersRepository.findOwnerFullDetails(ownerId);
     if (!owner) throw new AppError("Owner not found", 404);
     if (owner.userType !== "owner") throw new AppError("This user is not an owner", 400);
+
+    if (owner.ownerProfile) {
+      try { owner.ownerProfile.bankAccount = cryptoService.decrypt(owner.ownerProfile.bankAccount); } catch (e) {}
+      try { owner.ownerProfile.bankIfsc = cryptoService.decrypt(owner.ownerProfile.bankIfsc); } catch (e) {}
+    }
 
     return {
       success: true,
@@ -62,9 +78,16 @@ export class OwnersService {
     const status = query.status || "";
 
     const profiles = await ownersRepository.findOwnerProfiles(page, limit, search, status);
+
+    const decryptedData = profiles.data.map(profile => {
+      try { profile.bankAccount = cryptoService.decrypt(profile.bankAccount); } catch (e) {}
+      try { profile.bankIfsc = cryptoService.decrypt(profile.bankIfsc); } catch (e) {}
+      return profile;
+    });
+
     return {
       success: true,
-      data: profiles.data,
+      data: decryptedData,
       meta: profiles.meta,
       message: "Owner KYC profiles retrieved successfully",
     };
