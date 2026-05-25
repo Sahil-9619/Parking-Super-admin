@@ -12,7 +12,9 @@ export class KycService {
   async updateProfile(userId, data) {
     const profile = await kycRepository.findProfileByUserId(userId);
     if (!profile) throw new AppError("Owner profile not found", 404);
-    return await kycRepository.updateProfile(userId, data);
+    // Reset verification status to pending when owner refills KYC details after rejection
+    const updatedData = { ...data, verificationStatus: "pending" };
+    return await kycRepository.updateProfile(userId, updatedData);
   }
 
   async updateBankDetails(userId, { bankAccount, bankIfsc, accountHolderName, aadharNumber, aadharPic }) {
@@ -22,12 +24,14 @@ export class KycService {
     const encryptedAccount = cryptoService.encrypt(bankAccount);
     const encryptedIfsc = cryptoService.encrypt(bankIfsc);
 
+    // Reset verification status to pending on bank details update
     await kycRepository.updateBankDetails(userId, {
       bankAccount: encryptedAccount,
       bankIfsc: encryptedIfsc,
       accountHolderName,
       aadharNumber,
       aadharPic,
+      verificationStatus: "pending",
     });
 
     return { success: true, message: "Bank details encrypted and stored successfully" };
