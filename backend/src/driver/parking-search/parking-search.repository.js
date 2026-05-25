@@ -41,7 +41,7 @@ export class ParkingSearchRepository {
     return await prisma.parking.findUnique({
       where: { id },
       include: {
-        parkingSlots: {
+        slots: {
           where: { vehicleType },
         },
         pricingRules: {

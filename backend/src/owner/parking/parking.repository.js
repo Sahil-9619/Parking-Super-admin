@@ -40,7 +40,7 @@ export class ParkingRepository {
     return await prisma.parking.findMany({
       where: { ownerId },
       include: {
-        parkingSlots: true,
+        slots: true,
         pricingRules: true,
       },
       orderBy: { createdAt: "desc" },
@@ -51,7 +51,7 @@ export class ParkingRepository {
     return await prisma.parking.findFirst({
       where: { id, ownerId },
       include: {
-        parkingSlots: true,
+        slots: true,
         pricingRules: true,
       },
     });
