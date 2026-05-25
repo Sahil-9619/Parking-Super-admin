@@ -72,6 +72,33 @@ export class ParkingsRepository {
       where: { id: parkingId },
     });
   }
+
+  async findParkingFullDetails(parkingId) {
+    return await prisma.parking.findUnique({
+      where: { id: parkingId },
+      include: {
+        user: { select: { id: true, name: true, email: true, phone: true, status: true, walletBalance: true } },
+        slots: true,
+        pricingRules: true,
+        customAddons: true,
+        bookings: {
+          select: {
+            id: true,
+            status: true,
+            grossAmount: true,
+            commission: true,
+            ownerShare: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: "desc" },
+          take: 50,
+        },
+        _count: {
+          select: { bookings: true }
+        }
+      },
+    });
+  }
   async updateParking(parkingId, data) {
     if (data.ownershipType === 'owned') {
       data.leaseAgreement = null;

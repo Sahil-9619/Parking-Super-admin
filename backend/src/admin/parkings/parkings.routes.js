@@ -24,6 +24,25 @@ router.get("/", parkingsController.getAllParkings);
 
 /**
  * @openapi
+ * /api/admin/parkings/{id}:
+ *   get:
+ *     summary: Admin - Get Full Parking Details
+ *     description: View full parking details including owner info, slots, revenue bookings, and add-ons before/after KYC approval.
+ *     tags: [Admin Parking Management]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Full details retrieved successfully
+ */
+router.get("/:id", parkingsController.getParkingDetails);
+
+/**
+ * @openapi
  * /api/admin/parkings/{id}/status:
  *   put:
  *     summary: Admin - Update Parking Area Status

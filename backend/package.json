@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --detectOpenHandles --forceExit",
     "dev": "npx prisma generate && nodemon -L index.js",
     "seed": "node prisma/seed.js"
   },
@@ -36,6 +36,10 @@
     "zod": "^4.4.1"
   },
   "devDependencies": {
-    "prisma": "6.19.3"
+    "cross-env": "^10.1.0",
+    "jest": "^30.4.2",
+    "jest-mock-extended": "^4.0.1",
+    "prisma": "6.19.3",
+    "supertest": "^7.2.2"
   }
 }

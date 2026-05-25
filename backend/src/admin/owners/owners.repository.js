@@ -41,6 +41,9 @@ export class OwnersRepository {
               accountHolderName: true,
               bankAccount: true,
               bankIfsc: true,
+              globalTermsAccepted: true,
+              globalTermsAcceptedAt: true,
+              globalTermsVersion: true,
             },
           },
           parkings: {

@@ -3,7 +3,8 @@ import { catchAsync } from "../../utils/catchAsync.js";
 
 export class ParkingController {
   createParking = catchAsync(async (req, res) => {
-    const parking = await parkingService.createParking(req.user.id, req.body);
+    const clientIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress || req.ip;
+    const parking = await parkingService.createParking(req.user.id, req.body, clientIp);
     res.status(201).json({ success: true, data: parking, message: "Parking lot created successfully" });
   });
 

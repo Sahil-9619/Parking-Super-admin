@@ -8,6 +8,11 @@ export class ParkingsController {
     res.json(result);
   });
 
+  getParkingDetails = catchAsync(async (req, res) => {
+    const result = await parkingsService.getParkingDetails(req.params.id);
+    res.json(result);
+  });
+
   updateParkingStatus = catchAsync(async (req, res) => {
     const { status } = req.body;
     const result = await parkingsService.updateParkingStatus(req.params.id, status);

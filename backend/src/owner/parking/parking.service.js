@@ -3,12 +3,12 @@ import { authRepository } from "../../common/auth/auth.repository.js";
 import { AppError } from "../../utils/AppError.js";
 
 export class ParkingService {
-  async createParking(ownerId, data) {
+  async createParking(ownerId, data, clientIp) {
     const user = await authRepository.findUserById(ownerId);
     if (!user || !user.ownerProfile || user.ownerProfile.verificationStatus !== "approved") {
       throw new AppError("Forbidden: Your business KYC profile is pending super admin approval. You cannot add parking areas yet.", 403);
     }
-    return await parkingRepository.createParking(ownerId, data);
+    return await parkingRepository.createParking(ownerId, data, clientIp);
   }
 
   async getParkings(ownerId) {

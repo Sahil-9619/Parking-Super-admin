@@ -34,6 +34,7 @@ router.use(verifyToken);
  *               name: { type: string, example: "City Center Parking Corp" }
  *               ownerType: { type: string, enum: [home, society, commercial, govt, municipality], example: "commercial" }
  *               gstNumber: { type: string, example: "07AAAAA0000A1Z5" }
+ *               globalTermsAccepted: { type: boolean, example: true, description: "Must be true when accepting the global platform terms and conditions for onboarding." }
  *     responses:
  *       200:
  *         description: Owner profile updated successfully
