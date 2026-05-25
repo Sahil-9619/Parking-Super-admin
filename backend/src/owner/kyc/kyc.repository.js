@@ -12,7 +12,7 @@ export class KycRepository {
     });
   }
 
-  async updateProfile(userId, { name, ownerType, gstNumber, globalTermsAccepted }) {
+  async updateProfile(userId, { name, ownerType, gstNumber, globalTermsAccepted, verificationStatus }) {
     if (name) {
       await prisma.user.update({
         where: { id: userId },
@@ -21,6 +21,8 @@ export class KycRepository {
     }
 
     const data = { ownerType, gstNumber };
+    if (verificationStatus) data.verificationStatus = verificationStatus;
+    
     if (globalTermsAccepted) {
       data.globalTermsAccepted = true;
       data.globalTermsAcceptedAt = new Date();
@@ -33,10 +35,10 @@ export class KycRepository {
     });
   }
 
-  async updateBankDetails(userId, { bankAccount, bankIfsc, accountHolderName, aadharNumber, aadharPic }) {
+  async updateBankDetails(userId, { bankAccount, bankIfsc, accountHolderName, aadharNumber, aadharPic, verificationStatus }) {
     return await prisma.ownerProfile.update({
       where: { userId },
-      data: { bankAccount, bankIfsc, accountHolderName, aadharNumber, aadharPic },
+      data: { bankAccount, bankIfsc, accountHolderName, aadharNumber, aadharPic, verificationStatus },
     });
   }
 }
