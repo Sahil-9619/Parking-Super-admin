@@ -22,6 +22,7 @@ enum AdminRole {
 enum UserStatus {
   active
   banned
+  suspended
 }
 
 enum OwnerType {
@@ -50,6 +51,7 @@ enum ParkingStatus {
   active
   paused
   banned
+  pending
 }
 
 enum BookingStatus {
@@ -155,6 +157,9 @@ model OwnerProfile {
   aadharPic          String?   @map("aadhar_pic")
   verificationStatus String    @default("pending") @map("verification_status")
   strikeCount        Int       @default(0) @map("strike_count")
+  globalTermsAccepted   Boolean   @default(false) @map("global_terms_accepted")
+  globalTermsAcceptedAt DateTime? @map("global_terms_accepted_at")
+  globalTermsVersion    String?   @map("global_terms_version")
   createdAt          DateTime  @default(now()) @map("created_at")
   updatedAt          DateTime  @updatedAt @map("updated_at")
 
@@ -201,6 +206,9 @@ model Parking {
   isFull        Boolean       @default(false) @map("is_full")
   isClosed      Boolean       @default(false) @map("is_closed")
   reopenAt      DateTime?     @map("reopen_at")
+  legalDeclarationAccepted   Boolean   @default(false) @map("legal_declaration_accepted")
+  legalDeclarationAcceptedAt DateTime? @map("legal_declaration_accepted_at")
+  legalDeclarationIpAddress  String?   @map("legal_declaration_ip_address")
   createdAt     DateTime      @default(now()) @map("created_at")
   updatedAt     DateTime      @updatedAt @map("updated_at")
 

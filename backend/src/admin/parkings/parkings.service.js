@@ -12,6 +12,17 @@ export class ParkingsService {
     };
   }
 
+  async getParkingDetails(parkingId) {
+    const parking = await parkingsRepository.findParkingFullDetails(parkingId);
+    if (!parking) {
+      throw new AppError("Parking area not found", 404);
+    }
+    return {
+      status: "success",
+      data: parking,
+    };
+  }
+
   async updateParkingStatus(parkingId, status) {
     const parking = await parkingsRepository.findParkingById(parkingId);
     if (!parking) {

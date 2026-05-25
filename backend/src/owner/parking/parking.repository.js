@@ -1,7 +1,7 @@
 import { prisma } from "../../../config/prisma.js";
 
 export class ParkingRepository {
-  async createParking(ownerId, data) {
+  async createParking(ownerId, data, clientIp) {
     const parking = await prisma.parking.create({
       data: {
         ownerId,
@@ -20,6 +20,9 @@ export class ParkingRepository {
         leaseAgreement: data.leaseAgreement || null,
         parkingAreaPics: data.parkingAreaPics || [],
         kycStatus: "pending",
+        legalDeclarationAccepted: true,
+        legalDeclarationAcceptedAt: new Date(),
+        legalDeclarationIpAddress: clientIp || null,
       },
     });
 

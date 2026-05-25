@@ -18,6 +18,9 @@ export const createParkingSchema = z.object({
     parkingAreaPics: z.array(z.string())
       .min(1, "At least 1 picture is required")
       .max(4, "Maximum 4 pictures allowed"),
+    legalDeclarationAccepted: z.literal(true, {
+      errorMap: () => ({ message: "You must accept the legal declaration terms and conditions to list this parking lot." })
+    }),
   }).refine((data) => {
     if (data.ownershipType === "owned") return !!data.propertyPaper;
     if (data.ownershipType === "rental") return !!data.leaseAgreement;

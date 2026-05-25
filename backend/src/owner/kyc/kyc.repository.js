@@ -12,7 +12,7 @@ export class KycRepository {
     });
   }
 
-  async updateProfile(userId, { name, ownerType, gstNumber }) {
+  async updateProfile(userId, { name, ownerType, gstNumber, globalTermsAccepted }) {
     if (name) {
       await prisma.user.update({
         where: { id: userId },
@@ -20,9 +20,16 @@ export class KycRepository {
       });
     }
 
+    const data = { ownerType, gstNumber };
+    if (globalTermsAccepted) {
+      data.globalTermsAccepted = true;
+      data.globalTermsAcceptedAt = new Date();
+      data.globalTermsVersion = "1.0.0";
+    }
+
     return await prisma.ownerProfile.update({
       where: { userId },
-      data: { ownerType, gstNumber },
+      data,
     });
   }
 

@@ -5,6 +5,9 @@ export const updateOwnerProfileSchema = z.object({
     name: z.string().min(1, "Name is required").optional(),
     ownerType: z.enum(["home", "society", "commercial", "govt", "municipality"]).optional(),
     gstNumber: z.string().optional(),
+    globalTermsAccepted: z.literal(true, {
+      errorMap: () => ({ message: "You must accept the global platform owner terms and conditions to proceed." })
+    }).optional(),
   }),
 });
 

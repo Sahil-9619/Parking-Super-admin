@@ -35,7 +35,7 @@ router.use(verifyToken);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name, parkingType, address, latitude, longitude, openTime, closeTime, ownershipType, parkingAreaPics]
+ *             required: [name, parkingType, address, latitude, longitude, openTime, closeTime, ownershipType, parkingAreaPics, legalDeclarationAccepted]
  *             properties:
  *               name: { type: string, example: "Metro Station Plaza Lot 1" }
  *               parkingType: { type: string, enum: [home, society, commercial, govt, municipality], example: "commercial" }
@@ -56,6 +56,7 @@ router.use(verifyToken);
  *                 type: array
  *                 items: { type: string, format: uri }
  *                 example: ["https://example.com/pic1.jpg"]
+ *               legalDeclarationAccepted: { type: boolean, example: true, description: "Must be true to certify legal ownership/lease rights of the land and accept liability." }
  *     responses:
  *       201:
  *         description: Parking lot created successfully
