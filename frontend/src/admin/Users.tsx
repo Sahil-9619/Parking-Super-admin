@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import {
-    Plus,
     User,
     Phone,
     Mail,
     Calendar,
     Eye,
     Edit2,
-    Trash2
+    Trash2,
+    Download
 } from 'lucide-react';
 import { FilterBar } from '@/components/shared/FilterBar';
 import { DataTable } from '@/components/shared/DataTable';
@@ -92,6 +92,40 @@ const Users = () => {
         }
     };
 
+    const handleExportExcel = () => {
+        if (users.length === 0) {
+            toast.error('No data to export');
+            return;
+        }
+
+        const headers = ['ID', 'Name', 'Email', 'Phone', 'Role', 'Status', 'Wallet Balance', 'Joined Date'];
+
+        const csvRows = users.map(user => [
+            user.id,
+            `"${user.name || ''}"`,
+            `"${user.email || ''}"`,
+            `"${user.phone || ''}"`,
+            user.userType || '',
+            user.status || '',
+            user.walletBalance || 0,
+            user.createdAt ? new Date(user.createdAt).toLocaleDateString() : ''
+        ].join(','));
+
+        const csvString = [headers.join(','), ...csvRows].join('\n');
+
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `users_export_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        toast.success('Export downloaded successfully');
+    };
+
 
 
 
@@ -108,10 +142,11 @@ const Users = () => {
                     <p className="text-[11px] text-text-muted font-bold uppercase tracking-[0.2em] mt-1">Manage and monitor all platform customers</p>
                 </div>
                 <Button
-                    className="bg-primary text-white border-primary shadow-md shadow-primary/20 hover:bg-primary/90 px-4 py-2.5 h-auto rounded-lg flex items-center gap-2 group transition-all"
+                    onClick={handleExportExcel}
+                    className="bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/20 hover:bg-emerald-600 px-4 py-2.5 h-auto rounded-lg flex items-center gap-2 group transition-all"
                 >
-                    <Plus size={14} className="group-hover:scale-110 transition-transform" />
-                    <span className="text-[9px] font-black uppercase tracking-widest">Add New User</span>
+                    <Download size={14} className="group-hover:translate-y-0.5 transition-transform" />
+                    <span className="text-[9px] font-black uppercase tracking-widest">Export to Excel</span>
                 </Button>
             </div>
 
