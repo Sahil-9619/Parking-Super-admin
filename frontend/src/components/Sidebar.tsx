@@ -109,7 +109,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, onLogout }: SidebarProps) => {
 
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
-                    className={`absolute ${isCollapsed ? '-right-4 top-1/2 -translate-y-1/2' : 'right-4 top-1/2 -translate-y-1/2'} w-8 h-8 bg-sidebar-bg shadow-md border border-border-main rounded-full flex items-center justify-center transition-all z-[60] text-text-muted hover:text-primary`}
+                    className={`hidden md:flex absolute ${isCollapsed ? '-right-4 top-1/2 -translate-y-1/2' : 'right-4 top-1/2 -translate-y-1/2'} w-8 h-8 bg-sidebar-bg shadow-md border border-border-main rounded-full items-center justify-center transition-all z-[60] text-text-muted hover:text-primary`}
                 >
                     {isCollapsed ? <Menu size={16} /> : <ChevronLeft size={16} />}
                 </button>

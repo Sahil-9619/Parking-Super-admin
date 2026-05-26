@@ -62,8 +62,8 @@ export function DataTable<T>({
 
     return (
         <div className="space-y-4">
-            <div className="overflow-hidden rounded-xl border border-border-main/50 bg-bg-card/30 backdrop-blur-md shadow-2xl shadow-primary/5">
-                <Table className="table-fixed w-full">
+            <div className="overflow-x-auto rounded-xl border border-border-main/50 bg-bg-card/30 backdrop-blur-md shadow-2xl shadow-primary/5 w-full scrollbar-thin">
+                <Table className="min-w-[800px] md:min-w-0 md:table-fixed w-full">
                     <TableHeader className="bg-bg-card/60 backdrop-blur-lg">
                         <TableRow className="hover:bg-transparent border-b border-border-main/40">
                             {columns.map((col, i) => (

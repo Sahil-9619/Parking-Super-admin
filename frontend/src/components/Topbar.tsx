@@ -2,10 +2,14 @@ import ThemeToggle from './ThemeToggle';
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { menuItems } from './Sidebar';
-import { RefreshCw, Maximize, Minimize } from 'lucide-react';
+import { RefreshCw, Maximize, Minimize, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export default function Topbar() {
+interface TopbarProps {
+    onToggleMobileMenu?: () => void;
+}
+
+export default function Topbar({ onToggleMobileMenu }: TopbarProps) {
     const location = useLocation();
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -54,11 +58,29 @@ export default function Topbar() {
                 </div>
             )}
 
-            {/* Page Title Section - Hidden on mobile */}
-            <div className="flex items-center gap-4 min-w-[200px]">
-                <div className="bg-bg-main p-2.5 px-5 rounded-xl border border-border-main shadow-sm flex items-center gap-3">
-                    <div className="w-1.5 h-6 bg-primary rounded-full"></div>
-                    <span className="text-[10px] font-black text-text-main tracking-widest uppercase truncate">
+            {/* Left Actions / Mobile Burger Menu */}
+            <div className="flex items-center gap-3">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onToggleMobileMenu}
+                    className="md:hidden rounded-xl h-10 w-10 text-text-muted hover:text-primary hover:bg-primary/10 transition-all shrink-0"
+                >
+                    <Menu size={20} />
+                </Button>
+
+                {/* Page Title Section */}
+                <div className="hidden sm:flex items-center gap-4">
+                    <div className="bg-bg-main p-2.5 px-5 rounded-xl border border-border-main shadow-sm flex items-center gap-3">
+                        <div className="w-1.5 h-6 bg-primary rounded-full"></div>
+                        <span className="text-[10px] font-black text-text-main tracking-widest uppercase truncate">
+                            {getActivePageLabel(location.pathname)}
+                        </span>
+                    </div>
+                </div>
+                {/* On extra small screens (below sm), just show a simplified version */}
+                <div className="sm:hidden flex items-center gap-2">
+                    <span className="text-xs font-black text-text-main uppercase tracking-wider truncate max-w-[120px]">
                         {getActivePageLabel(location.pathname)}
                     </span>
                 </div>
