@@ -6,7 +6,12 @@ export class KycService {
   async getProfile(userId) {
     const profile = await kycRepository.findProfileByUserId(userId);
     if (!profile) throw new AppError("Owner profile not found", 404);
-    return profile;
+    
+    let returnProfile = { ...profile };
+    try { returnProfile.bankAccount = cryptoService.decrypt(returnProfile.bankAccount); } catch (e) {}
+    try { returnProfile.bankIfsc = cryptoService.decrypt(returnProfile.bankIfsc); } catch (e) {}
+    
+    return returnProfile;
   }
 
   async updateProfile(userId, data) {

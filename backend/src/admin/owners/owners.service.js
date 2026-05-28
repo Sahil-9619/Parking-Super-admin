@@ -13,11 +13,13 @@ export class OwnersService {
     
     // Decrypt bank details
     const decryptedData = result.data.map(user => {
-      if (user.ownerProfile) {
-        try { user.ownerProfile.bankAccount = cryptoService.decrypt(user.ownerProfile.bankAccount); } catch (e) {}
-        try { user.ownerProfile.bankIfsc = cryptoService.decrypt(user.ownerProfile.bankIfsc); } catch (e) {}
+      const newUser = { ...user };
+      if (newUser.ownerProfile) {
+        newUser.ownerProfile = { ...newUser.ownerProfile };
+        try { newUser.ownerProfile.bankAccount = cryptoService.decrypt(newUser.ownerProfile.bankAccount); } catch (e) {}
+        try { newUser.ownerProfile.bankIfsc = cryptoService.decrypt(newUser.ownerProfile.bankIfsc); } catch (e) {}
       }
-      return user;
+      return newUser;
     });
 
     return {
@@ -33,14 +35,16 @@ export class OwnersService {
     if (!owner) throw new AppError("Owner not found", 404);
     if (owner.userType !== "owner") throw new AppError("This user is not an owner", 400);
 
-    if (owner.ownerProfile) {
-      try { owner.ownerProfile.bankAccount = cryptoService.decrypt(owner.ownerProfile.bankAccount); } catch (e) {}
-      try { owner.ownerProfile.bankIfsc = cryptoService.decrypt(owner.ownerProfile.bankIfsc); } catch (e) {}
+    let returnOwner = { ...owner };
+    if (returnOwner.ownerProfile) {
+      returnOwner.ownerProfile = { ...returnOwner.ownerProfile };
+      try { returnOwner.ownerProfile.bankAccount = cryptoService.decrypt(returnOwner.ownerProfile.bankAccount); } catch (e) {}
+      try { returnOwner.ownerProfile.bankIfsc = cryptoService.decrypt(returnOwner.ownerProfile.bankIfsc); } catch (e) {}
     }
 
     return {
       success: true,
-      data: owner,
+      data: returnOwner,
       message: "Owner full details retrieved successfully",
     };
   }
@@ -80,9 +84,10 @@ export class OwnersService {
     const profiles = await ownersRepository.findOwnerProfiles(page, limit, search, status);
 
     const decryptedData = profiles.data.map(profile => {
-      try { profile.bankAccount = cryptoService.decrypt(profile.bankAccount); } catch (e) {}
-      try { profile.bankIfsc = cryptoService.decrypt(profile.bankIfsc); } catch (e) {}
-      return profile;
+      const newProfile = { ...profile };
+      try { newProfile.bankAccount = cryptoService.decrypt(newProfile.bankAccount); } catch (e) {}
+      try { newProfile.bankIfsc = cryptoService.decrypt(newProfile.bankIfsc); } catch (e) {}
+      return newProfile;
     });
 
     return {
