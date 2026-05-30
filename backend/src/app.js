@@ -14,6 +14,7 @@ import driverBookingRoutes from "./driver/booking/booking.routes.js";
 import ownerKycRoutes from "./owner/kyc/kyc.routes.js";
 import ownerParkingRoutes from "./owner/parking/parking.routes.js";
 import ownerAddonRoutes from "./owner/addons/addons.routes.js";
+import ownerBookingRoutes from "./owner/booking/booking.routes.js";
 import adminRoutes from "./admin/index.js";
 
 const app = express();
@@ -62,6 +63,7 @@ app.use("/api/driver/bookings", driverBookingRoutes);
 app.use("/api/owner/kyc", ownerKycRoutes);
 app.use("/api/owner/parkings", ownerParkingRoutes);
 app.use("/api/owner/addons", ownerAddonRoutes);
+app.use("/api/owner/bookings", ownerBookingRoutes);
 app.use("/api/admin", adminRoutes);
 
 // Platform System Readiness Check Endpoint

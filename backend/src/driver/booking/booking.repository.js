@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../../../config/prisma.js";
 
 export class BookingRepository {
@@ -32,12 +33,15 @@ export class BookingRepository {
   async createBookingTransaction(userId, parkingId, vehicleType, startTime, endTime, grossAmount, commission, ownerShare, qrToken, addonServices, commissionRate) {
     // Execute atomic transaction with FOR UPDATE row-level locking on parking slot
     return await prisma.$transaction(async (tx) => {
-      // Find parking slot and lock the row to prevent concurrent double-booking
-      const slots = await tx.$queryRawUnsafe(`
-        SELECT id, available_slots AS "availableSlots" 
-        FROM parking_slots 
-        WHERE parking_id = '${parkingId}' AND vehicle_type = '${vehicleType}' 
-        FOR UPDATE;
+      // Find parking slot and lock the row to prevent concurrent double-booking.
+      // Parameter binding — earlier revisions interpolated parkingId/vehicleType
+      // directly, which was a SQL injection sink even behind auth.
+      const slots = await tx.$queryRaw(Prisma.sql`
+        SELECT id, available_slots AS "availableSlots"
+        FROM parking_slots
+        WHERE parking_id = ${parkingId}::uuid
+          AND vehicle_type = ${vehicleType}::"VehicleType"
+        FOR UPDATE
       `);
 
       if (!slots || slots.length === 0 || slots[0].availableSlots <= 0) {
