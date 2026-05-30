@@ -9,6 +9,8 @@ import {
   loginOtpVerifySchema,
   loginPasswordSchema,
   changePasswordSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
 } from "./auth.schema.js";
 
 const router = express.Router();
@@ -238,5 +240,66 @@ router.get("/profile", verifyToken, authController.getProfile);
  *         description: Incorrect old password
  */
 router.post("/change-password", verifyToken, validate(changePasswordSchema), authController.changePassword);
+
+/**
+ * @openapi
+ * /api/auth/forgot-password:
+ *   post:
+ *     summary: Request Password Reset OTP
+ *     description: Sends a 4-digit OTP to the registered phone or email so the user can reset their password. Always returns success to avoid leaking account existence.
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               phone:
+ *                 type: string
+ *                 example: "9876543210"
+ *               email:
+ *                 type: string
+ *                 example: "rajesh@example.com"
+ *     responses:
+ *       200:
+ *         description: Reset OTP dispatched (if account exists)
+ */
+router.post("/forgot-password", validate(forgotPasswordSchema), authController.forgotPassword);
+
+/**
+ * @openapi
+ * /api/auth/reset-password:
+ *   post:
+ *     summary: Reset Password using OTP
+ *     description: Verifies the OTP sent via /forgot-password and updates the user's password.
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [otp, newPassword]
+ *             properties:
+ *               phone:
+ *                 type: string
+ *                 example: "9876543210"
+ *               email:
+ *                 type: string
+ *                 example: "rajesh@example.com"
+ *               otp:
+ *                 type: string
+ *                 example: "1234"
+ *               newPassword:
+ *                 type: string
+ *                 example: "NewSecurePass123"
+ *     responses:
+ *       200:
+ *         description: Password reset successfully
+ *       400:
+ *         description: Invalid or expired OTP
+ */
+router.post("/reset-password", validate(resetPasswordSchema), authController.resetPassword);
 
 export default router;

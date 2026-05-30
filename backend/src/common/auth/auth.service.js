@@ -257,6 +257,44 @@ export class AuthService {
     return user;
   }
 
+  async forgotPassword({ phone, email }) {
+    const user = phone
+      ? await authRepository.findUserByPhone(phone)
+      : await authRepository.findUserByEmail(email);
+
+    // Don't leak whether the account exists — respond identically either way.
+    if (user && user.status === "active") {
+      await otpService.sendOtp({ phone, email, purpose: "Password Reset" });
+    }
+
+    return {
+      success: true,
+      message:
+        "If an account exists with that identifier, a reset OTP has been sent.",
+      identifier: phone || email,
+    };
+  }
+
+  async resetPassword({ phone, email, otp, newPassword }) {
+    const identifier = phone || email;
+    otpService.verifyOtp({ identifier, inputOtp: otp });
+
+    const user = phone
+      ? await authRepository.findUserByPhone(phone)
+      : await authRepository.findUserByEmail(email);
+
+    if (!user) throw new AppError("Account not found", 404);
+    if (user.status !== "active") throw new AppError(`Account is ${user.status}`, 403);
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await authRepository.updatePassword(user.id, passwordHash);
+
+    return {
+      success: true,
+      message: "Password reset successfully. Please log in with your new password.",
+    };
+  }
+
   async changePassword(userId, { oldPassword, newPassword }) {
     const user = await authRepository.findUserById(userId);
     if (!user) throw new AppError("User not found", 404);

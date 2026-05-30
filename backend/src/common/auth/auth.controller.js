@@ -53,6 +53,16 @@ export class AuthController {
     const result = await authService.changePassword(req.user.id, req.body);
     res.json(result);
   });
+
+  forgotPassword = catchAsync(async (req, res) => {
+    const result = await authService.forgotPassword(req.body);
+    res.json(result);
+  });
+
+  resetPassword = catchAsync(async (req, res) => {
+    const result = await authService.resetPassword(req.body);
+    res.json(result);
+  });
 }
 
 export const authController = new AuthController();

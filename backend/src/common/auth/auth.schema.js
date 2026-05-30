@@ -57,3 +57,23 @@ export const changePasswordSchema = z.object({
     newPassword: z.string().min(6, "New password must be at least 6 characters"),
   }),
 });
+
+export const forgotPasswordSchema = z.object({
+  body: z.object({
+    phone: z.string().min(10, "Phone number is required").optional(),
+    email: z.string().email("Invalid email format").optional(),
+  }).refine(data => data.phone || data.email, {
+    message: "Either phone or email is required to request a reset OTP",
+  }),
+});
+
+export const resetPasswordSchema = z.object({
+  body: z.object({
+    phone: z.string().min(10, "Phone number is required").optional(),
+    email: z.string().email("Invalid email format").optional(),
+    otp: z.string().length(4, "OTP must be 4 digits"),
+    newPassword: z.string().min(6, "New password must be at least 6 characters"),
+  }).refine(data => data.phone || data.email, {
+    message: "Either phone or email is required to reset password",
+  }),
+});
