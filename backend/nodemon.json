@@ -1,0 +1,6 @@
+{
+  "watch": ["index.js", "src", "config", "prisma/schema.prisma", ".env"],
+  "ext": "js,mjs,cjs,json,prisma,env",
+  "ignore": ["node_modules", "tests"],
+  "delay": 200
+}

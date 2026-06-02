@@ -156,4 +156,35 @@ router.get("/payouts", dbController.getPayouts);
  */
 router.get("/parking-slots", dbController.getParkingSlots);
 
+/**
+ * @openapi
+ * /api/admin/db/subscriptions:
+ *   get:
+ *     summary: Admin - List Driver Subscriptions
+ *     description: Paginated list of driver subscription plans (basic/premium/pro), including subscriber profile.
+ *     tags: [Admin Database Views]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 10 }
+ *       - in: query
+ *         name: search
+ *         schema: { type: string }
+ *         description: Search by subscriber name, email, or phone.
+ *       - in: query
+ *         name: status
+ *         schema: { type: string, enum: [active, cancelled, expired] }
+ *       - in: query
+ *         name: plan
+ *         schema: { type: string, enum: [basic, premium, pro] }
+ *     responses:
+ *       200:
+ *         description: Subscriptions retrieved successfully
+ */
+router.get("/subscriptions", dbController.getSubscriptions);
+
 export default router;

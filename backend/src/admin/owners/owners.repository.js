@@ -309,9 +309,34 @@ export class OwnersRepository {
   }
 
   async getDashboardStats() {
-    const [totalOwners, totalDrivers, recentOwners, recentDrivers] = await Promise.all([
+    // Fire every count in parallel. Revenue = sum of platform commission
+    // on every booking ever charged. Active vs total parkings is useful
+    // context for the operations team.
+    const [
+      totalOwners,
+      totalDrivers,
+      totalBookings,
+      activeParkings,
+      pendingParkings,
+      pendingKycOwners,
+      openDisputes,
+      pendingPayouts,
+      revenueAgg,
+      recentOwners,
+      recentDrivers,
+      recentBookings,
+    ] = await Promise.all([
       prisma.user.count({ where: { userType: "owner" } }),
       prisma.user.count({ where: { userType: "driver" } }),
+      prisma.booking.count(),
+      prisma.parking.count({ where: { status: "active" } }),
+      prisma.parking.count({ where: { status: "pending" } }),
+      prisma.ownerProfile.count({ where: { verificationStatus: "pending" } }),
+      prisma.dispute.count({ where: { status: { in: ["open", "reviewing"] } } }),
+      prisma.payout.count({ where: { status: { in: ["pending", "processing"] } } }),
+      prisma.booking.aggregate({
+        _sum: { commission: true, grossAmount: true },
+      }),
       prisma.user.findMany({
         where: { userType: "owner" },
         take: 5,
@@ -322,9 +347,9 @@ export class OwnersRepository {
           email: true,
           status: true,
           createdAt: true,
-          _count: { select: { parkings: true } }
-        }
-
+          ownerProfile: { select: { verificationStatus: true } },
+          _count: { select: { parkings: true } },
+        },
       }),
       prisma.user.findMany({
         where: { userType: "driver" },
@@ -334,16 +359,40 @@ export class OwnersRepository {
           id: true,
           name: true,
           status: true,
-          createdAt: true
-        }
-      })
+          createdAt: true,
+        },
+      }),
+      prisma.booking.findMany({
+        take: 5,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          status: true,
+          grossAmount: true,
+          startTime: true,
+          createdAt: true,
+          parking: { select: { name: true } },
+          user: { select: { name: true } },
+        },
+      }),
     ]);
 
     return {
       totalOwners,
       totalDrivers,
+      totalBookings,
+      activeParkings,
+      pendingParkings,
+      pendingKycOwners,
+      openDisputes,
+      pendingPayouts,
+      // Platform revenue is the cumulative commission; gross is the
+      // total booked value for completeness.
+      totalRevenue: Number(revenueAgg._sum.commission || 0),
+      totalGrossBooked: Number(revenueAgg._sum.grossAmount || 0),
       recentOwners,
-      recentDrivers
+      recentDrivers,
+      recentBookings,
     };
   }
 }

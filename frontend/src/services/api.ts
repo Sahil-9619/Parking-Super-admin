@@ -1,7 +1,14 @@
 import axios from 'axios';
 
+// When VITE_API_URL is missing (no .env file), axios falls back to the
+// current origin and every request hits the dev server with a 404. Use
+// the local backend as a sensible default so the app works out of the
+// box; override via .env for prod or remote backends.
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL?.trim() || 'http://localhost:5000/api';
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -71,7 +78,7 @@ api.interceptors.response.use(
       }
 
       return axios
-        .post(`${import.meta.env.VITE_API_URL}/auth/refresh`, { refreshToken })
+        .post(`${API_BASE_URL}/auth/refresh`, { refreshToken })
         .then((response) => {
           const { accessToken, refreshToken: newRefreshToken } = response.data.data;
           localStorage.setItem('token', accessToken);

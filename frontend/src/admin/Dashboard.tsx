@@ -137,14 +137,76 @@ export default function Dashboard() {
 
 
 
+    // Format a numeric INR amount as "₹12,345" with thousand separators.
+    // The backend returns it as Number — fall back to 0 defensively.
+    const formatINR = (raw: unknown) => {
+        const n = typeof raw === 'number' ? raw : Number(raw ?? 0);
+        if (!Number.isFinite(n)) return '₹0';
+        return `₹${Math.round(n).toLocaleString('en-IN')}`;
+    };
+
     return (
         <div className="space-y-3 pb-12 transition-colors duration-300">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard label="Platform Revenue" value="$0.00" icon={CreditCard} color="var(--primary)" />
-                <StatCard label="Total Owners" value={stats?.totalOwners || 0} icon={Building2} color="#059669" />
-                <StatCard label="Total Users" value={stats?.totalDrivers || 0} icon={Users} color="#f59e0b" />
-                <StatCard label="Total Bookings" value="0" icon={CalendarCheck} color="#d946ef" />
+                <StatCard
+                    label="Platform Revenue"
+                    value={formatINR(stats?.totalRevenue)}
+                    icon={CreditCard}
+                    color="var(--primary)"
+                />
+                <StatCard
+                    label="Total Owners"
+                    value={stats?.totalOwners || 0}
+                    icon={Building2}
+                    color="#059669"
+                />
+                <StatCard
+                    label="Total Users"
+                    value={stats?.totalDrivers || 0}
+                    icon={Users}
+                    color="#f59e0b"
+                />
+                <StatCard
+                    label="Total Bookings"
+                    value={stats?.totalBookings || 0}
+                    icon={CalendarCheck}
+                    color="#d946ef"
+                />
+            </div>
 
+            {/* Secondary stat strip — operational context the team needs at
+                a glance: how many lots are live, pending approval, etc.
+                The KYC card links into the approval queue so admins can act
+                on pending owner submissions from the dashboard. */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <Link to="/admin/kyc-approvals" className="block">
+                    <div className="bg-bg-card border border-border-main rounded-2xl p-3 flex items-center justify-between hover:border-amber-500/40 transition-colors">
+                        <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.15em]">
+                            Pending KYC
+                        </span>
+                        <span className="text-lg font-black text-text-main tracking-tight">
+                            {stats?.pendingKycOwners ?? 0}
+                        </span>
+                    </div>
+                </Link>
+                {[
+                    { label: 'Active Lots', value: stats?.activeParkings ?? 0, tone: 'emerald' },
+                    { label: 'Pending Approval', value: stats?.pendingParkings ?? 0, tone: 'amber' },
+                    { label: 'Open Disputes', value: stats?.openDisputes ?? 0, tone: 'rose' },
+                    { label: 'Pending Payouts', value: stats?.pendingPayouts ?? 0, tone: 'sky' },
+                ].map((s) => (
+                    <div
+                        key={s.label}
+                        className="bg-bg-card border border-border-main rounded-2xl p-3 flex items-center justify-between"
+                    >
+                        <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.15em]">
+                            {s.label}
+                        </span>
+                        <span className="text-lg font-black text-text-main tracking-tight">
+                            {s.value}
+                        </span>
+                    </div>
+                ))}
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
@@ -207,11 +269,26 @@ export default function Dashboard() {
 
                                 {
                                     header: "Status",
-                                    accessor: (owner, _index) => (
-                                         <span className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${owner.status === 'Active' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'}`}>
-                                             {owner.status}
-                                         </span>
-                                     )
+                                    accessor: (owner, _index) => {
+                                        const kyc = owner.ownerProfile?.verificationStatus;
+                                        const isActive = (owner.status || '').toLowerCase() === 'active';
+                                        return (
+                                            <div className="flex flex-col items-start gap-1">
+                                                <span className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest border ${isActive ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}>
+                                                    {owner.status}
+                                                </span>
+                                                {kyc && (
+                                                    <span className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest border ${kyc === 'approved'
+                                                        ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                                                        : kyc === 'rejected'
+                                                            ? 'bg-red-500/10 text-red-500 border-red-500/20'
+                                                            : 'bg-amber-500/10 text-amber-500 border-amber-500/20'}`}>
+                                                        KYC: {kyc}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        );
+                                    }
                                 }
                             ]}
                         />

@@ -69,14 +69,16 @@ export default function KycApprovals() {
         setParkingPage(1);
     }, [statusFilter, activeTab]);
 
-    const filteredKyc = kycList.filter((profile) => {
-        const search = searchQuery.toLowerCase();
-        return (
-            profile.user?.name?.toLowerCase().includes(search) ||
-            profile.user?.email?.toLowerCase().includes(search) ||
-            profile.gstNumber?.toLowerCase().includes(search)
-        );
-    });
+    const filteredKyc = searchQuery.trim() === ''
+        ? kycList
+        : kycList.filter((profile) => {
+            const search = searchQuery.toLowerCase();
+            return (
+                profile.user?.name?.toLowerCase().includes(search) ||
+                profile.user?.email?.toLowerCase().includes(search) ||
+                profile.gstNumber?.toLowerCase().includes(search)
+            );
+        });
 
     const hasPendingOwner = filteredKyc.some((profile: any) => profile.verificationStatus === 'pending');
 

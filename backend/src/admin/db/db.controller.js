@@ -245,6 +245,61 @@ export class DbController {
     });
   });
 
+  getSubscriptions = catchAsync(async (req, res) => {
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const search = req.query.search || "";
+    const status = req.query.status || "";
+    const plan = req.query.plan || "";
+    const skip = (page - 1) * limit;
+
+    const where = {};
+    if (status) where.status = status;
+    if (plan) where.plan = plan;
+    if (search) {
+      where.user = {
+        OR: [
+          { name: { contains: search, mode: "insensitive" } },
+          { email: { contains: search, mode: "insensitive" } },
+          { phone: { contains: search, mode: "insensitive" } },
+        ],
+      };
+    }
+
+    const [data, total] = await Promise.all([
+      prisma.subscription.findMany({
+        where,
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+              userType: true,
+              status: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.subscription.count({ where }),
+    ]);
+
+    res.json({
+      success: true,
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  });
+
   getGisMetadata = catchAsync(async (req, res) => {
     let geography_columns = [];
     let geometry_columns = [];

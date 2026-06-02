@@ -110,6 +110,26 @@ export interface Payout {
   };
 }
 
+export interface Subscription {
+  id: string;
+  userId: string;
+  plan: 'basic' | 'premium' | 'pro';
+  status: 'active' | 'cancelled' | 'expired';
+  startDate: string;
+  endDate: string;
+  price: string;
+  createdAt: string;
+  updatedAt: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    userType: string;
+    status: string;
+  };
+}
+
 export interface Dispute {
   id: string;
   bookingId: string;
@@ -172,6 +192,20 @@ export const dbService = {
 
   getPayouts: async (params?: { page?: number; limit?: number; search?: string }) => {
     const response = await api.get<{ success: boolean; data: Payout[]; meta: any }>('/admin/db/payouts', { params });
+    return response.data;
+  },
+
+  getSubscriptions: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+    plan?: string;
+  }) => {
+    const response = await api.get<{ success: boolean; data: Subscription[]; meta: any }>(
+      '/admin/db/subscriptions',
+      { params },
+    );
     return response.data;
   },
 
